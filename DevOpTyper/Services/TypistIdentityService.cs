@@ -15,8 +15,10 @@ public static class TypistIdentityService
 {
     /// <summary>
     /// Minimum total sessions before identity observations appear.
+    /// Lowered from 15 to 10 in v0.5.0 — returning users with even
+    /// modest history deserve to see their identity, not a blank panel.
     /// </summary>
-    private const int MinSessions = 15;
+    private const int MinSessions = 10;
 
     /// <summary>
     /// Builds a longitudinal identity summary from accumulated data.
@@ -105,6 +107,9 @@ public static class TypistIdentityService
 
         // Total sessions
         identity.TotalSessions = history.TotalSessions;
+
+        // First practiced date — anchors the user's history across versions
+        identity.FirstPracticedAt = earliest;
 
         // Staleness — days since last session of any kind
         if (longitudinal.SessionTimestamps.Count > 0)
@@ -210,6 +215,12 @@ public sealed class TypistIdentity
     /// How many days between first and last session.
     /// </summary>
     public int? PracticeSpanDays { get; set; }
+
+    /// <summary>
+    /// When the user first practiced (any language).
+    /// Anchors identity across version upgrades — "you've been here since X."
+    /// </summary>
+    public DateTime? FirstPracticedAt { get; set; }
 
     /// <summary>
     /// Average sessions per day on days the user actually practices.
@@ -340,7 +351,14 @@ public sealed class TypistIdentity
                 < 30 => $"{PracticeSpanDays.Value / 7} weeks",
                 _ => $"{PracticeSpanDays.Value / 30} months"
             };
-            lines.Add($"{TotalSessions} sessions over {spanLabel}");
+            string line = $"{TotalSessions} sessions over {spanLabel}";
+
+            // Anchor the identity across versions — "practicing since Month Year"
+            if (FirstPracticedAt.HasValue)
+            {
+                line += $" (since {FirstPracticedAt.Value.ToLocalTime():MMM yyyy})";
+            }
+            lines.Add(line);
         }
 
         if (SessionsPerActiveDay.HasValue)
