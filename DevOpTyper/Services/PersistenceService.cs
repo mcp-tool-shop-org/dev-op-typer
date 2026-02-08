@@ -137,6 +137,13 @@ public sealed class PersistenceService
         blob.History ??= new();
         blob.History.Records ??= new();
 
+        // Focus area validation (v0.4.0) — must be one of the known values or null
+        var validFocusAreas = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            { "brackets", "operators", "strings", "control", "functions", "data" };
+        if (!string.IsNullOrEmpty(blob.Settings.FocusArea) &&
+            !validFocusAreas.Contains(blob.Settings.FocusArea))
+            blob.Settings.FocusArea = null;
+
         // Sanitize session records — clamp impossible values
         foreach (var r in blob.History.Records)
         {
@@ -148,6 +155,13 @@ public sealed class PersistenceService
             if (r.TotalChars < 0) r.TotalChars = 0;
             if (r.DurationSeconds < 0) r.DurationSeconds = 0;
             r.Difficulty = Math.Clamp(r.Difficulty, 1, 5);
+
+            // v0.4.0 record fields — clamp note length, validate DeclaredIntent enum
+            if (r.Note?.Length > 280)
+                r.Note = r.Note[..280];
+            if (r.DeclaredIntent.HasValue &&
+                !Enum.IsDefined(typeof(UserIntent), r.DeclaredIntent.Value))
+                r.DeclaredIntent = null;
         }
 
         // Longitudinal data (v0.3.0+)
