@@ -149,7 +149,9 @@ public sealed class PortableBundleService
                     // Don't overwrite existing files
                     if (!File.Exists(targetPath))
                     {
-                        entry.ExtractToFile(targetPath);
+                        // Extract and strip non-schema fields to ensure content
+                        // is indistinguishable from locally authored material
+                        ExtractAndSanitize(entry, targetPath);
                         result.SnippetFilesImported++;
                     }
                     else
@@ -233,6 +235,51 @@ public sealed class PortableBundleService
         }
 
         return count;
+    }
+
+    /// <summary>
+    /// Extracts a ZIP entry to a file, stripping non-schema fields from snippet JSON.
+    /// This ensures imported content carries no origin metadata (author, source, etc.)
+    /// and is indistinguishable from locally authored material.
+    /// Falls back to direct extraction for non-JSON or unparseable files.
+    /// </summary>
+    private static void ExtractAndSanitize(ZipArchiveEntry entry, string targetPath)
+    {
+        try
+        {
+            using var stream = entry.Open();
+            using var reader = new StreamReader(stream);
+            var json = reader.ReadToEnd();
+
+            // Try to parse and strip non-schema fields
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            if (root.ValueKind == System.Text.Json.JsonValueKind.Array)
+            {
+                // Snippet array — re-serialize keeping only schema fields
+                var options = new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    WriteIndented = true
+                };
+                var snippets = System.Text.Json.JsonSerializer.Deserialize<List<Models.Snippet>>(json, options);
+                if (snippets != null)
+                {
+                    var sanitized = System.Text.Json.JsonSerializer.Serialize(snippets, options);
+                    File.WriteAllText(targetPath, sanitized);
+                    return;
+                }
+            }
+
+            // Not a snippet array — write as-is
+            File.WriteAllText(targetPath, json);
+        }
+        catch
+        {
+            // Fallback: extract directly if sanitization fails
+            entry.ExtractToFile(targetPath);
+        }
     }
 
     /// <summary>

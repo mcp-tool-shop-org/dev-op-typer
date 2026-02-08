@@ -190,8 +190,10 @@ public sealed class CommunityContentService
             // Derive default language from filename
             var defaultLanguage = Path.GetFileNameWithoutExtension(filePath).ToLowerInvariant();
 
-            // Mark all snippets as user-authored — indistinguishable from user content at runtime.
-            // No community-origin flag. Content origin is invisible during practice.
+            // Mark all snippets as user-authored — indistinguishable from user content
+            // at runtime. No community-origin flag on snippets. Content origin is
+            // indistinguishable during practice. This is by design: shared material
+            // behaves identically to local material.
             foreach (var s in snippets)
             {
                 if (string.IsNullOrEmpty(s.Language))
