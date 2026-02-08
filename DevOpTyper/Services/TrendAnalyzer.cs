@@ -34,7 +34,8 @@ public sealed class TrendAnalyzer
             AccuracyDirection = accTrend,
             WpmVelocity = ComputeVelocity(trend.RecentWpm),
             AccuracyVelocity = ComputeVelocity(trend.RecentAccuracy),
-            OverallMomentum = CombineMomentum(wpmTrend, accTrend)
+            OverallMomentum = CombineMomentum(wpmTrend, accTrend),
+            PlateauLength = ComputePlateauLength(trend.RecentWpm)
         };
     }
 
@@ -161,6 +162,29 @@ public sealed class TrendAnalyzer
     }
 
     /// <summary>
+    /// Counts how many recent sessions fall within a narrow band of the mean.
+    /// A high count indicates a plateau — which is normal and expected.
+    /// </summary>
+    private static int ComputePlateauLength(List<double> values)
+    {
+        if (values.Count < 5) return 0;
+
+        double mean = values.Take(10).Average();
+        double band = mean * 0.05; // 5% band
+        int count = 0;
+
+        foreach (var v in values.Take(20))
+        {
+            if (Math.Abs(v - mean) <= band)
+                count++;
+            else
+                break; // Consecutive plateau ended
+        }
+
+        return count;
+    }
+
+    /// <summary>
     /// Combines WPM and accuracy trends into an overall momentum signal.
     /// </summary>
     private static Momentum CombineMomentum(TrendDirection wpm, TrendDirection accuracy)
@@ -213,6 +237,12 @@ public sealed class LanguageTrendSummary
     public double AccuracyVelocity { get; init; }
 
     public Momentum OverallMomentum { get; init; }
+
+    /// <summary>
+    /// Number of consecutive recent sessions within a narrow band of the mean.
+    /// High values indicate a plateau — which is normal, not a problem.
+    /// </summary>
+    public int PlateauLength { get; init; }
 }
 
 /// <summary>

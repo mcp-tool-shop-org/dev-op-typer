@@ -795,9 +795,12 @@ public sealed partial class StatsPanel : UserControl
             _ => "="
         };
 
+        // Show plateau as normal, not a problem (v0.5.0)
+        string plateauNote = trend.PlateauLength >= 8 ? " \u2022 steady" : "";
+
         var statsBlock = new TextBlock
         {
-            Text = $"WPM {trend.RecentAvgWpm:F0} ({wpmDir}) | Acc {trend.RecentAvgAccuracy:F0}% ({accDir}) | {trend.SessionCount} sessions",
+            Text = $"WPM {trend.RecentAvgWpm:F0} ({wpmDir}) | Acc {trend.RecentAvgAccuracy:F0}% ({accDir}) | {trend.SessionCount} sessions{plateauNote}",
             FontSize = 10,
             Foreground = (Brush)Application.Current.Resources["DotTextMutedBrush"],
             TextWrapping = TextWrapping.Wrap
