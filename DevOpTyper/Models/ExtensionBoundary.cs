@@ -140,6 +140,22 @@ public static class ExtensionBoundary
     /// </summary>
     public const int MaxGuidanceNoteLength = 200;
 
+    /// <summary>
+    /// Maximum number of skill layers per snippet.
+    /// Layers offer depth, not breadth — 3-4 is typical.
+    /// </summary>
+    public const int MaxLayersPerSnippet = 4;
+
+    /// <summary>
+    /// Maximum number of content items per layer.
+    /// </summary>
+    public const int MaxContentPerLayer = 8;
+
+    /// <summary>
+    /// Maximum length of a single layer content item (chars).
+    /// </summary>
+    public const int MaxLayerContentLength = 300;
+
     // ────────────────────────────────────────────────────────
     //  FROZEN — the system guarantees these remain stable
     //

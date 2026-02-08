@@ -278,6 +278,9 @@ public sealed partial class MainWindow : Window
             TypingPanel.ShowGuidance(null);
         }
 
+        // Show skill layers (if any) between sessions
+        LayersPanel.SetSnippet(snippet);
+
         // Soft session frame — show typical range for this language
         StatsPanel.UpdateSessionFrame(_persistenceService.Load().Longitudinal, language);
     }
@@ -344,6 +347,7 @@ public sealed partial class MainWindow : Window
             // Hide between-session panels and hints during active typing
             ExplanationPanel.Hide();
             DemonstrationPanel.Hide();
+            LayersPanel.Hide();
             TypingPanel.HideGuidance();
 
             TypingPanel.FocusTypingBox();

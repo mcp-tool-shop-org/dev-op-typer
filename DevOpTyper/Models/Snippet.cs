@@ -58,6 +58,14 @@ public sealed class Snippet
     public Demonstration[] Demonstrations { get; set; } = Array.Empty<Demonstration>();
 
     /// <summary>
+    /// Depth tiers for this snippet (v0.8.0).
+    /// Layers offer different depths on the same snippet — "Essentials",
+    /// "Deeper", "Advanced". Labels describe the content's depth, not the user's level.
+    /// All layers are accessible to all users at all times.
+    /// </summary>
+    public SkillLayer[] Layers { get; set; } = Array.Empty<SkillLayer>();
+
+    /// <summary>
     /// Multiple perspectives on the snippet (v0.7.0).
     /// Each perspective offers a different viewpoint — no hierarchy,
     /// no single "correct" explanation enforced. Labels describe the

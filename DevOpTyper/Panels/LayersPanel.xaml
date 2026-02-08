@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<UserControl
+    x:Class="DevOpTyper.Panels.LayersPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Visibility="Collapsed"
+    IsTabStop="False"
+    AutomationProperties.Name="Skill layers">
+
+    <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+            CornerRadius="8"
+            Padding="12"
+            Margin="0,0,0,8">
+        <StackPanel Spacing="6">
+            <!-- Expand/collapse toggle for the entire panel -->
+            <ToggleButton x:Name="ExpandToggle"
+                          Content="Layers"
+                          FontSize="11"
+                          Padding="6,3"
+                          MinWidth="0"
+                          IsChecked="False"
+                          TabIndex="202"
+                          AutomationProperties.Name="Show or hide skill depth layers"
+                          ToolTipService.ToolTip="Expand to see content at different depth levels"/>
+
+            <!-- Content area (collapsed by default, non-interrupting) -->
+            <StackPanel x:Name="ContentArea"
+                        Spacing="6"
+                        Visibility="Collapsed"
+                        AutomationProperties.LiveSetting="Off">
+
+                <!-- Individual layers rendered here -->
+                <ItemsControl x:Name="LayersList"
+                              IsTabStop="False"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

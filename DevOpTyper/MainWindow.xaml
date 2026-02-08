@@ -69,11 +69,13 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <panels:TypingPanel x:Name="TypingPanel" Grid.Row="0"/>
                 <panels:ExplanationPanel x:Name="ExplanationPanel" Grid.Row="1" Margin="16,0,16,8"/>
                 <panels:DemonstrationPanel x:Name="DemonstrationPanel" Grid.Row="2" Margin="16,0,16,8"/>
+                <panels:LayersPanel x:Name="LayersPanel" Grid.Row="3" Margin="16,0,16,8"/>
             </Grid>
             
             <!-- Stats Panel -->
