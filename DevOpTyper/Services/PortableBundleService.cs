@@ -21,13 +21,16 @@ namespace DevOpTyper.Services;
 public sealed class PortableBundleService
 {
     /// <summary>
-    /// Exports user snippets and configs to a ZIP file.
+    /// Exports user snippets, configs, and optionally community content to a ZIP file.
     /// Returns the path to the created ZIP, or null if nothing to export.
     /// </summary>
-    public string? Export(string outputPath, UserContentService userContent, PracticeConfigService configService)
+    public string? Export(string outputPath, UserContentService userContent,
+        PracticeConfigService configService, CommunityContentService? communityContent = null)
     {
+        bool hasCommunity = communityContent?.HasCommunityContent == true;
+
         // Nothing to export?
-        if (!userContent.HasUserContent && !configService.HasUserConfigs)
+        if (!userContent.HasUserContent && !configService.HasUserConfigs && !hasCommunity)
             return null;
 
         try
@@ -36,6 +39,8 @@ public sealed class PortableBundleService
 
             int snippetCount = 0;
             int configCount = 0;
+            int communitySnippetCount = 0;
+            int communityConfigCount = 0;
 
             // Export user snippet files
             if (userContent.UserSnippetsPath != null && Directory.Exists(userContent.UserSnippetsPath))
@@ -49,13 +54,31 @@ public sealed class PortableBundleService
                 configCount = ExportDirectory(zip, configService.UserConfigsPath, "configs");
             }
 
+            // Export community content if included
+            if (communityContent?.CommunityContentPath != null)
+            {
+                var communitySnippetsDir = Path.Combine(communityContent.CommunityContentPath, "snippets");
+                if (Directory.Exists(communitySnippetsDir))
+                {
+                    communitySnippetCount = ExportDirectory(zip, communitySnippetsDir, "snippets");
+                }
+
+                var communityConfigsDir = Path.Combine(communityContent.CommunityContentPath, "configs");
+                if (Directory.Exists(communityConfigsDir))
+                {
+                    communityConfigCount = ExportDirectory(zip, communityConfigsDir, "configs");
+                }
+            }
+
             // Write manifest
             var manifest = new BundleManifest
             {
                 AppVersion = "0.7.0-dev",
                 ExportedAt = DateTime.UtcNow.ToString("o"),
-                SnippetFileCount = snippetCount,
-                ConfigFileCount = configCount
+                SnippetFileCount = snippetCount + communitySnippetCount,
+                ConfigFileCount = configCount + communityConfigCount,
+                CommunitySnippetFileCount = communitySnippetCount,
+                CommunityConfigFileCount = communityConfigCount
             };
 
             var manifestJson = System.Text.Json.JsonSerializer.Serialize(manifest,
@@ -237,6 +260,8 @@ public sealed class BundleManifest
     public string ExportedAt { get; set; } = "";
     public int SnippetFileCount { get; set; }
     public int ConfigFileCount { get; set; }
+    public int CommunitySnippetFileCount { get; set; }
+    public int CommunityConfigFileCount { get; set; }
 }
 
 /// <summary>

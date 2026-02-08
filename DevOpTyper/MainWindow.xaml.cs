@@ -901,7 +901,8 @@ public sealed partial class MainWindow : Window
             if (file == null) return; // User cancelled
 
             var bundleService = new PortableBundleService();
-            var result = bundleService.Export(file.Path, _snippetService.UserContent, _practiceConfigService);
+            var result = bundleService.Export(file.Path, _snippetService.UserContent,
+                _practiceConfigService, _snippetService.CommunityContent);
 
             SettingsPanel.ShowBundleStatus(result != null
                 ? "Exported successfully"
