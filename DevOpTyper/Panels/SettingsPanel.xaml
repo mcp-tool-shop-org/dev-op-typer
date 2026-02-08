@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<UserControl
+    x:Class="DevOpTyper.Panels.SettingsPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Width="280">
+
+    <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+            Padding="16">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="16">
+                <TextBlock Text="Settings" 
+                           FontSize="18" 
+                           FontWeight="SemiBold"/>
+
+                <!-- Language Selection -->
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Language" 
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <ComboBox x:Name="LanguageCombo" 
+                              HorizontalAlignment="Stretch"
+                              SelectedIndex="0">
+                        <ComboBoxItem Content="Python"/>
+                        <ComboBoxItem Content="JavaScript"/>
+                        <ComboBoxItem Content="C#"/>
+                        <ComboBoxItem Content="Java"/>
+                        <ComboBoxItem Content="SQL"/>
+                        <ComboBoxItem Content="Bash"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Difficulty -->
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Difficulty" 
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <ComboBox x:Name="DifficultyCombo" 
+                              HorizontalAlignment="Stretch"
+                              SelectedIndex="1">
+                        <ComboBoxItem Content="Beginner"/>
+                        <ComboBoxItem Content="Intermediate"/>
+                        <ComboBoxItem Content="Advanced"/>
+                        <ComboBoxItem Content="Expert"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Audio Settings -->
+                <TextBlock Text="Audio" 
+                           FontSize="14" 
+                           FontWeight="SemiBold"
+                           Margin="0,8,0,0"/>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Ambient Volume" 
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <Slider x:Name="AmbientVolumeSlider" 
+                            Minimum="0" Maximum="100" Value="50"/>
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Keyboard Sound Volume" 
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <Slider x:Name="KeyboardVolumeSlider" 
+                            Minimum="0" Maximum="100" Value="70"/>
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="UI Sound Volume" 
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <Slider x:Name="UiVolumeSlider" 
+                            Minimum="0" Maximum="100" Value="60"/>
+                </StackPanel>
+
+                <!-- Accessibility -->
+                <TextBlock Text="Accessibility" 
+                           FontSize="14" 
+                           FontWeight="SemiBold"
+                           Margin="0,8,0,0"/>
+
+                <ToggleSwitch x:Name="HardcoreModeToggle" 
+                              Header="Hardcore Mode"
+                              OffContent="Off"
+                              OnContent="On"/>
+
+                <ToggleSwitch x:Name="HighContrastToggle" 
+                              Header="High Contrast"
+                              OffContent="Off"
+                              OnContent="On"/>
+
+                <ToggleSwitch x:Name="ReducedMotionToggle" 
+                              Header="Reduced Motion"
+                              OffContent="Off"
+                              OnContent="On"/>
+
+                <!-- Save Button -->
+                <Button x:Name="SaveSettingsButton" 
+                        Content="Save Settings"
+                        HorizontalAlignment="Stretch"
+                        Style="{ThemeResource AccentButtonStyle}"
+                        Margin="0,8,0,0"/>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>

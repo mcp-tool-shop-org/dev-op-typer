@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<UserControl
+    x:Class="DevOpTyper.Panels.StatsPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            CornerRadius="8"
+            Padding="16">
+        <StackPanel Spacing="16">
+            <TextBlock Text="Live Statistics" 
+                       FontSize="16" 
+                       FontWeight="SemiBold"/>
+
+            <!-- WPM -->
+            <StackPanel>
+                <TextBlock Text="Words Per Minute" 
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           FontSize="12"/>
+                <TextBlock x:Name="WpmText" 
+                           Text="0" 
+                           FontSize="32" 
+                           FontWeight="Bold"/>
+            </StackPanel>
+
+            <!-- Accuracy -->
+            <StackPanel>
+                <TextBlock Text="Accuracy" 
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           FontSize="12"/>
+                <TextBlock x:Name="AccuracyText" 
+                           Text="100%" 
+                           FontSize="24" 
+                           FontWeight="SemiBold"
+                           Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+            </StackPanel>
+
+            <!-- Errors -->
+            <StackPanel>
+                <TextBlock Text="Errors" 
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           FontSize="12"/>
+                <TextBlock x:Name="ErrorsText" 
+                           Text="0" 
+                           FontSize="20"/>
+            </StackPanel>
+
+            <!-- Progress -->
+            <StackPanel>
+                <TextBlock Text="Progress" 
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           FontSize="12"/>
+                <ProgressBar x:Name="ProgressBar" 
+                             Value="0" 
+                             Maximum="100"
+                             Margin="0,4,0,0"/>
+                <TextBlock x:Name="ProgressText" 
+                           Text="0 / 0 chars" 
+                           FontSize="12"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- XP -->
+            <StackPanel>
+                <TextBlock Text="XP Earned" 
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           FontSize="12"/>
+                <TextBlock x:Name="XpText" 
+                           Text="+0 XP" 
+                           FontSize="18"
+                           Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>
