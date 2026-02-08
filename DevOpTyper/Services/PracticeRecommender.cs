@@ -36,7 +36,8 @@ public sealed class PracticeRecommender
                 Title = "Consider a break",
                 Reason = $"{cadence.SessionsLast30Min} sessions in 30 min with declining accuracy",
                 Priority = SuggestionPriority.Gentle,
-                Intent = PracticeIntent.Warmup
+                Intent = PracticeIntent.Warmup,
+                Action = SuggestionAction.None // No click action — just advice
             });
         }
 
@@ -46,6 +47,7 @@ public sealed class PracticeRecommender
         {
             var topWeak = weakest[0];
             string charDisplay = FormatChar(topWeak.Character);
+            string weakChars = string.Join(",", weakest.Take(3).Select(w => w.Character));
             suggestions.Add(new PracticeSuggestion
             {
                 Type = SuggestionType.TargetWeakness,
@@ -53,7 +55,9 @@ public sealed class PracticeRecommender
                 Reason = $"{topWeak.ErrorRate:P0} error rate over {topWeak.TotalAttempts} attempts",
                 Priority = SuggestionPriority.Normal,
                 Intent = PracticeIntent.WeaknessTarget,
-                Focus = topWeak.Group.ToString().ToLowerInvariant()
+                Focus = topWeak.Group.ToString().ToLowerInvariant(),
+                Action = SuggestionAction.LoadWeaknessSnippet,
+                ActionPayload = weakChars
             });
         }
 
@@ -77,7 +81,8 @@ public sealed class PracticeRecommender
                             : "Speed has been declining recently",
                         Priority = SuggestionPriority.Normal,
                         Intent = PracticeIntent.WeaknessTarget,
-                        Focus = lang
+                        Focus = lang,
+                        Action = SuggestionAction.LoadEasySnippet
                     });
                 }
 
@@ -91,7 +96,8 @@ public sealed class PracticeRecommender
                         Title = "Try harder snippets",
                         Reason = $"Strong improvement trend ({summary.WpmVelocity:+0.0;-0.0} WPM/session)",
                         Priority = SuggestionPriority.Low,
-                        Intent = PracticeIntent.Exploration
+                        Intent = PracticeIntent.Exploration,
+                        Action = SuggestionAction.LoadHarderSnippet
                     });
                 }
             }
@@ -108,7 +114,9 @@ public sealed class PracticeRecommender
                 Reason = $"Haven't practiced {neglected} in a while",
                 Priority = SuggestionPriority.Low,
                 Intent = PracticeIntent.Exploration,
-                Focus = neglected
+                Focus = neglected,
+                Action = SuggestionAction.SwitchLanguage,
+                ActionPayload = neglected
             });
         }
 
@@ -123,7 +131,8 @@ public sealed class PracticeRecommender
                     ? "It's been a while since your last session"
                     : "Start easy, build momentum",
                 Priority = SuggestionPriority.Low,
-                Intent = PracticeIntent.Warmup
+                Intent = PracticeIntent.Warmup,
+                Action = SuggestionAction.LoadEasySnippet
             });
         }
 
@@ -185,6 +194,20 @@ public sealed class PracticeSuggestion
 
     /// <summary>Optional focus to attach to the practice context.</summary>
     public string? Focus { get; init; }
+
+    /// <summary>
+    /// What action to take when the user follows this suggestion.
+    /// None = display-only suggestion with no click action.
+    /// </summary>
+    public SuggestionAction Action { get; init; } = SuggestionAction.None;
+
+    /// <summary>
+    /// Payload for the action. Interpretation depends on Action:
+    /// - LoadWeaknessSnippet: comma-separated weak chars
+    /// - SwitchLanguage: language name
+    /// - LoadEasySnippet: (unused, uses current language)
+    /// </summary>
+    public string? ActionPayload { get; init; }
 }
 
 /// <summary>
@@ -221,4 +244,25 @@ public enum SuggestionPriority
 
     /// <summary>Show gently — noticeable but never alarming.</summary>
     Gentle = 2
+}
+
+/// <summary>
+/// What action follows a suggestion when the user clicks it.
+/// </summary>
+public enum SuggestionAction
+{
+    /// <summary>No action — display-only suggestion (e.g., "Consider a break").</summary>
+    None = 0,
+
+    /// <summary>Load a snippet targeting specific weak characters.</summary>
+    LoadWeaknessSnippet = 1,
+
+    /// <summary>Load an easy snippet for warmup practice.</summary>
+    LoadEasySnippet = 2,
+
+    /// <summary>Switch to a different language and load a snippet.</summary>
+    SwitchLanguage = 3,
+
+    /// <summary>Load a harder snippet for the current language.</summary>
+    LoadHarderSnippet = 4
 }
