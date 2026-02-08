@@ -189,6 +189,54 @@ public sealed partial class StatsPanel : UserControl
     }
 
     /// <summary>
+    /// Shows a subtle orientation cue for returning users.
+    /// Cues suggest possibilities, not actions. Never blocks normal usage.
+    /// Only shown on first launch of the session if there's prior history.
+    /// </summary>
+    public void UpdateOrientationCue(SessionHistory history, string currentLanguage)
+    {
+        // Only orient if there's meaningful history and this is the first view
+        if (history.TotalSessions < 3)
+        {
+            OrientationCue.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var lastSession = history.Records.FirstOrDefault();
+        if (lastSession == null)
+        {
+            OrientationCue.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        // Build a brief, factual cue about where the user left off
+        var daysSince = (DateTime.UtcNow - lastSession.CompletedAt).TotalDays;
+        string cue;
+
+        if (daysSince > 30)
+        {
+            // Long gap — anchor to their last session
+            cue = $"Last session: {lastSession.SnippetTitle} ({lastSession.Wpm:F0} WPM)";
+        }
+        else if (daysSince > 1)
+        {
+            // Recent gap — show what they were doing
+            var langSessions = history.Records.Take(5).Count(r =>
+                r.Language.Equals(currentLanguage, StringComparison.OrdinalIgnoreCase));
+            cue = $"Last: {lastSession.SnippetTitle} \u2022 {langSessions} of last 5 in {currentLanguage}";
+        }
+        else
+        {
+            // Same day — minimal or no cue
+            OrientationCue.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        OrientationCue.Text = cue;
+        OrientationCue.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
     /// Updates the Recent Sessions section from history.
     /// Call after each session completes to show latest results.
     /// </summary>

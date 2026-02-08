@@ -83,6 +83,16 @@
                            AutomationProperties.Name="Session pacing"
                            IsTextSelectionEnabled="True"/>
 
+                <!-- Orientation cue (v0.5.0) — subtle context for returning users -->
+                <TextBlock x:Name="OrientationCue"
+                           FontSize="10"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Visibility="Collapsed"
+                           AutomationProperties.Name="Orientation cue"
+                           IsTextSelectionEnabled="True"
+                           TextWrapping="Wrap"
+                           Opacity="0.8"/>
+
                 <!-- Divider -->
                 <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4"/>
 

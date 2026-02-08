@@ -689,6 +689,9 @@ public sealed partial class MainWindow : Window
         var pacing = _sessionPacer.GetSnapshot(blob.Longitudinal);
         StatsPanel.UpdatePacing(pacing);
 
+        // Orientation cue (v0.5.0) — subtle context for returning users
+        StatsPanel.UpdateOrientationCue(blob.History, language);
+
         // Typist identity (v0.4.0 Phase 4) — longitudinal self-portrait
         var identity = TypistIdentityService.Build(blob.History, blob.Longitudinal);
         StatsPanel.UpdateIdentity(identity);
