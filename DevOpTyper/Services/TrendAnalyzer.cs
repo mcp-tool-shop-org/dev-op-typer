@@ -115,6 +115,8 @@ public sealed class TrendAnalyzer
     /// <summary>
     /// Determines direction from a sequence of values (newest first).
     /// Compares recent average (last 5) to older average (last 5 before that).
+    /// The threshold adapts to the user's personal variability — a naturally
+    /// variable typist needs a bigger swing to register as a real change.
     /// Declines require confirmation from a wider window to avoid
     /// overreacting to a single bad session or temporary dip.
     /// </summary>
@@ -125,7 +127,12 @@ public sealed class TrendAnalyzer
         double recent = values.Take(5).Average();
         double older = values.Skip(5).Take(5).Average();
         double diff = recent - older;
-        double threshold = older * 0.03; // 3% change threshold
+
+        // Adaptive threshold: scale by the user's personal variability.
+        // A steady typist (CV ~0.05) gets a ~3% threshold.
+        // A variable typist (CV ~0.25) gets a ~5% threshold.
+        double cv = ComputeCV(values);
+        double threshold = older * Math.Max(0.03, Math.Min(0.08, cv * 0.6));
 
         if (diff > threshold) return TrendDirection.Improving;
 
@@ -145,6 +152,23 @@ public sealed class TrendAnalyzer
         }
 
         return TrendDirection.Stable;
+    }
+
+    /// <summary>
+    /// Coefficient of variation (stddev / mean) of recent values.
+    /// Represents the user's natural typing variability.
+    /// </summary>
+    private static double ComputeCV(List<double> values)
+    {
+        int n = Math.Min(values.Count, 20);
+        if (n < 5) return 0.1; // Default for insufficient data
+
+        var subset = values.Take(n).ToList();
+        double mean = subset.Average();
+        if (mean <= 0) return 0.1;
+
+        double variance = subset.Sum(v => (v - mean) * (v - mean)) / n;
+        return Math.Sqrt(variance) / mean;
     }
 
     /// <summary>
