@@ -728,6 +728,18 @@ Demonstrations show alternative approaches to the same problem. A snippet that i
 - Demonstrations are visible only between sessions, never during typing
 - The system never ranks demonstrations
 
+### Demonstrations as Alternatives, Not Corrections
+
+A demonstration is not a correction. It does not imply the snippet's original code is wrong. It presents a different valid approach to the same problem.
+
+Why this matters:
+- A single approach creates a single authority
+- Multiple approaches create conversation
+- The user compares and forms their own preference
+- No approach is labeled "better" or "worse"
+- The system never measures which approach a user prefers
+- Demonstrations are display-only — they appear between sessions, never during active typing
+
 ### Guidance Principles
 
 Guidance notes are contextual observations that emerge from collective experience ("This pattern trips up most people at the semicolons"). They come from community-sourced `guidance.json` files, following the same local-first bundle pattern as `signals.json`.
