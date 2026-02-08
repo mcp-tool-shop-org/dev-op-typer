@@ -79,7 +79,7 @@ public sealed partial class DemonstrationPanel : UserControl
             if (code.Length > ExtensionBoundary.MaxDemonstrationCodeLength)
                 code = code[..ExtensionBoundary.MaxDemonstrationCodeLength] + "…";
 
-            card.Children.Add(new TextBlock
+            var codeBlock = new TextBlock
             {
                 Text = code,
                 FontSize = 11,
@@ -88,7 +88,10 @@ public sealed partial class DemonstrationPanel : UserControl
                 IsTextSelectionEnabled = true,
                 IsTabStop = false,
                 Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["TextFillColorTertiaryBrush"]
-            });
+            };
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+                codeBlock, $"Code example: {demo.Label}");
+            card.Children.Add(codeBlock);
 
             // Optional description
             if (!string.IsNullOrWhiteSpace(demo.Description))
