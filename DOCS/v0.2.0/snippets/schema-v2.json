@@ -1,0 +1,15 @@
+{
+  "id": "string",
+  "language": "string",
+  "difficulty": "int",
+  "title": "string",
+  "topics": [
+    "string"
+  ],
+  "length": "int (optional)",
+  "symbolDensity": "float (optional)",
+  "code": "string",
+  "explain": [
+    "string"
+  ]
+}
