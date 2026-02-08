@@ -378,31 +378,50 @@ public sealed partial class SettingsPanel : UserControl
     /// <summary>
     /// Updates the user snippet status display.
     /// Call after SnippetService initialization.
+    /// Status text is announced politely by screen readers.
+    /// Errors are announced assertively but never block interaction.
     /// </summary>
     public void UpdateUserSnippetStatus(Services.UserContentService userContent)
     {
         if (userContent.HasUserContent)
         {
-            UserSnippetStatus.Text = $"{userContent.TotalSnippetCount} snippets from {userContent.LoadedFileCount} file(s)";
+            var statusText = $"{userContent.TotalSnippetCount} snippets from {userContent.LoadedFileCount} file(s)";
+            UserSnippetStatus.Text = statusText;
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+                UserSnippetStatus, $"Your snippets: {statusText}");
         }
         else if (userContent.UserSnippetsPath != null)
         {
             UserSnippetStatus.Text = "Snippets folder exists but is empty";
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+                UserSnippetStatus, "Your snippets folder exists but contains no snippet files yet");
         }
         else
         {
-            UserSnippetStatus.Text = "No user snippets — click below to open the folder";
+            UserSnippetStatus.Text = "No snippets yet — open the folder below to get started";
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+                UserSnippetStatus, "No user snippets loaded. Use the button below to open the snippets folder.");
         }
 
-        // Show errors if any
+        // Show errors if any — accessible but non-blocking
         if (userContent.LoadErrors.Count > 0)
         {
-            UserSnippetErrors.Text = string.Join("\n", userContent.LoadErrors.Take(3));
+            var errorText = string.Join("\n", userContent.LoadErrors.Take(3));
+            UserSnippetErrors.Text = errorText;
             UserSnippetErrors.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+                UserSnippetErrors, $"Snippet loading issues: {errorText}");
         }
         else
         {
             UserSnippetErrors.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+        }
+
+        // Update button tooltip with actual path
+        if (userContent.UserSnippetsPath != null)
+        {
+            ToolTipService.SetToolTip(OpenUserSnippetsButton,
+                $"Open {userContent.UserSnippetsPath} in file explorer");
         }
 
         // Wire the button

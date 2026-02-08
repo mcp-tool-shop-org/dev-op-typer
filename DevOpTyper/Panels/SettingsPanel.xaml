@@ -291,7 +291,7 @@
                               OnContent="On"/>
 
                 <!-- User Snippets -->
-                <TextBlock Text="User Snippets"
+                <TextBlock Text="Your Snippets"
                            FontSize="14"
                            FontWeight="SemiBold"
                            Margin="0,8,0,0"
@@ -301,20 +301,25 @@
                            Text="No user snippets loaded"
                            FontSize="11"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           TextWrapping="Wrap"/>
+                           TextWrapping="Wrap"
+                           AutomationProperties.LiveSetting="Polite"
+                           IsTabStop="False"/>
 
                 <TextBlock x:Name="UserSnippetErrors"
                            FontSize="10"
                            Foreground="{ThemeResource SystemFillColorCautionBrush}"
                            TextWrapping="Wrap"
-                           Visibility="Collapsed"/>
+                           Visibility="Collapsed"
+                           AutomationProperties.LiveSetting="Assertive"
+                           IsTabStop="False"/>
 
                 <Button x:Name="OpenUserSnippetsButton"
                         Content="Open Snippets Folder"
                         FontSize="11"
                         Padding="8,4"
                         Margin="0,4,0,0"
-                        AutomationProperties.Name="Open the folder where user snippets are stored"/>
+                        AutomationProperties.Name="Open snippets folder in file explorer"
+                        ToolTipService.ToolTip="Opens the folder where you can add your own snippet files"/>
 
                 <!-- Save Button -->
                 <Button x:Name="SaveSettingsButton"
