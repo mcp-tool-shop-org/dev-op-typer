@@ -14,6 +14,9 @@ public sealed partial class MainWindow : Window
     private readonly MainViewModel _viewModel = new();
     private readonly TypingEngine _typingEngine = new();
     private readonly SnippetService _snippetService = new();
+    private readonly SmartSnippetSelector _smartSelector;
+    private readonly PersistenceService _persistenceService = new();
+    private Profile _profile = new();
     private bool _settingsPanelOpen = false;
 
     public MainWindow()
@@ -22,9 +25,18 @@ public sealed partial class MainWindow : Window
         ExtendsContentIntoTitleBar = true;
         SetWindowSize(1200, 760);
 
+        // Initialize services
+        _snippetService.Initialize();
+        _smartSelector = new SmartSnippetSelector(_snippetService);
+
+        // Load persisted profile
+        var persisted = _persistenceService.Load();
+        _profile = persisted.Profile;
+
         // Wire up typing engine events
         _typingEngine.ProgressUpdated += OnTypingProgress;
         _typingEngine.SessionCompleted += OnSessionCompleted;
+        _typingEngine.TextCorrected += OnTextCorrected;
 
         // Wire up UI events
         TypingPanel.StartClicked += StartTest_Click;
@@ -48,22 +60,33 @@ public sealed partial class MainWindow : Window
     private void LoadNewSnippet()
     {
         var language = SettingsPanel.SelectedLanguage;
-        var snippet = _snippetService.GetRandomSnippet(language);
         
-        if (snippet != null)
-        {
-            TypingPanel.SetTarget(snippet.Title ?? "Snippet", language, snippet.Code ?? "");
-            _currentSnippet = snippet;
-        }
-        else
-        {
-            // Fallback if no snippets found
-            TypingPanel.SetTarget("Hello World", language, "print('Hello, World!')");
-            _currentSnippet = new Snippet { Title = "Hello World", Language = language, Code = "print('Hello, World!')" };
-        }
+        // Use smart selection for better learning experience
+        var snippet = _smartSelector.SelectNext(language, _profile);
+        
+        TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
+        _currentSnippet = snippet;
 
         TypingPanel.ClearTyping();
         StatsPanel.Reset();
+    }
+
+    private void LoadSnippetForWeakChars()
+    {
+        var language = SettingsPanel.SelectedLanguage;
+        
+        if (_profile.WeakChars.Count > 0)
+        {
+            var snippet = _smartSelector.SelectForWeakChars(language, _profile, _profile.WeakChars);
+            TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
+            _currentSnippet = snippet;
+            TypingPanel.ClearTyping();
+            StatsPanel.Reset();
+        }
+        else
+        {
+            LoadNewSnippet();
+        }
     }
 
     private Snippet? _currentSnippet;
@@ -72,7 +95,8 @@ public sealed partial class MainWindow : Window
     {
         if (_currentSnippet != null)
         {
-            _typingEngine.StartSession(_currentSnippet);
+            bool hardcore = SettingsPanel.IsHardcoreMode;
+            _typingEngine.StartSession(_currentSnippet, hardcore);
             TypingPanel.FocusTypingBox();
         }
     }
@@ -85,7 +109,8 @@ public sealed partial class MainWindow : Window
         
         if (_currentSnippet != null)
         {
-            _typingEngine.StartSession(_currentSnippet);
+            bool hardcore = SettingsPanel.IsHardcoreMode;
+            _typingEngine.StartSession(_currentSnippet, hardcore);
         }
         TypingPanel.FocusTypingBox();
     }
@@ -105,6 +130,16 @@ public sealed partial class MainWindow : Window
         }
     }
 
+    private void OnTextCorrected(object? sender, string correctedText)
+    {
+        // Hardcore mode corrected the text - update the textbox
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            // This would need the TypingPanel to expose a SetTypedText method
+            // For now, we'll skip this UI update
+        });
+    }
+
     private void OnTypingProgress(object? sender, TypingProgressEventArgs e)
     {
         DispatcherQueue.TryEnqueue(() =>
@@ -117,6 +152,18 @@ public sealed partial class MainWindow : Window
                 e.TargetLength,
                 _typingEngine.XpEarned
             );
+
+            // Track weak chars from errors
+            if (e.HasErrors && e.Diff.Length > 0)
+            {
+                foreach (var diff in e.Diff)
+                {
+                    if (diff.State == CharState.Error)
+                    {
+                        _profile.RecordWeakChar(diff.Expected);
+                    }
+                }
+            }
         });
     }
 
@@ -124,6 +171,21 @@ public sealed partial class MainWindow : Window
     {
         DispatcherQueue.TryEnqueue(() =>
         {
+            // Update profile with results
+            _profile.AddXp(e.XpEarned);
+            
+            if (_currentSnippet != null)
+            {
+                _profile.UpdateRating(_currentSnippet.Language, e.FinalAccuracy, e.FinalWpm);
+            }
+
+            // Save profile
+            _persistenceService.Save(new PersistedBlob
+            {
+                Profile = _profile,
+                Settings = new AppSettings()
+            });
+
             // Update XP display
             UpdateLevelBadge();
 
@@ -134,8 +196,7 @@ public sealed partial class MainWindow : Window
 
     private void UpdateLevelBadge()
     {
-        // TODO: Load from profile
-        LevelBadge.Text = $"Lv 1 • {_typingEngine.XpEarned} XP";
+        LevelBadge.Text = $"Lv {_profile.Level} • {_profile.Xp} XP";
     }
 
     private void SettingsToggleButton_Click(object sender, RoutedEventArgs e)
