@@ -88,6 +88,7 @@ public sealed partial class MainWindow : Window
         // Wire up actionable intelligence events (Phase 4)
         StatsPanel.SuggestionFollowed += OnSuggestionFollowed;
         StatsPanel.WeaknessPracticeRequested += OnWeaknessPracticeRequested;
+        TypingPanel.CompletionActionClicked += OnCompletionActionClicked;
 
         // Restore typing rules UI from saved settings
         SettingsPanel.LoadTypingRules(_settings.TypingRules);
@@ -154,6 +155,7 @@ public sealed partial class MainWindow : Window
     private void StartTest_Click(object sender, RoutedEventArgs e)
     {
         _uiFeedback.OnButtonClick();
+        TypingPanel.DismissCompletionBanner();
         if (_currentSnippet != null)
         {
             bool hardcore = SettingsPanel.IsHardcoreMode;
@@ -494,9 +496,49 @@ public sealed partial class MainWindow : Window
             UpdateLevelBadge();
             RefreshAnalytics(blob);
 
+            // Show completion banner with contextual next action (Phase 4)
+            bool isPerfect = e.ErrorCount == 0;
+            var (actionLabel, actionTag) = GetCompletionAction(blob);
+            TypingPanel.ShowCompletionBanner(
+                e.FinalWpm, e.FinalAccuracy, e.XpEarned, isPerfect,
+                actionLabel, actionTag);
+
             // Load next snippet
             LoadNewSnippet();
         });
+    }
+
+    /// <summary>
+    /// Determines the contextual action for the completion banner.
+    /// </summary>
+    private (string? Label, string? Tag) GetCompletionAction(PersistedBlob blob)
+    {
+        var language = SettingsPanel.SelectedLanguage;
+
+        // If there are weak characters, offer to practice them
+        var weakest = blob.Profile.Heatmap.GetWeakest(count: 3, minAttempts: 5);
+        if (weakest.Count > 0)
+        {
+            string weakChars = string.Join(",", weakest.Select(w => w.Character));
+            return ("Practice weak chars", $"weakness:{weakChars}");
+        }
+
+        return (null, null);
+    }
+
+    /// <summary>
+    /// Handles clicks on the completion banner's action button.
+    /// </summary>
+    private void OnCompletionActionClicked(object? sender, string actionTag)
+    {
+        _uiFeedback.OnButtonClick();
+
+        if (actionTag.StartsWith("weakness:"))
+        {
+            var payload = actionTag["weakness:".Length..];
+            _typingEngine.CancelSession();
+            LoadSnippetForWeakCharsFromPayload(payload);
+        }
     }
 
     private void UpdateLevelBadge()
