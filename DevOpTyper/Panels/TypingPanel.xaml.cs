@@ -11,6 +11,12 @@ public sealed partial class TypingPanel : UserControl
     public event RoutedEventHandler? SkipClicked;
     public event TextChangedEventHandler? TypingTextChanged;
 
+    /// <summary>
+    /// Fired when the user clicks the action button on the completion banner.
+    /// The sender carries the action tag string.
+    /// </summary>
+    public event EventHandler<string>? CompletionActionClicked;
+
     public TypingPanel()
     {
         InitializeComponent();
@@ -19,6 +25,14 @@ public sealed partial class TypingPanel : UserControl
         ResetButton.Click += (s, e) => ResetClicked?.Invoke(s, e);
         SkipButton.Click += (s, e) => SkipClicked?.Invoke(s, e);
         TypingBox.TextChanged += (s, e) => TypingTextChanged?.Invoke(s, e);
+
+        CompletionDismissButton.Click += (_, _) => DismissCompletionBanner();
+        CompletionActionButton.Click += (_, _) =>
+        {
+            var tag = CompletionActionButton.Tag as string ?? "";
+            CompletionActionClicked?.Invoke(this, tag);
+            DismissCompletionBanner();
+        };
     }
 
     /// <summary>
@@ -73,5 +87,44 @@ public sealed partial class TypingPanel : UserControl
     public void SetTypedText(string text)
     {
         TypingBox.Text = text ?? "";
+    }
+
+    /// <summary>
+    /// Shows the session completion banner with results and optional action.
+    /// </summary>
+    /// <param name="wpm">Final WPM.</param>
+    /// <param name="accuracy">Final accuracy percentage.</param>
+    /// <param name="xp">XP earned.</param>
+    /// <param name="isPerfect">Whether the session had zero errors.</param>
+    /// <param name="actionLabel">Optional action button label (null = no action button).</param>
+    /// <param name="actionTag">Tag to identify the action when clicked.</param>
+    public void ShowCompletionBanner(
+        double wpm, double accuracy, int xp, bool isPerfect,
+        string? actionLabel = null, string? actionTag = null)
+    {
+        string title = isPerfect ? "Perfect!" : "Session Complete!";
+        CompletionTitle.Text = title;
+        CompletionStats.Text = $"{wpm:F0} WPM | {accuracy:F0}% accuracy | +{xp} XP";
+
+        if (!string.IsNullOrEmpty(actionLabel))
+        {
+            CompletionActionButton.Content = actionLabel;
+            CompletionActionButton.Tag = actionTag ?? "";
+            CompletionActionButton.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            CompletionActionButton.Visibility = Visibility.Collapsed;
+        }
+
+        CompletionBanner.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
+    /// Hides the completion banner.
+    /// </summary>
+    public void DismissCompletionBanner()
+    {
+        CompletionBanner.Visibility = Visibility.Collapsed;
     }
 }

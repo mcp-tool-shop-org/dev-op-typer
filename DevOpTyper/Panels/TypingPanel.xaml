@@ -13,6 +13,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Live Per-Character Typing Display -->
@@ -71,8 +72,48 @@
             </Grid>
         </Border>
 
+        <!-- Session Completion Summary (Phase 4) -->
+        <Border x:Name="CompletionBanner"
+                Grid.Row="2"
+                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                CornerRadius="8"
+                Padding="12"
+                Margin="0,0,0,8"
+                Visibility="Collapsed">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Spacing="2">
+                    <TextBlock x:Name="CompletionTitle"
+                               Text="Session Complete!"
+                               FontSize="14"
+                               FontWeight="SemiBold"/>
+                    <TextBlock x:Name="CompletionStats"
+                               FontSize="11"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="6"
+                            VerticalAlignment="Center">
+                    <Button x:Name="CompletionActionButton"
+                            FontSize="11"
+                            Padding="8,4"
+                            Visibility="Collapsed"/>
+                    <Button x:Name="CompletionDismissButton"
+                            Content="Dismiss"
+                            FontSize="11"
+                            Padding="8,4"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- Action Buttons -->
-        <StackPanel Grid.Row="2"
+        <StackPanel Grid.Row="3"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
                     Spacing="12">
