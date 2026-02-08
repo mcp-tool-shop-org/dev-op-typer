@@ -27,6 +27,7 @@ public sealed partial class MainWindow : Window
     private AppSettings _settings = new();
     private bool _settingsPanelOpen = false;
     private int _lastHeatmapIndex = 0; // Tracks how far we've recorded hits/misses
+    private PracticeContext? _pendingContext; // Set by action handlers, consumed by StartTest
 
     public MainWindow()
     {
@@ -174,11 +175,13 @@ public sealed partial class MainWindow : Window
                 .Count(r => r.SnippetId == _currentSnippet.Id);
             _typingEngine.RepeatCount = repeats;
 
-            // Attach practice context with snapshot of current state
-            var context = PracticeContext.Default();
+            // Attach practice context — use pending context from action handlers, or default
+            var context = _pendingContext ?? PracticeContext.Default();
+            _pendingContext = null; // Consume it
             context.EffectiveDifficulty = _currentSnippet.Difficulty;
             context.RatingAtStart = _profile.GetRating(_currentSnippet.Language);
-            if (repeats > 0) context.Intent = PracticeIntent.Repeat;
+            if (repeats > 0 && context.Intent == PracticeIntent.Freeform)
+                context.Intent = PracticeIntent.Repeat;
 
             _typingEngine.PracticeContext = context;
             _typingEngine.StartSession(_currentSnippet, hardcore, rules);
@@ -264,6 +267,7 @@ public sealed partial class MainWindow : Window
         var snippet = _smartSelector.SelectForWeakChars(language, _profile, weakChars);
         TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
         _currentSnippet = snippet;
+        _pendingContext = PracticeContext.ForWeakness(string.Join(",", weakChars));
         TypingPanel.ClearTyping();
         StatsPanel.Reset();
     }
@@ -288,6 +292,7 @@ public sealed partial class MainWindow : Window
             var snippet = _smartSelector.SelectForWeakChars(language, _profile, weakChars);
             TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
             _currentSnippet = snippet;
+            _pendingContext = PracticeContext.ForWeakness(string.Join(",", weakChars));
             TypingPanel.ClearTyping();
             StatsPanel.Reset();
         }
@@ -314,6 +319,11 @@ public sealed partial class MainWindow : Window
         {
             TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
             _currentSnippet = snippet;
+            _pendingContext = new PracticeContext
+            {
+                Intent = PracticeIntent.Warmup,
+                SystemSelected = true
+            };
             TypingPanel.ClearTyping();
             StatsPanel.Reset();
         }
@@ -343,6 +353,11 @@ public sealed partial class MainWindow : Window
         {
             TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
             _currentSnippet = snippet;
+            _pendingContext = new PracticeContext
+            {
+                Intent = PracticeIntent.Exploration,
+                SystemSelected = true
+            };
             TypingPanel.ClearTyping();
             StatsPanel.Reset();
         }
@@ -368,6 +383,12 @@ public sealed partial class MainWindow : Window
 
         TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
         _currentSnippet = snippet;
+        _pendingContext = new PracticeContext
+        {
+            Intent = PracticeIntent.Exploration,
+            Focus = language,
+            SystemSelected = true
+        };
         TypingPanel.ClearTyping();
         StatsPanel.Reset();
     }
