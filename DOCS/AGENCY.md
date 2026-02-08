@@ -299,6 +299,38 @@ Every user-provided file is validated before loading:
 - Malformed files are skipped silently — they never crash the app
 - Total user snippet files capped at 50
 
+### Authorship Without Gamification
+
+User content creation is a personal act, not a social one. The system treats authored material with the same respect it gives to the user's practice data.
+
+| The system does not... | Because... |
+|---|---|
+| Rate user snippets | Quality judgment belongs to the author |
+| Count how often user snippets are practiced | Usage is private, not a metric |
+| Rank user content against built-in content | There is no hierarchy of material |
+| Suggest "popular" or "trending" snippets | There is no audience |
+| Track snippet "completion" or "mastery" | Material is for practice, not collection |
+| Encourage creating more content | Creation is voluntary, not a quota |
+| Display "authored by you" badges | The user knows what they wrote |
+| Provide snippet templates or wizards | A text editor and the JSON schema are enough |
+
+#### What authorship looks like
+
+- The user creates a JSON file in any text editor.
+- The user drops it into `UserSnippets/` (or a subfolder).
+- The app loads it next time it starts.
+- The snippet appears in the normal rotation.
+- Practice, scoring, XP, and session records are identical to built-in content.
+- The user can edit, move, or delete the file at any time.
+- The app never modifies, annotates, or locks user files.
+
+#### What the system provides
+
+- A status line showing how many snippets were loaded.
+- Error messages if files are malformed (never blocks the app).
+- A button to open the snippets folder.
+- That's it.
+
 ### Verification
 
 Any future extension feature must satisfy:
@@ -308,3 +340,4 @@ Any future extension feature must satisfy:
 3. **No configuration overrides a frozen behavior.**
 4. **All user artifacts are human-readable JSON.**
 5. **The app never scans for or suggests extensions the user hasn't created.**
+6. **No gamification mechanics apply to authorship — no streaks, badges, levels, or achievements for creating content.**
