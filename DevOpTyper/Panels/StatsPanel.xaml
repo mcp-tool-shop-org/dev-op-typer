@@ -89,7 +89,8 @@
                 <!-- Weak Spots Section -->
                 <TextBlock Text="Weak Spots"
                            FontSize="14"
-                           FontWeight="SemiBold"/>
+                           FontWeight="SemiBold"
+                           AutomationProperties.HeadingLevel="Level2"/>
 
                 <!-- Weakness summary with trajectory (Phase 3) -->
                 <TextBlock x:Name="WeaknessSummaryText"
@@ -113,7 +114,8 @@
                 <!-- Recent Sessions Section -->
                 <TextBlock Text="Recent Sessions"
                            FontSize="14"
-                           FontWeight="SemiBold"/>
+                           FontWeight="SemiBold"
+                           AutomationProperties.HeadingLevel="Level2"/>
 
                 <TextBlock x:Name="HistoryEmpty"
                            Text="No sessions recorded yet."
@@ -162,7 +164,8 @@
                            Text="Trends"
                            FontSize="14"
                            FontWeight="SemiBold"
-                           Visibility="Collapsed"/>
+                           Visibility="Collapsed"
+                           AutomationProperties.HeadingLevel="Level2"/>
 
                 <StackPanel x:Name="TrendContainer" Spacing="6" Visibility="Collapsed"/>
 

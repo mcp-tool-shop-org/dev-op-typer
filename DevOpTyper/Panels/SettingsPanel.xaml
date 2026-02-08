@@ -52,7 +52,8 @@
                 <TextBlock Text="Audio"
                            FontSize="14"
                            FontWeight="SemiBold"
-                           Margin="0,8,0,0"/>
+                           Margin="0,8,0,0"
+                           AutomationProperties.HeadingLevel="Level2"/>
 
                 <StackPanel Spacing="4">
                     <TextBlock Text="Ambient Volume"
@@ -98,7 +99,8 @@
                 <TextBlock Text="Gameplay"
                            FontSize="14"
                            FontWeight="SemiBold"
-                           Margin="0,8,0,0"/>
+                           Margin="0,8,0,0"
+                           AutomationProperties.HeadingLevel="Level2"/>
 
                 <ToggleSwitch x:Name="HardcoreModeToggle"
                               Header="Hardcore Mode"
@@ -115,7 +117,8 @@
                 <TextBlock Text="Practice"
                            FontSize="14"
                            FontWeight="SemiBold"
-                           Margin="0,8,0,0"/>
+                           Margin="0,8,0,0"
+                           AutomationProperties.HeadingLevel="Level2"/>
 
                 <ToggleSwitch x:Name="ShowIntentChipsToggle"
                               Header="Show Intent Chips"
@@ -195,7 +198,8 @@
                 <TextBlock Text="Typing Rules"
                            FontSize="14"
                            FontWeight="SemiBold"
-                           Margin="0,8,0,0"/>
+                           Margin="0,8,0,0"
+                           AutomationProperties.HeadingLevel="Level2"/>
 
                 <StackPanel Spacing="4">
                     <TextBlock Text="Whitespace"
@@ -273,7 +277,8 @@
                 <TextBlock Text="Accessibility"
                            FontSize="14"
                            FontWeight="SemiBold"
-                           Margin="0,8,0,0"/>
+                           Margin="0,8,0,0"
+                           AutomationProperties.HeadingLevel="Level2"/>
 
                 <ToggleSwitch x:Name="HighContrastToggle"
                               Header="High Contrast"
