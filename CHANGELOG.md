@@ -5,6 +5,37 @@ All notable changes to Dev-Op-Typer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-02-08
+
+### Theme: Self-Directed Mastery Environment
+
+v0.4.0 puts the developer in control of how and why they practice. The system observes, offers, and never directs.
+
+### Added
+- **User-declared practice intent** — Optional intent chips (Focus, Challenge, Maintenance, Exploration) let developers label sessions for their own awareness. Intent is stored but never consumed by any service for scoring, difficulty, or selection.
+- **Session retrospection** — Factual completion summary showing WPM/accuracy deltas vs recent average, declared intent, and difficulty context. Observations only — no judgment.
+- **Session annotations** — Free-text notes (max 280 chars) attachable to any completed session. Displayed with pencil icon in session history.
+- **Intent pattern correlation** — StatsPanel "By Intent" section shows factual averages (WPM, accuracy, session count) grouped by declared intent. Requires 2+ sessions per intent.
+- **Practice preferences** — Configurable settings: Show Intent Chips, Default Intent, Practice Note, Focus Area, Show Suggestions.
+- **Focus areas** — User-selectable focus (Brackets & Braces, Operators, String Handling, Control Flow, Functions, Data Structures) stored as metadata. Clearable at any time.
+- **Pattern detection** — `PatternDetector` produces factual observations (cross-language WPM comparison, time-of-day accuracy patterns, difficulty correlation). Returns strings only — never triggers actions.
+- **Suggestion overrides** — Dismiss (×) buttons on every suggestion row. Show Suggestions toggle hides all suggestions. Dismissals are session-scoped only — never persisted.
+- **Typist identity** — Longitudinal self-portrait showing primary language, typical WPM range (p10-p90), typical accuracy, practice span, cadence, and "Then vs Now" comparison (earliest vs recent sessions).
+- **Consistency metrics** — WPM variability (coefficient of variation) and accuracy steadiness (standard deviation) with neutral descriptors (steady, moderate variation, wide variation). Not gamified.
+- **Stale data handling** — Identity data older than 30 days shows neutral "Last active X ago" label and suppresses consistency metrics.
+- **Agency philosophy doc** — `AGENCY.md` defines design constraints: system supports/observes/offers, never manages/judges/insists. Includes automation boundary verification and v0.4.0 release audit.
+
+### Changed
+- All v0.4.0 sections use `AutomationProperties.HeadingLevel` for consistent screen reader navigation
+- All new text blocks have `IsTextSelectionEnabled` and descriptive `AutomationProperties.Name`
+- Settings panel sections (Audio, Gameplay, Practice, Typing Rules, Accessibility) all have heading level 2
+
+### Technical
+- **Zero coupling guarantee** — All 8 core services (TypingEngine, SmartSnippetSelector, PracticeRecommender, AdaptiveDifficultyEngine, FatigueDetector, SessionPacer, WeaknessTracker, TrendAnalyzer) have zero references to any v0.4.0 feature
+- v0.4.0 features live exclusively in UI wiring (MainWindow), panels (Settings, Stats, Typing), and two display-only services (PatternDetector, TypistIdentityService)
+- All new fields are nullable with safe defaults — no schema version bump required
+- `SanitizeBlob` extended with FocusArea validation, session Note length clamping, and DeclaredIntent enum validation
+
 ## [0.3.0] - 2026-02-08
 
 ### Added
@@ -145,6 +176,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[0.4.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.4.0
 [0.3.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.3.0
 [0.2.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.2.0
 [0.1.1]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.1.1
