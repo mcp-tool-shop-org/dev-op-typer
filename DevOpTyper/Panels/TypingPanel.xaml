@@ -10,8 +10,8 @@
 
     <Grid Padding="16">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="2*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -68,7 +68,7 @@
                          FontFamily="Consolas"
                          FontSize="14"
                          PlaceholderText="Start typing here..."
-                         MinHeight="150"/>
+                         MinHeight="100"/>
             </Grid>
         </Border>
 
