@@ -400,24 +400,33 @@ public sealed partial class SettingsPanel : UserControl
 
     /// <summary>
     /// Whether alternative demonstrations are shown.
-    /// Wired to toggle in Teaching section (Commit 21).
     /// </summary>
-    private bool _showDemonstrations = true;
-    public bool ShowDemonstrations => _showDemonstrations;
+    public bool ShowDemonstrations => ShowDemonstrationsToggle.IsOn;
 
     /// <summary>
     /// Whether guidance notes are shown.
-    /// Wired to toggle in Teaching section (Commit 21).
     /// </summary>
-    private bool _showGuidance = true;
-    public bool ShowGuidance => _showGuidance;
+    public bool ShowGuidance => ShowGuidanceToggle.IsOn;
 
     /// <summary>
     /// Whether skill depth layers are shown.
-    /// Wired to toggle in Teaching section (Commit 21).
     /// </summary>
-    private bool _showSkillLayers = true;
-    public bool ShowSkillLayers => _showSkillLayers;
+    public bool ShowSkillLayers => ShowSkillLayersToggle.IsOn;
+
+    /// <summary>
+    /// Fired when the user toggles demonstrations on or off.
+    /// </summary>
+    public event EventHandler<bool>? DemonstrationsChanged;
+
+    /// <summary>
+    /// Fired when the user toggles guidance on or off.
+    /// </summary>
+    public event EventHandler<bool>? GuidanceChanged;
+
+    /// <summary>
+    /// Fired when the user toggles skill layers on or off.
+    /// </summary>
+    public event EventHandler<bool>? SkillLayersChanged;
 
     /// <summary>
     /// Fired when the user toggles community signals on or off.
@@ -475,9 +484,9 @@ public sealed partial class SettingsPanel : UserControl
 
         // Teaching settings (v0.8.0)
         ShowScaffoldsToggle.IsOn = settings.ShowScaffolds;
-        _showDemonstrations = settings.ShowDemonstrations;
-        _showGuidance = settings.ShowGuidance;
-        _showSkillLayers = settings.ShowSkillLayers;
+        ShowDemonstrationsToggle.IsOn = settings.ShowDemonstrations;
+        ShowGuidanceToggle.IsOn = settings.ShowGuidance;
+        ShowSkillLayersToggle.IsOn = settings.ShowSkillLayers;
 
         // Map DefaultIntent to combo index (0=None, 1=Focus, 2=Challenge, 3=Maintenance, 4=Exploration)
         DefaultIntentCombo.SelectedIndex = settings.DefaultIntent switch
@@ -600,6 +609,9 @@ public sealed partial class SettingsPanel : UserControl
 
         // Teaching toggles (v0.8.0)
         ShowScaffoldsToggle.Toggled += (_, _) => ScaffoldsChanged?.Invoke(this, ShowScaffoldsToggle.IsOn);
+        ShowDemonstrationsToggle.Toggled += (_, _) => DemonstrationsChanged?.Invoke(this, ShowDemonstrationsToggle.IsOn);
+        ShowGuidanceToggle.Toggled += (_, _) => GuidanceChanged?.Invoke(this, ShowGuidanceToggle.IsOn);
+        ShowSkillLayersToggle.Toggled += (_, _) => SkillLayersChanged?.Invoke(this, ShowSkillLayersToggle.IsOn);
     }
 
     /// <summary>

@@ -155,6 +155,50 @@ public sealed partial class MainWindow : Window
             }
         };
 
+        // Demonstrations toggle (v0.8.0)
+        SettingsPanel.DemonstrationsChanged += (_, enabled) =>
+        {
+            _settings.ShowDemonstrations = enabled;
+            if (_currentSnippet != null)
+            {
+                if (enabled)
+                    DemonstrationPanel.SetSnippet(_currentSnippet);
+                else
+                    DemonstrationPanel.Hide();
+            }
+        };
+
+        // Guidance toggle (v0.8.0)
+        SettingsPanel.GuidanceChanged += (_, enabled) =>
+        {
+            _settings.ShowGuidance = enabled;
+            if (_currentSnippet != null)
+            {
+                if (enabled)
+                {
+                    var guidance = _guidanceService.GetGuidance(_currentSnippet.Id);
+                    TypingPanel.ShowGuidance(guidance);
+                }
+                else
+                {
+                    TypingPanel.ShowGuidance(null);
+                }
+            }
+        };
+
+        // Skill layers toggle (v0.8.0)
+        SettingsPanel.SkillLayersChanged += (_, enabled) =>
+        {
+            _settings.ShowSkillLayers = enabled;
+            if (_currentSnippet != null)
+            {
+                if (enabled)
+                    LayersPanel.SetSnippet(_currentSnippet);
+                else
+                    LayersPanel.Hide();
+            }
+        };
+
         // Community signals (display-only — never affects frozen services)
         _communitySignals.Initialize();
 
