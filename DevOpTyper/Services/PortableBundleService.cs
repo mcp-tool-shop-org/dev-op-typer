@@ -280,10 +280,11 @@ public sealed class PortableBundleService
     /// This ensures imported content carries no origin metadata (author, source, etc.)
     /// and is indistinguishable from locally authored material.
     ///
-    /// This covers all nested types too: ExplanationSet perspectives are deserialized
-    /// into the schema model, which drops any non-schema fields like "author" or
-    /// "createdBy" that someone might add to a perspective. The result is that
-    /// imported explanations stand on the quality of their content alone.
+    /// This covers all nested types too: ExplanationSet perspectives, Demonstration
+    /// approaches, and SkillLayer depth tiers are all deserialized into their schema
+    /// models, which drops any non-schema fields like "author", "source", or
+    /// "createdBy" that someone might add. The result is that imported content
+    /// stands on the quality of its ideas alone — no attribution survives import.
     ///
     /// Falls back to direct extraction for non-JSON or unparseable files.
     /// </summary>
