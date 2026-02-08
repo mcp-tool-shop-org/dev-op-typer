@@ -788,6 +788,35 @@ Skill layers offer different depths on the same snippet. A snippet might have "E
 - The system never tracks which layers are expanded
 - Progressive visual hierarchy (first layer emphasized) is a design choice, not a restriction
 
+### Inclusive Learning Without Levels (v0.8.0)
+
+v0.8.0 rejects the concept of user levels as a mechanism for content access. Every piece of teaching material — scaffolds, demonstrations, guidance, skill layers — is available to every user from their first session.
+
+**What "inclusive learning" means here:**
+- A first-time user sees the same layers as someone with 1000 sessions
+- The system never recommends "easier" or "harder" content based on history
+- Labels describe depth of content ("Essentials", "Advanced"), not depth of user
+- There are no beginner modes, expert modes, or progression gates
+- No teaching feature creates a curriculum, completion path, or achievement tree
+- Scaffolds fade based on per-snippet demonstration, not global user level
+
+**What v0.8.0 will never have:**
+
+| Rejected Pattern | Why |
+|---|---|
+| Beginner/Expert modes | Creates identity boxes that users outgrow |
+| Completion certificates | Transforms practice into credentialing |
+| Skill assessments | Reduces learning to measurement |
+| Recommended learning paths | Replaces self-direction with prescription |
+| Content unlocking | Gates knowledge behind artificial progress |
+| User tier labels | "Intermediate" says nothing useful about practice |
+
+**Permanent constraints:**
+- No v0.8.0 feature may accept user level, rating, or session count as input for content display
+- No v0.8.0 feature may produce output that varies based on user history (except per-snippet scaffold fade)
+- All four teaching toggles default to true and can be independently disabled with zero side effects
+- Removing all teaching data from a snippet returns it to exact v0.7.0 behavior
+
 ### Verification
 
 Any teaching feature must satisfy:
