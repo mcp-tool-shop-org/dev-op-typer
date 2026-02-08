@@ -482,3 +482,37 @@ Any community feature must satisfy:
 7. **Nothing pressures users to participate, share, or engage socially.**
 8. **If CommunityContent/ does not exist, zero scanning occurs.** No overhead, no prompts, no empty-state messaging.
 9. **Community content never appears in any "count" or "status" unless the user has explicitly imported it.**
+
+---
+
+## Sharing Without Social Signaling
+
+Sharing in Dev-Op-Typer is a file operation, not a social act.
+
+### What sharing looks like
+
+- A user exports their snippets and configs as a ZIP file.
+- They send it to a colleague, post it in a forum, or host it on a file share.
+- The recipient imports it — choosing whether it goes to "My Content" or "Community Content."
+- The imported material appears in the normal practice rotation.
+- No one tracks who shared what, how often it was imported, or whether it was useful.
+
+### What sharing does NOT look like
+
+| Sharing does not involve... | Because... |
+|---|---|
+| Origin tracking | Who created something is irrelevant to practice |
+| Download counts | Popularity metrics distort perceived value |
+| "Imported from X" badges | Attribution creates hierarchy |
+| Author profiles or pages | Sharing is about content, not identity |
+| Ratings or reviews | Quality judgment belongs to the user |
+| Version tracking on shared content | Once imported, content is the user's to modify |
+| Notifications about new content | Discovery is manual and intentional |
+
+### Technical implementation
+
+- Import strips non-schema fields from JSON (author, origin, source, createdBy)
+- The bundle manifest contains only counts and timestamps — no identity data
+- Community content receives the same `IsUserAuthored = true` flag as user content
+- No runtime path can distinguish community content from locally authored content
+- Export is explicit and user-controlled — never implicit or automated
