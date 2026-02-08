@@ -10,9 +10,15 @@ namespace DevOpTyper.Panels;
 /// Perspectives are optional, collapsible, and never interrupt typing.
 /// They are visible only between sessions — hidden during active practice.
 /// Multiple perspectives coexist without hierarchy.
+///
+/// When a snippet has both a legacy "explain" field and new "perspectives",
+/// the legacy content is merged as a "Notes" perspective so all explanatory
+/// material appears in one unified list.
 /// </summary>
 public sealed partial class ExplanationPanel : UserControl
 {
+    private bool _hasContent;
+
     public ExplanationPanel()
     {
         InitializeComponent();
@@ -24,9 +30,16 @@ public sealed partial class ExplanationPanel : UserControl
     /// <summary>
     /// Sets the snippet whose perspectives should be displayed.
     /// If the snippet has no explanations or perspectives, the panel stays hidden.
+    ///
+    /// Legacy "explain" arrays are merged as a "Notes" perspective when
+    /// both fields are present. When only "explain" exists, it becomes
+    /// the sole perspective. This ensures all explanatory material appears
+    /// in one consistent format.
     /// </summary>
     public void SetSnippet(Snippet? snippet)
     {
+        _hasContent = false;
+
         if (snippet == null)
         {
             Visibility = Visibility.Collapsed;
@@ -42,68 +55,77 @@ public sealed partial class ExplanationPanel : UserControl
             return;
         }
 
+        // Build unified perspective list
+        var allPerspectives = new List<ExplanationSet>();
+
+        // Merge legacy explain as "Notes" perspective
+        if (hasExplain)
+        {
+            allPerspectives.Add(new ExplanationSet
+            {
+                Label = "Notes",
+                Notes = snippet.Explain!
+            });
+        }
+
+        // Add explicit perspectives
+        if (hasPerspectives)
+        {
+            foreach (var p in snippet.Perspectives!.Take(ExtensionBoundary.MaxPerspectivesPerSnippet))
+            {
+                if (!string.IsNullOrWhiteSpace(p.Label) && p.Notes != null && p.Notes.Length > 0)
+                {
+                    allPerspectives.Add(p);
+                }
+            }
+        }
+
+        if (allPerspectives.Count == 0)
+        {
+            Visibility = Visibility.Collapsed;
+            return;
+        }
+
         // Show panel (collapsed content by default — user clicks to expand)
         Visibility = Visibility.Visible;
+        _hasContent = true;
         ExpandToggle.IsChecked = false;
         ContentArea.Visibility = Visibility.Collapsed;
 
-        // Legacy explain field
-        if (hasExplain)
-        {
-            LegacyExplainSection.Visibility = Visibility.Visible;
-            LegacyExplainList.ItemsSource = snippet.Explain;
-        }
-        else
-        {
-            LegacyExplainSection.Visibility = Visibility.Collapsed;
-            LegacyExplainList.ItemsSource = null;
-        }
+        // Build perspective UI elements
+        var perspectiveElements = new List<StackPanel>();
 
-        // Perspectives
-        if (hasPerspectives)
+        foreach (var perspective in allPerspectives)
         {
-            var perspectiveElements = new List<StackPanel>();
+            var section = new StackPanel { Spacing = 2 };
 
-            // Cap at 5 to prevent UI clutter
-            foreach (var perspective in snippet.Perspectives!.Take(ExtensionBoundary.MaxPerspectivesPerSnippet))
+            // Perspective label as heading
+            section.Children.Add(new TextBlock
             {
-                if (string.IsNullOrWhiteSpace(perspective.Label) || perspective.Notes == null || perspective.Notes.Length == 0)
-                    continue;
+                Text = perspective.Label,
+                FontSize = 11,
+                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["TextFillColorSecondaryBrush"]
+            });
 
-                var section = new StackPanel { Spacing = 2 };
-
-                // Perspective label
+            // Notes (capped per perspective)
+            foreach (var note in perspective.Notes.Take(ExtensionBoundary.MaxNotesPerPerspective))
+            {
                 section.Children.Add(new TextBlock
                 {
-                    Text = perspective.Label,
+                    Text = note,
                     FontSize = 11,
-                    FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-                    Foreground = (Microsoft.UI.Xaml.Media.Brush)Resources["TextFillColorSecondaryBrush"]
+                    TextWrapping = TextWrapping.Wrap,
+                    IsTextSelectionEnabled = true,
+                    Margin = new Thickness(8, 0, 0, 2),
+                    Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["TextFillColorTertiaryBrush"]
                 });
-
-                // Notes
-                foreach (var note in perspective.Notes.Take(ExtensionBoundary.MaxNotesPerPerspective))
-                {
-                    section.Children.Add(new TextBlock
-                    {
-                        Text = note,
-                        FontSize = 11,
-                        TextWrapping = TextWrapping.Wrap,
-                        IsTextSelectionEnabled = true,
-                        Margin = new Thickness(8, 0, 0, 2),
-                        Foreground = (Microsoft.UI.Xaml.Media.Brush)Resources["TextFillColorTertiaryBrush"]
-                    });
-                }
-
-                perspectiveElements.Add(section);
             }
 
-            PerspectivesList.ItemsSource = perspectiveElements;
+            perspectiveElements.Add(section);
         }
-        else
-        {
-            PerspectivesList.ItemsSource = null;
-        }
+
+        PerspectivesList.ItemsSource = perspectiveElements;
     }
 
     /// <summary>
@@ -119,8 +141,7 @@ public sealed partial class ExplanationPanel : UserControl
     /// </summary>
     public void Show()
     {
-        // Only show if there's actually content to display
-        if (PerspectivesList.ItemsSource != null || LegacyExplainSection.Visibility == Visibility.Visible)
+        if (_hasContent)
         {
             Visibility = Visibility.Visible;
         }
