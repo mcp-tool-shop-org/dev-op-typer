@@ -229,7 +229,10 @@ public sealed partial class MainWindow : Window
         ExplanationPanel.SetSnippet(snippet);
 
         // Show alternative approaches (if any) between sessions
-        DemonstrationPanel.SetSnippet(snippet);
+        if (_settings.ShowDemonstrations)
+            DemonstrationPanel.SetSnippet(snippet);
+        else
+            DemonstrationPanel.Hide();
 
         // Show community signal hint (if available and enabled)
         if (_settings.ShowCommunitySignals)
@@ -897,6 +900,7 @@ public sealed partial class MainWindow : Window
 
         // Teaching settings
         _settings.ShowScaffolds = SettingsPanel.ShowScaffolds;
+        _settings.ShowDemonstrations = SettingsPanel.ShowDemonstrations;
 
         return _settings;
     }

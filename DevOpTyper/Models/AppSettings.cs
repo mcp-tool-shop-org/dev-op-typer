@@ -254,6 +254,13 @@ public sealed class AppSettings
     /// </summary>
     public bool ShowScaffolds { get; set; } = true;
 
+    /// <summary>
+    /// Whether to show alternative demonstrations on snippets.
+    /// Demonstrations show different valid approaches to the same problem.
+    /// Default: true. Disabling hides demonstration panels with zero other impact.
+    /// </summary>
+    public bool ShowDemonstrations { get; set; } = true;
+
     #endregion
 
     #region Community Settings (v0.7.0)
@@ -343,7 +350,8 @@ public sealed class AppSettings
             ShowSuggestions = ShowSuggestions,
             SelectedPracticeConfig = SelectedPracticeConfig,
             ShowCommunitySignals = ShowCommunitySignals,
-            ShowScaffolds = ShowScaffolds
+            ShowScaffolds = ShowScaffolds,
+            ShowDemonstrations = ShowDemonstrations
         };
     }
 }
