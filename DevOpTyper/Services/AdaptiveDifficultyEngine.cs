@@ -51,20 +51,25 @@ public sealed class AdaptiveDifficultyEngine
             };
         }
 
-        // Adjust based on momentum
+        // Adjust based on momentum.
+        // Positive momentum nudges up. Negative momentum holds steady —
+        // it never drops difficulty. A bad stretch shouldn't feel punitive;
+        // the user chooses when to ease up, not the system.
         int adjustment = summary.OverallMomentum switch
         {
             Momentum.StrongPositive => 1,    // Push harder
             Momentum.Positive => 0,           // Stay course, slightly favor harder
             Momentum.Neutral => 0,            // Hold steady
-            Momentum.Negative => 0,           // Hold steady, slightly favor easier
-            Momentum.StrongNegative => -1,    // Ease back
+            Momentum.Negative => 0,           // Hold steady — don't punish dips
+            Momentum.StrongNegative => 0,     // Still hold — user decides pace
             _ => 0
         };
 
         int adjusted = Math.Clamp(baseDifficulty + adjustment, 1, 5);
 
-        // Compute range — wider range when uncertain, tighter when confident
+        // Compute range — wider range when uncertain, tighter when confident.
+        // Negative momentum widens the range downward so easier snippets
+        // are *available*, but not forced.
         int rangeWidth = summary.SessionCount switch
         {
             >= 30 => 0,   // Very confident — tight range
@@ -72,11 +77,15 @@ public sealed class AdaptiveDifficultyEngine
             _ => 1        // Still learning — allow some variance
         };
 
-        // Factor in recent accuracy to determine if we should restrict range
+        if (summary.OverallMomentum is Momentum.Negative or Momentum.StrongNegative)
+            rangeWidth = Math.Max(rangeWidth, 1); // Ensure lighter options exist
+
+        // Factor in recent accuracy — only restrict when confident the
+        // user is genuinely struggling, not just having a bad day
         double recentAccuracy = summary.RecentAvgAccuracy;
-        if (recentAccuracy < 80)
+        if (recentAccuracy < 80 && summary.SessionCount >= 15)
         {
-            // Struggling — keep difficulty low
+            // Persistent struggle — keep difficulty accessible
             adjusted = Math.Min(adjusted, baseDifficulty);
             rangeWidth = Math.Max(rangeWidth, 1);
         }
