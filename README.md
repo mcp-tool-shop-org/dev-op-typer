@@ -1,36 +1,115 @@
-# Dev-Op-Typer (WinUI 3 starter)
+# Dev-Op-Typer
 
-A developer-focused typing practice app where **every test is real code** and the full keyboard is used.
+**A developer-focused typing practice app where every test is real code.**
 
-## What you get in this starter
-- WinUI 3 (Windows App SDK) C# project skeleton
-- Single-window layout with:
-  - Top bar
-  - Code prompt + typing surface
-  - Right **collapsible** advanced settings sidebar
-- Persistent local profile/settings ("memory") using `ApplicationData.Current.LocalSettings`
-- Audio system:
-  - Ambient soundscape **Random / Mute** toggle (ambient only)
-  - Mechanical keyboard SFX + UI click SFX
-  - 50+ ambient WAV placeholders (replace with real files later)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](VERSION.txt)
+[![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-lightgrey.svg)]()
+[![Framework](https://img.shields.io/badge/.NET-10.0-purple.svg)]()
+
+## Features
+
+### 🎯 Real Code Practice
+- Type actual code snippets in Python, C#, Java, JavaScript, Bash, and SQL
+- Character-by-character accuracy tracking
+- Exact symbol matching: `{ } [ ] ( ) < > ; : , . " ' \``
+- Newlines and indentation matter
+
+### 📊 Live Statistics
+- Real-time WPM and accuracy display
+- Error highlighting with visual indicators
+- Session completion overlay with results
+- Personal bests tracking
+
+### 🎮 Adaptive Learning
+- Smart snippet selection based on your skill level
+- Per-language rating system (Elo-like)
+- Difficulty scaling as you improve
+- Hardcore mode: no backspace past errors
+
+### 🎵 Immersive Audio
+- Ambient soundscapes (mutable independently)
+- Mechanical keyboard click sounds
+- UI feedback sounds
+- Per-channel volume controls
+
+### ♿ Accessibility
+- Full keyboard navigation
+- High contrast theme support
+- Reduced motion option
+- Screen reader optimizations
+- Focus indicators on all controls
+
+### 💾 Persistence
+- Profile with XP and levels
+- Settings saved across sessions
+- Session history (up to 500 records)
+- Export/import data as JSON or CSV
 
 ## Requirements
-- Visual Studio 2022
-- Windows App SDK (WinUI 3)
-- Windows 10 1809+ / Windows 11
 
-## Run
-1. Open `DevOpTyper.sln` in Visual Studio
-2. Restore NuGet packages
-3. Run (F5)
+- Windows 10 version 1809+ or Windows 11
+- Visual Studio 2022 (with Windows App SDK workload)
+- .NET 10.0 SDK
 
-## Replace audio
-Ambient: `DevOpTyper/Assets/Sounds/Ambient/*.wav`
-SFX: `DevOpTyper/Assets/Sounds/Sfx/*.wav`
+## Quick Start
 
-## Snippet packs
-JSON packs live in `DevOpTyper/Assets/Snippets/`.
-Each entry has `language`, `difficulty`, `topics`, and `code`.
+1. Open `DevOpTyper.sln` in Visual Studio 2022
+2. Restore NuGet packages (automatic)
+3. Select **Debug | x64** configuration
+4. Press **F5** to run
 
-## Accessibility
-The UI is keyboard navigable and includes focus visuals. Expand in `Themes/` resources.
+## Project Structure
+
+```
+DevOpTyper/
+├── Assets/
+│   ├── Snippets/     # JSON snippet packs by language
+│   └── Sounds/       # Ambient and SFX audio files
+├── Models/           # Data models (Profile, Snippet, etc.)
+├── Panels/           # UI panels (Typing, Stats, Settings)
+├── Services/         # Core services (Audio, Typing, Persistence)
+├── Themes/           # Color and high-contrast themes
+└── MainWindow.xaml   # Main application window
+```
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| Tab / Shift+Tab | Navigate controls |
+| Enter | Start new test |
+| Escape | Reset current test |
+| Ctrl+, | Toggle settings sidebar |
+
+## Audio Files
+
+Replace placeholder audio files in:
+- **Ambient**: `Assets/Sounds/Ambient/*.wav`
+- **SFX**: `Assets/Sounds/Sfx/*.wav` (key_*.wav, ui_click.wav)
+
+## Adding Snippets
+
+Snippet packs are JSON files in `Assets/Snippets/`:
+
+```json
+{
+  "language": "python",
+  "snippets": [
+    {
+      "id": "py_hello",
+      "title": "Hello World",
+      "difficulty": 1,
+      "topics": ["basics", "print"],
+      "code": "print(\"Hello, World!\")\n"
+    }
+  ]
+}
+```
+
+## License
+
+See [LICENSE](LICENSE) for details.
+
+---
+
+**Version 0.1.0** - See [CHANGELOG.md](CHANGELOG.md) for release notes.
