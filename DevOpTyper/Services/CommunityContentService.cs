@@ -161,6 +161,67 @@ public sealed class CommunityContentService
         return communityDir;
     }
 
+    /// <summary>
+    /// Returns age information about community content files.
+    /// Useful for the settings panel to show how old the content is.
+    /// Returns null if no community content directory exists.
+    /// </summary>
+    public (int FileCount, DateTime? OldestFile, DateTime? NewestFile)? GetContentAge()
+    {
+        if (CommunityContentPath == null || !Directory.Exists(CommunityContentPath))
+            return null;
+
+        var files = Directory.GetFiles(CommunityContentPath, "*.json", SearchOption.AllDirectories);
+        if (files.Length == 0)
+            return (0, null, null);
+
+        DateTime? oldest = null;
+        DateTime? newest = null;
+
+        foreach (var file in files)
+        {
+            var modified = File.GetLastWriteTimeUtc(file);
+            if (!oldest.HasValue || modified < oldest.Value)
+                oldest = modified;
+            if (!newest.HasValue || modified > newest.Value)
+                newest = modified;
+        }
+
+        return (files.Length, oldest, newest);
+    }
+
+    /// <summary>
+    /// Returns a human-readable summary of community content state.
+    /// Suitable for display in the settings panel.
+    /// </summary>
+    public string GetContentSummary()
+    {
+        if (!HasCommunityContent)
+            return "No community content";
+
+        var languages = GetCommunityLanguages();
+        var snippetCount = TotalSnippetCount;
+
+        var parts = new List<string>
+        {
+            $"{snippetCount} snippet{(snippetCount != 1 ? "s" : "")}",
+            $"{languages.Count} language{(languages.Count != 1 ? "s" : "")}"
+        };
+
+        if (LoadedFileCount > 0)
+            parts.Add($"{LoadedFileCount} file{(LoadedFileCount != 1 ? "s" : "")}");
+
+        var age = GetContentAge();
+        if (age?.OldestFile != null)
+        {
+            var daysOld = (DateTime.UtcNow - age.Value.OldestFile!.Value).Days;
+            if (daysOld > 180)
+                parts.Add($"oldest content: {daysOld / 30} months ago");
+        }
+
+        return string.Join(" · ", parts);
+    }
+
     private void LoadCommunityFile(string filePath)
     {
         var fileName = Path.GetFileName(filePath);

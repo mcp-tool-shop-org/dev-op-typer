@@ -592,7 +592,8 @@ public sealed partial class SettingsPanel : UserControl
 
         if (communityContent.HasCommunityContent)
         {
-            var statusText = $"{communityContent.TotalSnippetCount} community snippets from {communityContent.LoadedFileCount} file(s)";
+            // Use the enhanced summary that includes age info
+            var statusText = communityContent.GetContentSummary();
             CommunityContentStatus.Text = statusText;
             Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
                 CommunityContentStatus, $"Community content: {statusText}");
