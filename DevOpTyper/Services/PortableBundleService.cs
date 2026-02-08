@@ -52,7 +52,7 @@ public sealed class PortableBundleService
             // Write manifest
             var manifest = new BundleManifest
             {
-                AppVersion = "0.6.0",
+                AppVersion = "0.7.0-dev",
                 ExportedAt = DateTime.UtcNow.ToString("o"),
                 SnippetFileCount = snippetCount,
                 ConfigFileCount = configCount
