@@ -230,3 +230,23 @@ The user's data is theirs. Across any number of version updates:
 3. **Preferences are additive.** New settings default to sensible values. Existing settings are preserved.
 4. **Behavior is stable.** Core workflows (start, type, complete) never change feel.
 5. **Adaptation is reversible.** Any personalization the system applies can be undone or frozen.
+
+### What "Knowing the User" Means (v0.5.0)
+
+The system builds familiarity with the user over time. This is not profiling — it is pattern recognition applied to make the tool quieter and more accurate.
+
+| What the system learns | How it uses it |
+|---|---|
+| Natural WPM variability (CV) | Calibrates trend thresholds — variable typists need wider bands to register real change |
+| Session burst patterns | Surfaces as factual observation ("~3 sessions at a time"), never as prescription |
+| Day-of-week preferences | Surfaced as pattern ("Practices more on weekdays"), never used for scheduling |
+| Personal WPM range (P10–P90) | Shown in identity section, never used for difficulty or scoring |
+| Milestone thresholds reached | Shown as facts ("100 sessions"), not celebrations |
+
+#### What "knowing" does NOT mean
+
+- The system never predicts what the user will do next.
+- The system never schedules, reminds, or nudges based on patterns.
+- The system never compares the user's rhythm to any other user.
+- The system never labels a rhythm as "healthy", "productive", or "optimal".
+- Pattern observations produce strings, never actions (same constraint as v0.4.0).
