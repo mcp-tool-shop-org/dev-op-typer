@@ -3,6 +3,7 @@
 **A developer-focused typing practice app where every test is real code.**
 
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](VERSION.txt)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-lightgrey.svg)]()
 [![Framework](https://img.shields.io/badge/.NET-10.0-purple.svg)]()
 
