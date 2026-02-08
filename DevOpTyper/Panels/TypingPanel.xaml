@@ -67,7 +67,9 @@
                 <StackPanel x:Name="GuidanceArea"
                             Spacing="2"
                             Visibility="Collapsed"
-                            Margin="0,-2,0,0">
+                            Margin="0,-2,0,0"
+                            IsTabStop="False"
+                            AutomationProperties.Name="Contextual guidance from collective experience">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
