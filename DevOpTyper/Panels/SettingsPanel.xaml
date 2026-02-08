@@ -373,6 +373,33 @@
                            IsTabStop="False"
                            AutomationProperties.LiveSetting="Polite"/>
 
+                <!-- Community Content -->
+                <TextBlock Text="Community"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Margin="0,8,0,0"
+                           AutomationProperties.HeadingLevel="Level2"/>
+
+                <TextBlock x:Name="CommunityContentStatus"
+                           Text="No community content"
+                           FontSize="11"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           TextWrapping="Wrap"
+                           AutomationProperties.LiveSetting="Polite"
+                           IsTabStop="False"/>
+
+                <StackPanel Orientation="Horizontal"
+                            Spacing="4"
+                            AutomationProperties.Name="Community actions">
+                    <Button x:Name="OpenCommunityFolderButton"
+                            Content="Open Folder"
+                            FontSize="11"
+                            Padding="8,4"
+                            AutomationProperties.Name="Open community content folder in file explorer"
+                            ToolTipService.ToolTip="Opens the folder where community content lives"
+                            AccessKey="C"/>
+                </StackPanel>
+
                 <!-- Save Button -->
                 <Button x:Name="SaveSettingsButton"
                         Content="Save Settings"

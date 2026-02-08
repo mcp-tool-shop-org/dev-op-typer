@@ -106,10 +106,14 @@ public sealed partial class MainWindow : Window
         SettingsPanel.UpdateUserSnippetStatus(_snippetService.UserContent);
         SettingsPanel.OpenUserSnippetsFolderRequested += OnOpenUserSnippetsFolder;
 
-        // Export/import bundle
+        // Export/import bundle + community folder
         SettingsPanel.WireBundleButtons();
         SettingsPanel.ExportBundleRequested += OnExportBundle;
         SettingsPanel.ImportBundleRequested += OnImportBundle;
+        SettingsPanel.OpenCommunityFolderRequested += OnOpenCommunityFolder;
+
+        // Community content status
+        SettingsPanel.UpdateCommunityContentStatus(_snippetService.CommunityContent);
 
         // Practice configs
         _practiceConfigService.Initialize();
@@ -844,6 +848,23 @@ public sealed partial class MainWindow : Window
         try
         {
             var path = _snippetService.UserContent.EnsureUserSnippetsDirectory();
+            await Windows.System.Launcher.LaunchFolderPathAsync(path);
+        }
+        catch
+        {
+            // Silently fail — folder access might be restricted
+        }
+    }
+
+    /// <summary>
+    /// Opens the community content folder in the system file explorer.
+    /// Creates the directory if it doesn't exist yet.
+    /// </summary>
+    private async void OnOpenCommunityFolder(object? sender, EventArgs e)
+    {
+        try
+        {
+            var path = _snippetService.CommunityContent.EnsureCommunityContentDirectory();
             await Windows.System.Launcher.LaunchFolderPathAsync(path);
         }
         catch

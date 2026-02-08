@@ -546,6 +546,7 @@ public sealed partial class SettingsPanel : UserControl
     {
         ExportBundleButton.Click += (_, _) => ExportBundleRequested?.Invoke(this, EventArgs.Empty);
         ImportBundleButton.Click += (_, _) => ImportBundleRequested?.Invoke(this, EventArgs.Empty);
+        OpenCommunityFolderButton.Click += (_, _) => OpenCommunityFolderRequested?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -557,6 +558,47 @@ public sealed partial class SettingsPanel : UserControl
         BundleStatus.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
             BundleStatus, message);
+    }
+
+    #endregion
+
+    #region Community Content
+
+    /// <summary>
+    /// Event fired when the user clicks "Open Community Folder".
+    /// </summary>
+    public event EventHandler? OpenCommunityFolderRequested;
+
+    /// <summary>
+    /// Updates the community content status display.
+    /// Follows the same pattern as UpdateUserSnippetStatus.
+    /// </summary>
+    public void UpdateCommunityContentStatus(Services.CommunityContentService communityContent)
+    {
+        if (CommunityContentStatus == null) return;
+
+        if (communityContent.HasCommunityContent)
+        {
+            var statusText = $"{communityContent.TotalSnippetCount} community snippets from {communityContent.LoadedFileCount} file(s)";
+            CommunityContentStatus.Text = statusText;
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+                CommunityContentStatus, $"Community content: {statusText}");
+        }
+        else if (communityContent.CommunityContentPath != null)
+        {
+            CommunityContentStatus.Text = "Community folder exists but is empty";
+        }
+        else
+        {
+            CommunityContentStatus.Text = "No community content";
+        }
+
+        // Show load errors if any
+        if (communityContent.LoadErrors.Count > 0)
+        {
+            var errorText = string.Join("\n", communityContent.LoadErrors.Take(3));
+            CommunityContentStatus.Text += $"\n{errorText}";
+        }
     }
 
     #endregion
