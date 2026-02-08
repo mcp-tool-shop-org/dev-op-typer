@@ -76,4 +76,16 @@ public sealed class SessionState
             IsComplete = false;
         }
     }
+
+    /// <summary>
+    /// Cancels the current session without recording results.
+    /// </summary>
+    public void Cancel()
+    {
+        if (!IsRunning) return;
+        IsRunning = false;
+        IsComplete = false;
+        _sw.Stop();
+        _target = "";
+    }
 }
