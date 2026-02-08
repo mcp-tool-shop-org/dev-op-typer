@@ -665,3 +665,102 @@ Verified at release: zero references to v0.7.0 types in any frozen service.
 | TypistIdentityService | ✗ | ✗ | ✗ | ✗ |
 
 ✗ = zero references (verified by grep)
+
+---
+
+## Teaching Philosophy (v0.8.0)
+
+v0.8.0 explores how developers learn from shared material without curricula, teachers, grading, or authority structures.
+
+### Core Principle
+
+> Teaching is demonstration, not instruction. Mentorship is context, not direction.
+
+The system may show, suggest context, and offer depth. It may never lecture, prescribe, assign, or evaluate understanding.
+
+### What Teaching Means
+
+| Aspect | How it works |
+|---|---|
+| Scaffolds | Optional hints on snippets that fade with demonstrated competence |
+| Demonstrations | Alternative approaches to the same problem, shown side by side |
+| Guidance | Contextual observations from collective experience, dismissible |
+| Skill layers | Depth tiers on a snippet — the user chooses what to explore |
+
+### What Teaching Does NOT Mean
+
+These are permanent constraints, not temporary omissions.
+
+| The system does not... | Because... |
+|---|---|
+| Create curricula or lesson sequences | Practice is self-directed |
+| Assign exercises or homework | The user chooses what to type |
+| Grade understanding | Comprehension is private |
+| Gate content by progress | All material belongs to all users |
+| Track which teaching features are used | Curiosity is unmonitored |
+| Label users as beginners or experts | Labels constrain self-perception |
+| Require scaffolds before allowing practice | Scaffolds are aids, not prerequisites |
+| Persist teaching preferences across snippets | Each snippet is a fresh start |
+| Create teacher/student relationships | There are no roles in practice |
+| Issue completion certificates or badges | Mastery is felt, not certified |
+| Force users through "onboarding" flows | The app is ready when the user is |
+
+### Scaffold Principles
+
+Scaffolds are short hints attached to a snippet ("Watch the bracket alignment", "Semicolons at each line end"). They are optional supports that fade as the user demonstrates confidence with a specific snippet.
+
+**Fade behavior:**
+- Scaffolds are fully visible when the snippet is new to the user
+- After one successful completion (≥90% accuracy), scaffolds dim
+- After repeated success, scaffolds disappear entirely
+- Fade is per-snippet — mastering one snippet does not affect scaffolds on others
+- Fade is computed from session history, never persisted as separate state
+- Disabling scaffolds has zero impact on scoring, XP, difficulty, or selection
+
+### Demonstration Principles
+
+Demonstrations show alternative approaches to the same problem. A snippet that implements a loop imperatively might have a demonstration showing the functional approach. Neither approach is "correct." They coexist.
+
+**Design rules:**
+- Demonstrations carry no author attribution
+- Labels describe the approach ("Functional style"), never the person
+- Multiple demonstrations have equal visual weight — no "primary" or "recommended"
+- Demonstrations are visible only between sessions, never during typing
+- The system never ranks demonstrations
+
+### Guidance Principles
+
+Guidance notes are contextual observations that emerge from collective experience ("This pattern trips up most people at the semicolons"). They come from community-sourced `guidance.json` files, following the same local-first bundle pattern as `signals.json`.
+
+**Design rules:**
+- Guidance uses collective language ("often", "typically"), never directive ("you should")
+- Guidance is always dismissible per-session
+- The system never tracks or remembers dismissals
+- Guidance is optional enhancement, never dependency
+- Removing all guidance data returns the app to v0.7.0 behavior
+
+### Skill Layer Principles
+
+Skill layers offer different depths on the same snippet. A snippet might have "Essentials" (what the syntax means), "Deeper" (why this pattern exists), and "Advanced" (performance implications). Labels describe the content's depth, not the user's level.
+
+**Design rules:**
+- All layers are accessible to all users at all times
+- No layer is gated by user level, rating, or session count
+- Users choose which layers to expand — the system never recommends
+- The system never tracks which layers are expanded
+- Progressive visual hierarchy (first layer emphasized) is a design choice, not a restriction
+
+### Verification
+
+Any teaching feature must satisfy:
+
+21. Scaffolds have zero impact on scoring, XP, difficulty, or snippet selection.
+22. Scaffold fade is per-snippet, never per-user-level.
+23. Demonstrations carry no author attribution at runtime.
+24. No demonstration is ranked or labeled as "recommended."
+25. Guidance is always dismissible. Dismissals are never persisted or tracked.
+26. Guidance uses collective language — grep for "you should" returns zero matches.
+27. All skill layers are accessible regardless of user level or history.
+28. No teaching feature gates content by progress.
+29. Disabling any teaching toggle has zero impact beyond hiding the UI.
+30. No frozen service references any v0.8.0 type.
