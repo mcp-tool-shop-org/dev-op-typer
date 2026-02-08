@@ -9,6 +9,18 @@ namespace DevOpTyper.Panels;
 
 public sealed partial class StatsPanel : UserControl
 {
+    /// <summary>
+    /// Fired when the user clicks "Try" on a suggestion.
+    /// The payload is the PracticeSuggestion they chose.
+    /// </summary>
+    public event EventHandler<PracticeSuggestion>? SuggestionFollowed;
+
+    /// <summary>
+    /// Fired when the user clicks "Practice" on a weak character.
+    /// The payload is a set of weak characters to target.
+    /// </summary>
+    public event EventHandler<HashSet<char>>? WeaknessPracticeRequested;
+
     public StatsPanel()
     {
         InitializeComponent();
@@ -490,7 +502,7 @@ public sealed partial class StatsPanel : UserControl
         return border;
     }
 
-    private static Border CreateSuggestionRow(PracticeSuggestion suggestion)
+    private Border CreateSuggestionRow(PracticeSuggestion suggestion)
     {
         var border = new Border
         {
@@ -509,12 +521,46 @@ public sealed partial class StatsPanel : UserControl
 
         var stack = new StackPanel { Spacing = 2 };
 
-        var titleBlock = new TextBlock
+        // Title row with optional action button
+        if (suggestion.Action != SuggestionAction.None)
         {
-            Text = suggestion.Title,
-            FontSize = 11,
-            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
-        };
+            var titleGrid = new Grid();
+            titleGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            titleGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            var titleBlock = new TextBlock
+            {
+                Text = suggestion.Title,
+                FontSize = 11,
+                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            Grid.SetColumn(titleBlock, 0);
+
+            var tryButton = new Button
+            {
+                Content = "Try",
+                FontSize = 10,
+                Padding = new Thickness(8, 2, 8, 2),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            tryButton.Click += (_, _) => SuggestionFollowed?.Invoke(this, suggestion);
+            Grid.SetColumn(tryButton, 1);
+
+            titleGrid.Children.Add(titleBlock);
+            titleGrid.Children.Add(tryButton);
+            stack.Children.Add(titleGrid);
+        }
+        else
+        {
+            var titleBlock = new TextBlock
+            {
+                Text = suggestion.Title,
+                FontSize = 11,
+                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+            };
+            stack.Children.Add(titleBlock);
+        }
 
         var reasonBlock = new TextBlock
         {
@@ -524,7 +570,6 @@ public sealed partial class StatsPanel : UserControl
             TextWrapping = TextWrapping.Wrap
         };
 
-        stack.Children.Add(titleBlock);
         stack.Children.Add(reasonBlock);
 
         border.Child = stack;
