@@ -339,25 +339,30 @@
                            AutomationProperties.LiveSetting="Assertive"
                            IsTabStop="False"/>
 
-                <StackPanel Orientation="Horizontal" Spacing="4">
+                <StackPanel Orientation="Horizontal"
+                            Spacing="4"
+                            AutomationProperties.Name="Snippet actions">
                     <Button x:Name="OpenUserSnippetsButton"
                             Content="Open Folder"
                             FontSize="11"
                             Padding="8,4"
                             AutomationProperties.Name="Open snippets folder in file explorer"
-                            ToolTipService.ToolTip="Opens the folder where you can add your own snippet files"/>
+                            ToolTipService.ToolTip="Opens the folder where you can add your own snippet files"
+                            AccessKey="O"/>
                     <Button x:Name="ExportBundleButton"
                             Content="Export"
                             FontSize="11"
                             Padding="8,4"
-                            AutomationProperties.Name="Export user content as portable ZIP bundle"
-                            ToolTipService.ToolTip="Save all your snippets and configs as a ZIP file"/>
+                            AutomationProperties.Name="Export your snippets and configs as a ZIP file"
+                            ToolTipService.ToolTip="Save all your snippets and configs as a portable ZIP"
+                            AccessKey="E"/>
                     <Button x:Name="ImportBundleButton"
                             Content="Import"
                             FontSize="11"
                             Padding="8,4"
-                            AutomationProperties.Name="Import a portable ZIP bundle"
-                            ToolTipService.ToolTip="Load snippets and configs from a ZIP file"/>
+                            AutomationProperties.Name="Import snippets and configs from a ZIP file"
+                            ToolTipService.ToolTip="Load snippets and configs from a portable ZIP"
+                            AccessKey="I"/>
                 </StackPanel>
 
                 <TextBlock x:Name="BundleStatus"
