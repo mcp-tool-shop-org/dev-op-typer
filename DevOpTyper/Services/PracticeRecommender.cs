@@ -34,7 +34,7 @@ public sealed class PracticeRecommender
             {
                 Type = SuggestionType.TakeBreak,
                 Title = "Consider a break",
-                Reason = $"{cadence.SessionsLast30Min} sessions in 30 min with declining accuracy",
+                Reason = "You've been at it for a while",
                 Priority = SuggestionPriority.Gentle,
                 Intent = PracticeIntent.Warmup,
                 Action = SuggestionAction.None // No click action — just advice
@@ -52,7 +52,7 @@ public sealed class PracticeRecommender
             {
                 Type = SuggestionType.TargetWeakness,
                 Title = $"Practice {charDisplay}",
-                Reason = $"{topWeak.ErrorRate:P0} error rate over {topWeak.TotalAttempts} attempts",
+                Reason = $"Common miss — {topWeak.ErrorRate:P0} error rate",
                 Priority = SuggestionPriority.Normal,
                 Intent = PracticeIntent.WeaknessTarget,
                 Focus = topWeak.Group.ToString().ToLowerInvariant(),
@@ -96,7 +96,7 @@ public sealed class PracticeRecommender
                     {
                         Type = SuggestionType.Explore,
                         Title = "Try harder snippets",
-                        Reason = $"Strong improvement trend ({summary.WpmVelocity:+0.0;-0.0} WPM/session)",
+                        Reason = "You're moving fast — stretch yourself",
                         Priority = SuggestionPriority.Low,
                         Intent = PracticeIntent.Exploration,
                         Action = SuggestionAction.LoadHarderSnippet
@@ -113,7 +113,7 @@ public sealed class PracticeRecommender
             {
                 Type = SuggestionType.Explore,
                 Title = $"Revisit {neglected}",
-                Reason = $"Haven't practiced {neglected} in a while",
+                Reason = $"{neglected} is still here",
                 Priority = SuggestionPriority.Low,
                 Intent = PracticeIntent.Exploration,
                 Focus = neglected,
