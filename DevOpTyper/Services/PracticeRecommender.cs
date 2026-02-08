@@ -120,16 +120,23 @@ public sealed class PracticeRecommender
             });
         }
 
-        // Warmup suggestion for fresh sessions
+        // Warmup suggestion for fresh sessions — warm language for long gaps
         if (cadence?.Signal == FatigueSignal.Fresh && blob.History.TotalSessions > 10)
         {
+            // Long gap: frame as natural return, not absence
+            string reason = cadence.MinutesSinceLastSession switch
+            {
+                > 43200 => "Pick up where you left off", // 30+ days
+                > 1440 => "Ease back in",                // 1+ day
+                > 120 => "It's been a bit",              // 2+ hours
+                _ => "Start easy, build momentum"
+            };
+
             suggestions.Add(new PracticeSuggestion
             {
                 Type = SuggestionType.Warmup,
                 Title = "Start with a warmup",
-                Reason = cadence.MinutesSinceLastSession > 120
-                    ? "It's been a while since your last session"
-                    : "Start easy, build momentum",
+                Reason = reason,
                 Priority = SuggestionPriority.Low,
                 Intent = PracticeIntent.Warmup,
                 Action = SuggestionAction.LoadEasySnippet

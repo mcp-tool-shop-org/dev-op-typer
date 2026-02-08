@@ -292,16 +292,17 @@ public sealed class TypistIdentity
     {
         var lines = new List<string>();
 
-        // Staleness notice — neutral, no guilt
+        // Welcome-back notice for returning users — warm, not guilty
         if (IsStale && DaysSinceLastSession.HasValue)
         {
             string agoLabel = DaysSinceLastSession.Value switch
             {
-                < 60 => $"{DaysSinceLastSession.Value} days ago",
-                < 365 => $"{DaysSinceLastSession.Value / 30} months ago",
-                _ => $"{DaysSinceLastSession.Value / 365}+ years ago"
+                < 60 => $"{DaysSinceLastSession.Value} days",
+                < 365 => $"{DaysSinceLastSession.Value / 30} months",
+                _ => $"{DaysSinceLastSession.Value / 365}+ years"
             };
-            lines.Add($"Last active {agoLabel} \u2014 data below reflects that period");
+            // Frame as continuity, not absence: "picking up where you left off"
+            lines.Add($"Last active {agoLabel} ago \u2014 your history is here");
         }
 
         if (!string.IsNullOrEmpty(PrimaryLanguage))
