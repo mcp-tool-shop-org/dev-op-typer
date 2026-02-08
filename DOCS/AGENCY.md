@@ -250,3 +250,61 @@ The system builds familiarity with the user over time. This is not profiling —
 - The system never compares the user's rhythm to any other user.
 - The system never labels a rhythm as "healthy", "productive", or "optimal".
 - Pattern observations produce strings, never actions (same constraint as v0.4.0).
+
+---
+
+## Extensibility Philosophy (v0.6.0)
+
+v0.6.0 lets advanced users shape how they practice without the tool getting in the way. This is about authorship, not platforms.
+
+### Core Principle
+
+> Extensions are augmentations, not overrides. Core guarantees are non-negotiable.
+
+### What May Be Extended
+
+| Area | What users can do | Mechanism |
+|---|---|---|
+| Practice material | Create snippet files in any language or domain | JSON files in `UserSnippets/` |
+| Practice configurations | Tune difficulty bias, warmup behavior, session structure | JSON files in `UserConfigs/` |
+| Organization | Group and label their material however they want | Directory structure + metadata |
+
+### What May Never Be Extended
+
+| Area | Why it's frozen |
+|---|---|
+| Typing engine | Correctness of keystroke processing is a trust guarantee |
+| XP formula | Consistency across all content prevents gaming |
+| Data persistence | User history is sacred — extensions cannot corrupt it |
+| Session records | Built-in and user content produce identical records |
+| Identity computation | Longitudinal self-portrait must reflect the whole picture |
+
+### Design Constraints
+
+1. **No publishing.** User content is local. There is no account model, no upload, no sharing platform.
+2. **No ratings.** User snippets are not rated, ranked, or compared to built-in content.
+3. **No lock-in.** User content is plain JSON. It can be edited in any text editor, copied, or deleted.
+4. **No overhead.** If no extensions exist, the app behaves identically to v0.5.0. Zero scanning, zero cost.
+5. **No second-tier experience.** User-authored content behaves exactly like built-in content during practice.
+6. **No network.** Extensions never introduce network calls, telemetry, or external dependencies.
+
+### Extension Safety
+
+Every user-provided file is validated before loading:
+
+- Snippet count per file is capped (200)
+- Code length per snippet is capped (5000 chars)
+- Required fields (id, code) are enforced
+- Difficulty must be 1-5
+- Malformed files are skipped silently — they never crash the app
+- Total user snippet files capped at 50
+
+### Verification
+
+Any future extension feature must satisfy:
+
+1. **Removing all user content leaves the app functionally identical to v0.5.0.**
+2. **No user content alters scoring, XP, or accuracy computation.**
+3. **No configuration overrides a frozen behavior.**
+4. **All user artifacts are human-readable JSON.**
+5. **The app never scans for or suggests extensions the user hasn't created.**
