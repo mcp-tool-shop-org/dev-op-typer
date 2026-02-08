@@ -25,13 +25,15 @@
                           IsTabStop="False"
                           AutomationProperties.Name="Show or hide snippet perspectives"/>
 
-            <!-- Content area (collapsed by default) -->
+            <!-- Content area (collapsed by default, non-interrupting) -->
             <StackPanel x:Name="ContentArea"
                         Spacing="8"
-                        Visibility="Collapsed">
+                        Visibility="Collapsed"
+                        AutomationProperties.LiveSetting="Off">
 
                 <!-- All perspectives rendered here (including legacy Explain merged as "Notes") -->
-                <ItemsControl x:Name="PerspectivesList"/>
+                <ItemsControl x:Name="PerspectivesList"
+                              IsTabStop="False"/>
             </StackPanel>
         </StackPanel>
     </Border>

@@ -99,14 +99,16 @@ public sealed partial class ExplanationPanel : UserControl
         {
             var section = new StackPanel { Spacing = 2 };
 
-            // Perspective label as heading
-            section.Children.Add(new TextBlock
+            // Perspective label as accessible heading
+            var label = new TextBlock
             {
                 Text = perspective.Label,
                 FontSize = 11,
                 FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
                 Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["TextFillColorSecondaryBrush"]
-            });
+            };
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetHeadingLevel(label, Microsoft.UI.Xaml.Automation.Peers.AutomationHeadingLevel.Level3);
+            section.Children.Add(label);
 
             // Notes (capped per perspective)
             foreach (var note in perspective.Notes.Take(ExtensionBoundary.MaxNotesPerPerspective))
