@@ -180,10 +180,19 @@ public sealed partial class TypingPanel : UserControl
     }
 
     /// <summary>
+    /// Hides the guidance area. Called during active typing to remove distractions.
+    /// </summary>
+    public void HideGuidance()
+    {
+        GuidanceArea.Visibility = Visibility.Collapsed;
+    }
+
+    /// <summary>
     /// Shows contextual guidance notes from collective experience.
     /// Guidance notes use collective language ("often", "typically"),
     /// never directive ("you should"). Null hides the guidance area.
-    /// Each snippet load re-shows guidance — dismissal is session-scoped.
+    /// Each snippet load re-shows guidance — dismissal is session-scoped
+    /// (no persistence, no tracking, next snippet re-shows).
     /// </summary>
     public void ShowGuidance(GuidanceNote? guidance)
     {
