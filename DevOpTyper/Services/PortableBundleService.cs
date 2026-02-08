@@ -241,6 +241,12 @@ public sealed class PortableBundleService
     /// Extracts a ZIP entry to a file, stripping non-schema fields from snippet JSON.
     /// This ensures imported content carries no origin metadata (author, source, etc.)
     /// and is indistinguishable from locally authored material.
+    ///
+    /// This covers all nested types too: ExplanationSet perspectives are deserialized
+    /// into the schema model, which drops any non-schema fields like "author" or
+    /// "createdBy" that someone might add to a perspective. The result is that
+    /// imported explanations stand on the quality of their content alone.
+    ///
     /// Falls back to direct extraction for non-JSON or unparseable files.
     /// </summary>
     private static void ExtractAndSanitize(ZipArchiveEntry entry, string targetPath)

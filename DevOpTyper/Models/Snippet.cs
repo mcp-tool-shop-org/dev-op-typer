@@ -131,6 +131,12 @@ public sealed class LanguageTrack
 ///
 /// Label describes the perspective's focus (e.g., "Beginner view",
 /// "Performance notes", "Common pitfalls"). It is never an author name.
+///
+/// Authorship decoupling: ExplanationSet deliberately omits author/origin
+/// fields. During import, PortableBundleService deserializes into this model,
+/// which strips any non-schema fields (author, source, createdBy) from the
+/// JSON. This ensures imported perspectives are indistinguishable from
+/// locally authored ones — the idea stands on its own.
 /// </summary>
 public sealed class ExplanationSet
 {
