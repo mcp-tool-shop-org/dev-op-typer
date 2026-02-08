@@ -5,6 +5,53 @@ All notable changes to Dev-Op-Typer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-02-08
+
+### Theme: Community Without Platforms
+
+v0.7.0 lets developers quietly learn from each other without turning practice into a social performance. Community means shared craft — no accounts, no feeds, no rankings, no attribution pressure.
+
+### Added
+- **Community content directory** — `%LOCALAPPDATA%/DevOpTyper/CommunityContent/` for content from others, parallel to UserSnippets/ and UserConfigs/. Organizational separation on disk, indistinguishable at runtime.
+- **CommunityContentService** — Discovers and loads snippets from CommunityContent/ using the same validation as user content. Sets `IsUserAuthored = true` — no "foreign" distinction at runtime.
+- **Import target selection** — Bundle import shows "My Content" / "Community Content" dialog. Routes to the appropriate directory based on user choice.
+- **Community config scanning** — PracticeConfigService scans CommunityContent/configs/ alongside UserConfigs/. Community configs appear in dropdown with no visual distinction.
+- **Snippet perspectives** — New `ExplanationSet` model (Label + Notes[]) and `Perspectives` property on Snippet. Multiple viewpoints coexist without hierarchy. Labels describe focus, never authors.
+- **ExplanationPanel** — Collapsible panel showing perspectives between sessions. Hidden during active typing. Legacy `explain` fields merged as "Notes" perspective.
+- **Aggregate signals** — `AggregateSignal` model for anonymized collective hints (typical WPM, common difficulties, free-text hint). Loaded from signals.json by display-only `CommunitySignalService`.
+- **Community hints in UI** — Subtle hint below snippet title using collective language ("typically ~45 WPM", "often tricky: nested braces"). Never comparative.
+- **Signal opt-out** — `ShowCommunitySignals` setting (default true). Disabling hides all hints immediately with zero penalty or behavior change.
+- **Content age tracking** — `GetContentAge()` and `GetContentSummary()` on CommunityContentService. Settings shows enhanced summary with age info for old content.
+- **Community section in Settings** — Content status, Open Folder, Import Bundle, and signal toggle in one cohesive area.
+- **Import sanitization** — `ExtractAndSanitize()` strips non-schema fields (author, origin, source, createdBy) from snippet JSON during import, including nested perspectives.
+- **Export includes community** — Bundle export optionally includes community content alongside user content. Signals.json exported if present.
+
+### Boundaries
+- **MaxPerspectivesPerSnippet = 5** — Prevents overwhelming the user with viewpoints
+- **MaxNotesPerPerspective = 10** — Keeps each perspective focused
+- **MaxExplanationNoteLength = 300** — Short notes stay descriptive; long notes truncated
+- **MaxCommunitySnippetFiles = 100** — Higher than user limit for accumulated imports
+- **MaxCommunityConfigs = 40** — Reasonable ceiling for shared configs
+
+### Accessibility
+- ExplanationPanel: `LiveSetting="Off"` prevents screen reader interruptions during typing. Toggle reachable by keyboard (TabIndex=200). Perspective labels have HeadingLevel.Level3.
+- Community hint: `IsTabStop="False"`, `LiveSetting="Off"`, text-selectable but non-interrupting.
+- Community section: Heading Level 2, status with Polite live setting, buttons with access keys and tooltips.
+
+### Documentation
+- **Community Philosophy** — Core principle, what community means/doesn't mean, verification checklist
+- **Sharing Without Social Signaling** — No origin tracking, no badges, no download counts
+- **Explanations as Context, Not Instructions** — Descriptive not prescriptive, multiple perspectives prevent single-voice authority
+- **Aggregate Signal Ethics** — Signals reflect patterns not people, collective not comparative language, opt-out guarantee
+- **Permanent Constraints** — No accounts, no feeds, no followers, no leaderboards, no network calls, no telemetry
+
+### Technical
+- **Zero coupling maintained** — All 8 frozen services have zero references to v0.7.0 types (verified by grep at release).
+- v0.7.0 features live in: CommunityContentService, CommunitySignalService, ExplanationPanel, PortableBundleService extensions, and UI wiring.
+- New persisted field: `AppSettings.ShowCommunitySignals` (defaults safely to true). Community data lives on filesystem, not in PersistedBlob.
+- No network calls — all sharing is local file operations (ZIP import/export, filesystem directories).
+- Backward compatible — removing CommunityContent/ returns app to exact v0.6.0 behavior.
+
 ## [0.6.0] - 2026-02-08
 
 ### Theme: Extensible Practice Instrument
@@ -255,6 +302,7 @@ v0.4.0 puts the developer in control of how and why they practice. The system ob
 
 ---
 
+[0.7.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.7.0
 [0.6.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.6.0
 [0.5.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.5.0
 [0.4.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.4.0

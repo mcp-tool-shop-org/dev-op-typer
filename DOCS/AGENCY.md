@@ -621,3 +621,47 @@ CommunitySignalService and AggregateSignal must never be referenced by:
 18. No signal value is used in any computation that affects the user's session
 19. ExtensionBoundary frozen section explicitly lists v0.7.0 exclusions
 20. `grep -r "AggregateSignal" DevOpTyper/Services/TypingEngine.cs` returns zero matches (repeat for all frozen services)
+
+---
+
+## What Community Means for Dev-Op-Typer (v0.7.0)
+
+This is the final section. It exists to state, clearly and permanently, what community means in this project.
+
+### Community is shared craft
+
+Developers who use Dev-Op-Typer may share their snippets and practice configurations with each other. That's all community means. It is not a platform, a network, or a community in the modern product sense.
+
+### Permanent constraints
+
+These constraints apply to v0.7.0 and all future versions:
+
+| Constraint | Rationale |
+|---|---|
+| No user accounts | Identity creates hierarchy |
+| No feeds or timelines | Feeds create performance pressure |
+| No followers or following | Social graphs distort motivation |
+| No likes, stars, or ratings | Popularity metrics corrupt signal |
+| No download counts | Quantity metrics create competition |
+| No leaderboards | Rankings undermine intrinsic motivation |
+| No author attribution at runtime | Ideas should stand on their own |
+| No network calls | Sharing is a file operation, not a service |
+| No telemetry about shared content | Usage tracking creates surveillance |
+| No algorithmic recommendation of community content | Discovery must be intentional |
+
+### v0.7.0 frozen service audit
+
+Verified at release: zero references to v0.7.0 types in any frozen service.
+
+| Frozen Service | AggregateSignal | CommunitySignalService | CommunityContentService | ExplanationSet |
+|---|---|---|---|---|
+| TypingEngine | ✗ | ✗ | ✗ | ✗ |
+| SessionState | ✗ | ✗ | ✗ | ✗ |
+| PersistenceService | ✗ | ✗ | ✗ | ✗ |
+| SmartSnippetSelector | ✗ | ✗ | ✗ | ✗ |
+| AdaptiveDifficultyEngine | ✗ | ✗ | ✗ | ✗ |
+| TrendAnalyzer | ✗ | ✗ | ✗ | ✗ |
+| WeaknessTracker | ✗ | ✗ | ✗ | ✗ |
+| TypistIdentityService | ✗ | ✗ | ✗ | ✗ |
+
+✗ = zero references (verified by grep)
