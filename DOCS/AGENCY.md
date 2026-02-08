@@ -145,6 +145,30 @@ Any future feature must satisfy:
 3. **Pattern observations produce strings, never actions.**
 4. **Turning off any v0.4.0 feature leaves the app functionally identical to v0.3.0.**
 
+### v0.4.0 Release Audit (verified)
+
+The following core services have **zero references** to any v0.4.0 feature
+(`DeclaredIntent`, `UserIntent`, `FocusArea`, `ShowSuggestions`, `PracticeNote`,
+`PatternDetector`, `TypistIdentityService`):
+
+- `TypingEngine` — no v0.4.0 imports or references
+- `SmartSnippetSelector` — no v0.4.0 imports or references
+- `PracticeRecommender` — no v0.4.0 imports or references
+- `AdaptiveDifficultyEngine` — no v0.4.0 imports or references
+- `FatigueDetector` — no v0.4.0 imports or references
+- `SessionPacer` — no v0.4.0 imports or references
+- `WeaknessTracker` — no v0.4.0 imports or references
+- `TrendAnalyzer` — no v0.4.0 imports or references
+
+v0.4.0 features live exclusively in:
+- `MainWindow.xaml.cs` (wiring only)
+- `SettingsPanel` (UI controls)
+- `StatsPanel` (display only)
+- `TypingPanel` (intent chips, notes)
+- `PatternDetector` (string-only output)
+- `TypistIdentityService` (display-only output)
+- `PersistenceService` (sanitization guards)
+
 ---
 
 ## Backward Compatibility
