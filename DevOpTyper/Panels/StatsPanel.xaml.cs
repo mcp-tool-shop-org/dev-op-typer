@@ -269,12 +269,25 @@ public sealed partial class StatsPanel : UserControl
             var stats = history.GetLifetimeStats();
             var bests = history.GetPersonalBests();
 
+            // Build language breakdown for rediscovery (v0.5.0)
+            var langBreakdown = history.Records
+                .GroupBy(r => r.Language, StringComparer.OrdinalIgnoreCase)
+                .Where(g => g.Count() >= 2)
+                .OrderByDescending(g => g.Count())
+                .Take(4)
+                .Select(g => $"{g.Key}: {g.Count()}")
+                .ToList();
+            string langLine = langBreakdown.Count > 0
+                ? string.Join(" \u2022 ", langBreakdown)
+                : "";
+
             LifetimeStatsPanel.Visibility = Visibility.Visible;
             LifetimeText.Text = $"{stats.TotalSessions} sessions | " +
                                 $"Avg {stats.AverageWpm:F0} WPM | " +
                                 $"Avg {stats.AverageAccuracy:F0}%\n" +
                                 $"Best: {bests.BestWpm:F0} WPM | " +
-                                $"{stats.PerfectSessions} perfect";
+                                $"{stats.PerfectSessions} perfect" +
+                                (langLine.Length > 0 ? $"\n{langLine}" : "");
         }
         else
         {
