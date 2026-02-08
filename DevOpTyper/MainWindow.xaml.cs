@@ -101,6 +101,10 @@ public sealed partial class MainWindow : Window
         SettingsPanel.LoadPracticePreferences(_settings);
         ApplyPracticePreferences();
 
+        // User snippets status
+        SettingsPanel.UpdateUserSnippetStatus(_snippetService.UserContent);
+        SettingsPanel.OpenUserSnippetsFolderRequested += OnOpenUserSnippetsFolder;
+
         // Session pacing
         _sessionPacer.OnAppLaunched();
 
@@ -796,5 +800,22 @@ public sealed partial class MainWindow : Window
 
         // Relay suggestion visibility preference to StatsPanel
         StatsPanel.ShowSuggestions = _settings.ShowSuggestions;
+    }
+
+    /// <summary>
+    /// Opens the user snippets folder in the system file explorer.
+    /// Creates the directory if it doesn't exist yet.
+    /// </summary>
+    private async void OnOpenUserSnippetsFolder(object? sender, EventArgs e)
+    {
+        try
+        {
+            var path = _snippetService.UserContent.EnsureUserSnippetsDirectory();
+            await Windows.System.Launcher.LaunchFolderPathAsync(path);
+        }
+        catch
+        {
+            // Silently fail — folder access might be restricted
+        }
     }
 }

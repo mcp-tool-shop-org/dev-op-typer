@@ -366,4 +366,54 @@ public sealed partial class SettingsPanel : UserControl
     }
 
     #endregion
+
+    #region User Snippets
+
+    /// <summary>
+    /// Event fired when the user clicks "Open Snippets Folder".
+    /// MainWindow handles the actual folder open.
+    /// </summary>
+    public event EventHandler? OpenUserSnippetsFolderRequested;
+
+    /// <summary>
+    /// Updates the user snippet status display.
+    /// Call after SnippetService initialization.
+    /// </summary>
+    public void UpdateUserSnippetStatus(Services.UserContentService userContent)
+    {
+        if (userContent.HasUserContent)
+        {
+            UserSnippetStatus.Text = $"{userContent.TotalSnippetCount} snippets from {userContent.LoadedFileCount} file(s)";
+        }
+        else if (userContent.UserSnippetsPath != null)
+        {
+            UserSnippetStatus.Text = "Snippets folder exists but is empty";
+        }
+        else
+        {
+            UserSnippetStatus.Text = "No user snippets — click below to open the folder";
+        }
+
+        // Show errors if any
+        if (userContent.LoadErrors.Count > 0)
+        {
+            UserSnippetErrors.Text = string.Join("\n", userContent.LoadErrors.Take(3));
+            UserSnippetErrors.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+        }
+        else
+        {
+            UserSnippetErrors.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+        }
+
+        // Wire the button
+        OpenUserSnippetsButton.Click -= OnOpenUserSnippetsClick;
+        OpenUserSnippetsButton.Click += OnOpenUserSnippetsClick;
+    }
+
+    private void OnOpenUserSnippetsClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        OpenUserSnippetsFolderRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    #endregion
 }
