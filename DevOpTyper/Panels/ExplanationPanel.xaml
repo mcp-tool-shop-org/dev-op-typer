@@ -15,15 +15,16 @@
             Padding="12"
             Margin="0,0,0,8">
         <StackPanel Spacing="6">
-            <!-- Expand/collapse toggle -->
+            <!-- Expand/collapse toggle — reachable by keyboard but low tab priority -->
             <ToggleButton x:Name="ExpandToggle"
                           Content="Perspectives"
                           FontSize="11"
                           Padding="6,3"
                           MinWidth="0"
                           IsChecked="False"
-                          IsTabStop="False"
-                          AutomationProperties.Name="Show or hide snippet perspectives"/>
+                          TabIndex="200"
+                          AutomationProperties.Name="Show or hide snippet perspectives"
+                          ToolTipService.ToolTip="Expand to see explanatory perspectives for this snippet"/>
 
             <!-- Content area (collapsed by default, non-interrupting) -->
             <StackPanel x:Name="ContentArea"

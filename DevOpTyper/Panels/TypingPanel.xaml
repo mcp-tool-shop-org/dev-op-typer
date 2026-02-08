@@ -46,7 +46,9 @@
                            TextWrapping="Wrap"
                            Visibility="Collapsed"
                            IsTabStop="False"
+                           IsTextSelectionEnabled="True"
                            AutomationProperties.LiveSetting="Off"
+                           AutomationProperties.Name="Community hint about this snippet"
                            Margin="0,-4,0,0"/>
 
                 <!-- Per-character diff renderer (replaces old plain TargetCode TextBlock) -->
