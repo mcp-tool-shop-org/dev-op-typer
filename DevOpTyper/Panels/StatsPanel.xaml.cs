@@ -21,6 +21,18 @@ public sealed partial class StatsPanel : UserControl
     /// </summary>
     public event EventHandler<HashSet<char>>? WeaknessPracticeRequested;
 
+    /// <summary>
+    /// Tracks dismissed suggestions for this session.
+    /// Resets on app restart — the system never remembers that
+    /// a suggestion was dismissed.
+    /// </summary>
+    private readonly HashSet<string> _dismissedSuggestions = new();
+
+    /// <summary>
+    /// Whether to show suggestions at all.
+    /// </summary>
+    public bool ShowSuggestions { get; set; } = true;
+
     public StatsPanel()
     {
         InitializeComponent();
@@ -250,12 +262,30 @@ public sealed partial class StatsPanel : UserControl
 
     /// <summary>
     /// Updates the Suggestions section from practice recommendations.
+    /// Respects ShowSuggestions toggle and filters dismissed suggestions.
+    /// Dismissals are session-scoped — the system never remembers
+    /// that a suggestion was dismissed across restarts.
     /// </summary>
     public void UpdateSuggestions(List<PracticeSuggestion> suggestions)
     {
         SuggestionContainer.Children.Clear();
 
-        if (suggestions.Count == 0)
+        // If user turned suggestions off entirely, hide the section
+        if (!ShowSuggestions)
+        {
+            SuggestionDivider.Visibility = Visibility.Collapsed;
+            SuggestionHeader.Visibility = Visibility.Collapsed;
+            SuggestionContainer.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        // Filter out dismissed suggestions
+        var visible = suggestions
+            .Where(s => !_dismissedSuggestions.Contains(s.Title))
+            .Take(3)
+            .ToList();
+
+        if (visible.Count == 0)
         {
             SuggestionDivider.Visibility = Visibility.Collapsed;
             SuggestionHeader.Visibility = Visibility.Collapsed;
@@ -267,7 +297,7 @@ public sealed partial class StatsPanel : UserControl
         SuggestionHeader.Visibility = Visibility.Visible;
         SuggestionContainer.Visibility = Visibility.Visible;
 
-        foreach (var suggestion in suggestions.Take(3))
+        foreach (var suggestion in visible)
         {
             var row = CreateSuggestionRow(suggestion);
             SuggestionContainer.Children.Add(row);
@@ -664,46 +694,60 @@ public sealed partial class StatsPanel : UserControl
 
         var stack = new StackPanel { Spacing = 2 };
 
-        // Title row with optional action button
+        // Title row — always includes dismiss button, optionally includes action button
+        var titleGrid = new Grid();
+        titleGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        titleGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        titleGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        var titleBlock = new TextBlock
+        {
+            Text = suggestion.Title,
+            FontSize = 11,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        Grid.SetColumn(titleBlock, 0);
+        titleGrid.Children.Add(titleBlock);
+
         if (suggestion.Action != SuggestionAction.None)
         {
-            var titleGrid = new Grid();
-            titleGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            titleGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-            var titleBlock = new TextBlock
-            {
-                Text = suggestion.Title,
-                FontSize = 11,
-                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            Grid.SetColumn(titleBlock, 0);
-
             var tryButton = new Button
             {
                 Content = "Try",
                 FontSize = 10,
                 Padding = new Thickness(8, 2, 8, 2),
-                VerticalAlignment = VerticalAlignment.Center
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(4, 0, 0, 0)
             };
             tryButton.Click += (_, _) => SuggestionFollowed?.Invoke(this, suggestion);
             Grid.SetColumn(tryButton, 1);
-
-            titleGrid.Children.Add(titleBlock);
             titleGrid.Children.Add(tryButton);
-            stack.Children.Add(titleGrid);
         }
-        else
+
+        // Dismiss button — always present, no penalty for using it
+        var dismissButton = new Button
         {
-            var titleBlock = new TextBlock
-            {
-                Text = suggestion.Title,
-                FontSize = 11,
-                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
-            };
-            stack.Children.Add(titleBlock);
-        }
+            Content = "\u00d7", // × character
+            FontSize = 12,
+            Padding = new Thickness(4, 0, 4, 0),
+            MinWidth = 24,
+            MinHeight = 24,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(4, 0, 0, 0),
+            Background = new SolidColorBrush(Windows.UI.Color.FromArgb(0, 0, 0, 0))
+        };
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+            dismissButton, $"Dismiss suggestion: {suggestion.Title}");
+        dismissButton.Click += (_, _) =>
+        {
+            _dismissedSuggestions.Add(suggestion.Title);
+            border.Visibility = Visibility.Collapsed;
+        };
+        Grid.SetColumn(dismissButton, 2);
+        titleGrid.Children.Add(dismissButton);
+
+        stack.Children.Add(titleGrid);
 
         var reasonBlock = new TextBlock
         {

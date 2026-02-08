@@ -229,6 +229,13 @@ public sealed class AppSettings
     /// </summary>
     public string? FocusArea { get; set; }
 
+    /// <summary>
+    /// Whether to show practice suggestions in the stats panel.
+    /// Users who don't want the system offering suggestions can turn
+    /// them off entirely — no penalty, no nagging.
+    /// </summary>
+    public bool ShowSuggestions { get; set; } = true;
+
     #endregion
 
     #region Statistics Display
@@ -303,7 +310,8 @@ public sealed class AppSettings
             ShowIntentChips = ShowIntentChips,
             DefaultIntent = DefaultIntent,
             PracticeNote = PracticeNote,
-            FocusArea = FocusArea
+            FocusArea = FocusArea,
+            ShowSuggestions = ShowSuggestions
         };
     }
 }

@@ -764,13 +764,14 @@ public sealed partial class MainWindow : Window
         _settings.DefaultIntent = SettingsPanel.DefaultIntent;
         _settings.PracticeNote = SettingsPanel.PracticeNote;
         _settings.FocusArea = SettingsPanel.FocusArea;
+        _settings.ShowSuggestions = SettingsPanel.ShowSuggestions;
 
         return _settings;
     }
 
     /// <summary>
     /// Applies practice preferences to the UI — shows/hides intent chips,
-    /// sets default intent selection.
+    /// sets default intent selection, controls suggestion visibility.
     /// </summary>
     private void ApplyPracticePreferences()
     {
@@ -782,5 +783,8 @@ public sealed partial class MainWindow : Window
         {
             TypingPanel.SetDefaultIntent(_settings.DefaultIntent.Value);
         }
+
+        // Relay suggestion visibility preference to StatsPanel
+        StatsPanel.ShowSuggestions = _settings.ShowSuggestions;
     }
 }

@@ -284,6 +284,12 @@ public sealed partial class SettingsPanel : UserControl
     public bool ShowIntentChips => ShowIntentChipsToggle.IsOn;
 
     /// <summary>
+    /// Gets whether practice suggestions should be shown in the stats panel.
+    /// The user can hide suggestions entirely — no penalty.
+    /// </summary>
+    public bool ShowSuggestions => ShowSuggestionsToggle.IsOn;
+
+    /// <summary>
     /// Gets the user's default declared intent, or null for none.
     /// </summary>
     public UserIntent? DefaultIntent
@@ -329,6 +335,7 @@ public sealed partial class SettingsPanel : UserControl
     public void LoadPracticePreferences(AppSettings settings)
     {
         ShowIntentChipsToggle.IsOn = settings.ShowIntentChips;
+        ShowSuggestionsToggle.IsOn = settings.ShowSuggestions;
 
         // Map DefaultIntent to combo index (0=None, 1=Focus, 2=Challenge, 3=Maintenance, 4=Exploration)
         DefaultIntentCombo.SelectedIndex = settings.DefaultIntent switch

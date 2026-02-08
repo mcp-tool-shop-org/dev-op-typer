@@ -123,6 +123,12 @@
                               OnContent="Visible"
                               IsOn="True"/>
 
+                <ToggleSwitch x:Name="ShowSuggestionsToggle"
+                              Header="Show Suggestions"
+                              OffContent="Hidden"
+                              OnContent="Visible"
+                              IsOn="True"/>
+
                 <StackPanel Spacing="4">
                     <TextBlock Text="Default Intent"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
