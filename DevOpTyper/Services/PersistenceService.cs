@@ -126,6 +126,13 @@ public sealed class PersistenceService
         blob.Settings.UiClickVolume = Math.Clamp(blob.Settings.UiClickVolume, 0, 1);
         blob.Settings.TypingRules.AccuracyFloorForXp = Math.Clamp(blob.Settings.TypingRules.AccuracyFloorForXp, 0, 100);
 
+        // Practice preferences (v0.4.0) — clamp note length, validate enum range
+        if (blob.Settings.PracticeNote?.Length > 200)
+            blob.Settings.PracticeNote = blob.Settings.PracticeNote[..200];
+        if (blob.Settings.DefaultIntent.HasValue &&
+            !Enum.IsDefined(typeof(UserIntent), blob.Settings.DefaultIntent.Value))
+            blob.Settings.DefaultIntent = null;
+
         // History
         blob.History ??= new();
         blob.History.Records ??= new();
