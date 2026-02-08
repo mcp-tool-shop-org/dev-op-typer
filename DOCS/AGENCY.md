@@ -619,3 +619,5 @@ CommunitySignalService and AggregateSignal must never be referenced by:
 16. Disabling ShowCommunitySignals hides hints with zero other impact
 17. The app never generates signal data — only reads from signals.json
 18. No signal value is used in any computation that affects the user's session
+19. ExtensionBoundary frozen section explicitly lists v0.7.0 exclusions
+20. `grep -r "AggregateSignal" DevOpTyper/Services/TypingEngine.cs` returns zero matches (repeat for all frozen services)

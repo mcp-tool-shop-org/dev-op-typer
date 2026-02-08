@@ -104,7 +104,9 @@ public static class ExtensionBoundary
     //  FROZEN — the system guarantees these remain stable
     //
     //  Core services (TypingEngine, SessionState, PersistenceService,
-    //  TypistIdentityService) must not be affected by extensions.
+    //  SmartSnippetSelector, AdaptiveDifficultyEngine, TrendAnalyzer,
+    //  WeaknessTracker, TypistIdentityService) must not be affected
+    //  by extensions.
     //
     //  Data formats (PersistedBlob, SessionHistory, LongitudinalData,
     //  MistakeHeatmap) must remain backward-compatible.
@@ -116,6 +118,17 @@ public static class ExtensionBoundary
     //  - No extension can prevent the user from typing
     //  - No extension can alter persisted history
     //  - No extension introduces network calls or telemetry
+    //
+    //  v0.7.0 additions — these must NEVER reference frozen services:
+    //  - CommunitySignalService (display-only aggregate hints)
+    //  - CommunityContentService (community snippet loading)
+    //  - AggregateSignal / SignalCollection (signal data models)
+    //  - ExplanationSet (perspective data model)
+    //  - ExplanationPanel (perspective UI)
+    //
+    //  Specifically, no frozen service may read AggregateSignal
+    //  data. Signals must never influence difficulty selection,
+    //  scoring, XP calculation, or snippet ordering.
     //
     //  These are documented in DOCS/AGENCY.md. They exist as comments
     //  (not runtime arrays) because they are design constraints,
