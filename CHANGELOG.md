@@ -5,6 +5,43 @@ All notable changes to Dev-Op-Typer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-02-08
+
+### Theme: Companion for Lifelong Practice
+
+v0.5.0 reframes the app from a mastery environment to a companion that ages well with the user. Continuity, resilience, and trust over long time scales.
+
+### Added
+- **Long-term identity continuity** — Identity section anchors to "since Month Year" using earliest session date. MinSessions threshold lowered from 15 to 10.
+- **Graceful long-gap handling** — Staleness notice reframed from clinical to warm ("your history is here"). Warmup reasons scale by gap duration (30d+, 1d+, 2h+).
+- **Orientation cues** — Subtle past-tense context for returning users: last session title/WPM for 30d+ gaps, last session + language distribution for 1d+ gaps. Hidden for same-day.
+- **Session framing** — Pre-session context showing typical WPM/accuracy for the current language ("Python · ~45 WPM · ~92%").
+- **Per-language session breakdown** — Lifetime stats show top 4 languages with session counts.
+- **Plateau detection** — `ComputePlateauLength` counts consecutive sessions within 5% band of mean. Shown as neutral "steady" label in trend rows.
+- **Wider-window decline confirmation** — `ComputeDirection` checks a wider window before labeling a trend as Declining, preventing a single bad session from flipping the signal.
+- **Adaptive trend thresholds** — Trend detection threshold scales by the user's personal WPM variability (CV). Variable typists get wider bands; steady typists get tighter detection.
+- **Practice rhythm observations** — PatternDetector surfaces session burst size ("~3 sessions at a time") and day-of-week preferences ("Practices more on weekdays"). Max observations increased from 2 to 3.
+- **Milestone awareness** — Typist identity surfaces factual milestones (50/100/250/500/1000 sessions; 3/6/12/24 months) as facts, not celebrations.
+- **Continuity principles doc** — AGENCY.md gains Core Beliefs, Longevity Contract, and "What Knowing the User Means" sections.
+
+### Changed
+- **Calmer decline handling** — Declining trend suggestions demoted from Normal to Low priority. Language softened from "declining recently" to "dipped a bit". Fatigue reason changed from "${N} sessions in 30 min" to "You've been at it for a while".
+- **No punitive difficulty drops** — StrongNegative momentum no longer reduces target difficulty. Bad stretches widen the available range downward but never force easier snippets.
+- **Accuracy capping requires confidence** — Difficulty capping for low accuracy now requires 15+ sessions instead of activating immediately.
+- **Screen-reader calm signals** — Trend rows carry accessible names using calm language ("dipped recently" not "declining"). Weakness trajectories use "needs attention" not "worsening". Momentum reads as "steady", "up slightly", "rising", "dipped recently".
+- **Informational elements non-focusable** — Identity, pattern, orientation, and pacing blocks set `IsTabStop=false` and `LiveSetting=Off` to avoid screen-reader noise during typing.
+- **Suggestion reasons don't narrate logic** — Reasons now express state, not detection method ("You're moving fast" not "+1.2 WPM/session").
+- **Internal comments cleaned** — Removed "(Phase X)" and "(vX.Y.Z)" annotations from code comments. Purpose over origin.
+
+### Technical
+- `ComputeCV` private method added to TrendAnalyzer for per-user variability computation
+- `ComputePlateauLength` private method added to TrendAnalyzer for plateau detection
+- `ComputeMilestone` private method added to TypistIdentity for milestone computation
+- `DetectSessionBurstPattern` and `DetectDayOfWeekPattern` added to PatternDetector
+- Per-language trend sanitization in `SanitizeBlob`: removes NaN/Inf from rolling data, clamps negative TotalSessions
+- All v0.5.0 changes maintain zero-coupling guarantee: core services unchanged
+- No schema version bump — all changes are computational, not persisted
+
 ## [0.4.0] - 2026-02-08
 
 ### Theme: Self-Directed Mastery Environment
