@@ -53,7 +53,9 @@ public sealed class CommunityContentService
 
     /// <summary>
     /// Discovers and loads community snippets from the CommunityContent directory.
-    /// If the directory doesn't exist, this is a no-op.
+    /// If the directory doesn't exist, this is a complete no-op — zero scanning,
+    /// zero overhead. The app remains fully functional without any community content.
+    /// Solo use is first-class.
     /// Safe to call multiple times — only initializes once.
     /// </summary>
     public void Initialize()

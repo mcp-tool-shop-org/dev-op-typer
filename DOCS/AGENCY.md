@@ -480,3 +480,5 @@ Any community feature must satisfy:
 5. **No community feature introduces network calls, telemetry, or external dependencies.**
 6. **Solo practice remains complete and satisfying without any community content.**
 7. **Nothing pressures users to participate, share, or engage socially.**
+8. **If CommunityContent/ does not exist, zero scanning occurs.** No overhead, no prompts, no empty-state messaging.
+9. **Community content never appears in any "count" or "status" unless the user has explicitly imported it.**
