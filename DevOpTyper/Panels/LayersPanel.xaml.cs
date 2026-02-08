@@ -44,7 +44,7 @@ public sealed partial class LayersPanel : UserControl
         }
 
         var layers = snippet.Layers
-            .Where(l => !string.IsNullOrWhiteSpace(l.Label) && l.Content.Length > 0)
+            .Where(l => !string.IsNullOrWhiteSpace(l.Label) && l.Content != null && l.Content.Length > 0)
             .Take(ExtensionBoundary.MaxLayersPerSnippet)
             .ToList();
 

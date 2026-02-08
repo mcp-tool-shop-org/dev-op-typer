@@ -82,7 +82,7 @@ public sealed class GuidanceService
 
             foreach (var note in collection.Guidance)
             {
-                if (!string.IsNullOrWhiteSpace(note.SnippetId))
+                if (!string.IsNullOrWhiteSpace(note.SnippetId) && note.Notes != null)
                 {
                     _guidance[note.SnippetId] = note;
                 }

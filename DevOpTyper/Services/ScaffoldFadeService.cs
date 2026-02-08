@@ -34,7 +34,7 @@ public static class ScaffoldFadeService
     /// "Successful" means accuracy ≥ 90%.
     /// Fade is per-snippet, never global.
     /// </summary>
-    public static double ComputeOpacity(string snippetId, SessionHistory history)
+    public static double ComputeOpacity(string snippetId, SessionHistory? history)
     {
         if (string.IsNullOrEmpty(snippetId) || history == null)
             return 1.0;
