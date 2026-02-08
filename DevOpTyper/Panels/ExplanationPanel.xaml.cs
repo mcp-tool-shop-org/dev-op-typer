@@ -110,12 +110,16 @@ public sealed partial class ExplanationPanel : UserControl
             Microsoft.UI.Xaml.Automation.AutomationProperties.SetHeadingLevel(label, Microsoft.UI.Xaml.Automation.Peers.AutomationHeadingLevel.Level3);
             section.Children.Add(label);
 
-            // Notes (capped per perspective)
+            // Notes (capped per perspective, truncated to prevent prescriptive walls of text)
             foreach (var note in perspective.Notes.Take(ExtensionBoundary.MaxNotesPerPerspective))
             {
+                var truncated = note.Length > ExtensionBoundary.MaxExplanationNoteLength
+                    ? note[..ExtensionBoundary.MaxExplanationNoteLength] + "…"
+                    : note;
+
                 section.Children.Add(new TextBlock
                 {
-                    Text = note,
+                    Text = truncated,
                     FontSize = 11,
                     TextWrapping = TextWrapping.Wrap,
                     IsTextSelectionEnabled = true,

@@ -93,6 +93,13 @@ public static class ExtensionBoundary
     /// </summary>
     public const int MaxNotesPerPerspective = 10;
 
+    /// <summary>
+    /// Maximum length of a single explanation note (chars).
+    /// Short notes stay descriptive. Long notes tend toward prescriptive
+    /// instructions, which undermines the "context, not instruction" principle.
+    /// </summary>
+    public const int MaxExplanationNoteLength = 300;
+
     // ────────────────────────────────────────────────────────
     //  FROZEN — the system guarantees these remain stable
     //

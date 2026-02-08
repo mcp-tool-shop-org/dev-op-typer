@@ -516,3 +516,45 @@ Sharing in Dev-Op-Typer is a file operation, not a social act.
 - Community content receives the same `IsUserAuthored = true` flag as user content
 - No runtime path can distinguish community content from locally authored content
 - Export is explicit and user-controlled — never implicit or automated
+
+---
+
+## Explanations as Context, Not Instructions (v0.7.0)
+
+Snippets may include perspectives — explanatory notes that offer context about the code. These perspectives are descriptive, not prescriptive.
+
+### What explanations are
+
+- **Observations**: "This pattern uses early return to reduce nesting."
+- **Context**: "Common in Go codebases. Less common in Java."
+- **Alternatives**: "Could also use a match/switch expression here."
+- **Common pitfalls**: "Off-by-one errors are frequent with this loop pattern."
+
+### What explanations are NOT
+
+| Explanations never... | Because... |
+|---|---|
+| Tell the user what to do | The user decides their own practice focus |
+| Claim authority | Multiple perspectives coexist without hierarchy |
+| Name authors | Ideas stand on their own merit |
+| Grade the snippet | Quality judgment belongs to the user |
+| Link to external resources | The app is offline-first and self-contained |
+
+### Structural constraints
+
+- **MaxPerspectivesPerSnippet = 5** — prevents overwhelming the user with viewpoints
+- **MaxNotesPerPerspective = 10** — keeps each perspective focused
+- **MaxExplanationNoteLength = 300** — short notes stay descriptive; long notes drift prescriptive
+- Labels describe focus ("Beginner view"), never authors ("Written by X")
+- Legacy `explain` fields are merged as a "Notes" perspective — no special treatment
+
+### Why multiple perspectives matter
+
+A single explanation creates a single authority. Multiple perspectives create a conversation. The user reads all viewpoints and forms their own understanding. No perspective is privileged over another.
+
+### Verification
+
+10. Explanation content is never referenced by any frozen service
+11. No perspective label contains an author name or identity reference
+12. Notes that exceed 300 characters are truncated at display time
+13. The ExplanationPanel is fully hidden during active typing sessions
