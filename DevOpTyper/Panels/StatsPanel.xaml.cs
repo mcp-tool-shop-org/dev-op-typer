@@ -275,6 +275,39 @@ public sealed partial class StatsPanel : UserControl
     }
 
     /// <summary>
+    /// Updates the patterns section — shows factual observations
+    /// about the user's practice data. Purely observational.
+    /// </summary>
+    public void UpdatePatterns(List<string> observations)
+    {
+        PatternContainer.Children.Clear();
+
+        if (observations.Count == 0)
+        {
+            PatternDivider.Visibility = Visibility.Collapsed;
+            PatternHeader.Visibility = Visibility.Collapsed;
+            PatternContainer.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        PatternDivider.Visibility = Visibility.Visible;
+        PatternHeader.Visibility = Visibility.Visible;
+        PatternContainer.Visibility = Visibility.Visible;
+
+        foreach (var obs in observations)
+        {
+            var block = new TextBlock
+            {
+                Text = obs,
+                FontSize = 11,
+                Foreground = (Brush)Application.Current.Resources["DotTextMutedBrush"],
+                TextWrapping = TextWrapping.Wrap
+            };
+            PatternContainer.Children.Add(block);
+        }
+    }
+
+    /// <summary>
     /// Updates the intent pattern section — shows factual averages
     /// grouped by declared intent. No judgment, no scoring.
     /// Only shown when the user has 3+ sessions with declared intents.

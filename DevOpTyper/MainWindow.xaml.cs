@@ -692,6 +692,10 @@ public sealed partial class MainWindow : Window
         // Intent patterns (v0.4.0) — factual correlations, no judgment
         StatsPanel.UpdateIntentPatterns(blob.History);
 
+        // Deeper patterns (v0.4.0) — observational, not prescriptive
+        var patterns = PatternDetector.Detect(blob.History, blob.Longitudinal);
+        StatsPanel.UpdatePatterns(patterns);
+
         // Practice suggestions (Phase 2)
         var suggestions = _recommender.Suggest(blob, language);
         StatsPanel.UpdateSuggestions(suggestions);
