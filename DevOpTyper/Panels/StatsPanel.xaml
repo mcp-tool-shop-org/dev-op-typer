@@ -123,6 +123,30 @@
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     </StackPanel>
                 </Border>
+
+                <!-- Divider -->
+                <Border x:Name="TrendDivider" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4" Visibility="Collapsed"/>
+
+                <!-- Trend Section -->
+                <TextBlock x:Name="TrendHeader"
+                           Text="Trends"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Visibility="Collapsed"/>
+
+                <StackPanel x:Name="TrendContainer" Spacing="6" Visibility="Collapsed"/>
+
+                <!-- Divider -->
+                <Border x:Name="SuggestionDivider" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4" Visibility="Collapsed"/>
+
+                <!-- Suggestions Section -->
+                <TextBlock x:Name="SuggestionHeader"
+                           Text="Suggestions"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Visibility="Collapsed"/>
+
+                <StackPanel x:Name="SuggestionContainer" Spacing="6" Visibility="Collapsed"/>
             </StackPanel>
         </ScrollViewer>
     </Border>

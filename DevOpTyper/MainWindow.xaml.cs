@@ -17,6 +17,9 @@ public sealed partial class MainWindow : Window
     private readonly AudioService _audioService = new();
     private readonly KeyboardSoundHandler _keyboardSound;
     private readonly UiFeedbackService _uiFeedback;
+    private readonly TrendAnalyzer _trendAnalyzer = new();
+    private readonly FatigueDetector _fatigueDetector = new();
+    private readonly PracticeRecommender _recommender = new();
     private Profile _profile = new();
     private AppSettings _settings = new();
     private bool _settingsPanelOpen = false;
@@ -324,12 +327,21 @@ public sealed partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Updates the StatsPanel weakness and history sections from persisted data.
+    /// Updates the StatsPanel weakness, history, trends, and suggestions from persisted data.
     /// </summary>
     private void RefreshAnalytics(PersistedBlob blob)
     {
         StatsPanel.UpdateWeakSpots(blob.Profile.Heatmap);
         StatsPanel.UpdateHistory(blob.History);
+
+        // Trend analysis (Phase 2)
+        var trends = _trendAnalyzer.AnalyzeAll(blob.Longitudinal);
+        StatsPanel.UpdateTrends(trends);
+
+        // Practice suggestions (Phase 2)
+        var language = SettingsPanel.SelectedLanguage;
+        var suggestions = _recommender.Suggest(blob, language);
+        StatsPanel.UpdateSuggestions(suggestions);
     }
 
     private void SettingsToggleButton_Click(object sender, RoutedEventArgs e)

@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using DevOpTyper.Models;
+using DevOpTyper.Services;
 
 namespace DevOpTyper.Panels;
 
@@ -133,6 +134,58 @@ public sealed partial class StatsPanel : UserControl
         else
         {
             LifetimeStatsPanel.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    /// <summary>
+    /// Updates the Trends section from trend analysis.
+    /// </summary>
+    public void UpdateTrends(List<LanguageTrendSummary> trends)
+    {
+        TrendContainer.Children.Clear();
+
+        if (trends.Count == 0)
+        {
+            TrendDivider.Visibility = Visibility.Collapsed;
+            TrendHeader.Visibility = Visibility.Collapsed;
+            TrendContainer.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        TrendDivider.Visibility = Visibility.Visible;
+        TrendHeader.Visibility = Visibility.Visible;
+        TrendContainer.Visibility = Visibility.Visible;
+
+        foreach (var trend in trends.Take(3))
+        {
+            var row = CreateTrendRow(trend);
+            TrendContainer.Children.Add(row);
+        }
+    }
+
+    /// <summary>
+    /// Updates the Suggestions section from practice recommendations.
+    /// </summary>
+    public void UpdateSuggestions(List<PracticeSuggestion> suggestions)
+    {
+        SuggestionContainer.Children.Clear();
+
+        if (suggestions.Count == 0)
+        {
+            SuggestionDivider.Visibility = Visibility.Collapsed;
+            SuggestionHeader.Visibility = Visibility.Collapsed;
+            SuggestionContainer.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        SuggestionDivider.Visibility = Visibility.Visible;
+        SuggestionHeader.Visibility = Visibility.Visible;
+        SuggestionContainer.Visibility = Visibility.Visible;
+
+        foreach (var suggestion in suggestions.Take(3))
+        {
+            var row = CreateSuggestionRow(suggestion);
+            SuggestionContainer.Children.Add(row);
         }
     }
 
@@ -299,6 +352,105 @@ public sealed partial class StatsPanel : UserControl
 
         stack.Children.Add(titleGrid);
         stack.Children.Add(statsBlock);
+
+        border.Child = stack;
+        return border;
+    }
+
+    private static Border CreateTrendRow(LanguageTrendSummary trend)
+    {
+        var border = new Border
+        {
+            Background = (Brush)Application.Current.Resources["DotSurface2Brush"],
+            CornerRadius = new CornerRadius(4),
+            Padding = new Thickness(8, 6, 8, 6)
+        };
+
+        var stack = new StackPanel { Spacing = 2 };
+
+        // Language + direction indicator
+        string arrow = trend.OverallMomentum switch
+        {
+            Momentum.StrongPositive => "\u2191\u2191",
+            Momentum.Positive => "\u2191",
+            Momentum.Neutral => "\u2194",
+            Momentum.Negative => "\u2193",
+            Momentum.StrongNegative => "\u2193\u2193",
+            _ => ""
+        };
+
+        var titleBlock = new TextBlock
+        {
+            Text = $"{trend.Language} {arrow}",
+            FontSize = 12,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+        };
+
+        // Stats line
+        string wpmDir = trend.WpmDirection switch
+        {
+            TrendDirection.Improving => "+",
+            TrendDirection.Declining => "-",
+            _ => "="
+        };
+        string accDir = trend.AccuracyDirection switch
+        {
+            TrendDirection.Improving => "+",
+            TrendDirection.Declining => "-",
+            _ => "="
+        };
+
+        var statsBlock = new TextBlock
+        {
+            Text = $"WPM {trend.RecentAvgWpm:F0} ({wpmDir}) | Acc {trend.RecentAvgAccuracy:F0}% ({accDir}) | {trend.SessionCount} sessions",
+            FontSize = 10,
+            Foreground = (Brush)Application.Current.Resources["DotTextMutedBrush"],
+            TextWrapping = TextWrapping.Wrap
+        };
+
+        stack.Children.Add(titleBlock);
+        stack.Children.Add(statsBlock);
+
+        border.Child = stack;
+        return border;
+    }
+
+    private static Border CreateSuggestionRow(PracticeSuggestion suggestion)
+    {
+        var border = new Border
+        {
+            CornerRadius = new CornerRadius(4),
+            Padding = new Thickness(8, 6, 8, 6),
+            Opacity = suggestion.Priority == SuggestionPriority.Low ? 0.7 : 1.0
+        };
+
+        // Color based on suggestion type
+        border.Background = suggestion.Type switch
+        {
+            SuggestionType.TakeBreak => new SolidColorBrush(Windows.UI.Color.FromArgb(30, 255, 200, 50)),
+            SuggestionType.TargetWeakness => (Brush)Application.Current.Resources["DotSurface2Brush"],
+            _ => (Brush)Application.Current.Resources["DotSurface2Brush"]
+        };
+
+        var stack = new StackPanel { Spacing = 2 };
+
+        var titleBlock = new TextBlock
+        {
+            Text = suggestion.Title,
+            FontSize = 11,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+        };
+
+        var reasonBlock = new TextBlock
+        {
+            Text = suggestion.Reason,
+            FontSize = 10,
+            Foreground = (Brush)Application.Current.Resources["DotTextMutedBrush"],
+            TextWrapping = TextWrapping.Wrap
+        };
+
+        stack.Children.Add(titleBlock);
+        stack.Children.Add(reasonBlock);
 
         border.Child = stack;
         return border;
