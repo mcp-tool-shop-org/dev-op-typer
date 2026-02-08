@@ -21,6 +21,12 @@ public sealed class PersistedBlob
     public SessionHistory History { get; set; } = new();
 
     /// <summary>
+    /// Cross-session longitudinal data for trend awareness (v0.3.0+).
+    /// Null for data created before v0.3.0 — deserialized as new().
+    /// </summary>
+    public LongitudinalData Longitudinal { get; set; } = new();
+
+    /// <summary>
     /// IDs of favorited snippets.
     /// </summary>
     public HashSet<string> FavoriteSnippetIds { get; set; } = new();

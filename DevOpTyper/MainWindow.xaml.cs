@@ -296,6 +296,10 @@ public sealed partial class MainWindow : Window
                 );
                 blob.History.AddRecord(record);
 
+                // Feed longitudinal data (trend tracking, weakness snapshots)
+                blob.Longitudinal.RecordSession(record);
+                blob.Longitudinal.MaybeSnapshotWeakness(_currentSnippet.Language, _profile.Heatmap);
+
                 // Track last practiced language
                 blob.LastPracticedByLanguage[_currentSnippet.Language] = DateTime.UtcNow;
             }

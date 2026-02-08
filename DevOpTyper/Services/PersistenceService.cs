@@ -143,6 +143,12 @@ public sealed class PersistenceService
             r.Difficulty = Math.Clamp(r.Difficulty, 1, 5);
         }
 
+        // Longitudinal data (v0.3.0+)
+        blob.Longitudinal ??= new();
+        blob.Longitudinal.TrendsByLanguage ??= new();
+        blob.Longitudinal.SessionTimestamps ??= new();
+        blob.Longitudinal.WeaknessSnapshots ??= new();
+
         // Collections
         blob.FavoriteSnippetIds ??= new();
         blob.LastPracticedByLanguage ??= new();
