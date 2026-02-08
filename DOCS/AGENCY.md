@@ -341,3 +341,89 @@ Any future extension feature must satisfy:
 4. **All user artifacts are human-readable JSON.**
 5. **The app never scans for or suggests extensions the user hasn't created.**
 6. **No gamification mechanics apply to authorship — no streaks, badges, levels, or achievements for creating content.**
+7. **Portable bundles are standard ZIP files containing plain JSON — no proprietary format.**
+
+---
+
+## Portable Bundle Format
+
+User content can be exported as a ZIP bundle and imported on any machine. The format is deliberately simple and open.
+
+### Bundle structure
+
+```
+bundle.zip/
+  manifest.json        — metadata (version, timestamp, counts)
+  snippets/            — user snippet files
+    python.json
+    my-favorites.json
+    terraform/
+      aws.json
+  configs/             — user practice configs
+    morning-warmup.json
+    strict-mode.json
+```
+
+### Snippet file schema
+
+Each snippet file is a JSON array of snippet objects:
+
+```json
+[
+  {
+    "id": "unique-id",
+    "language": "python",
+    "difficulty": 3,
+    "title": "List comprehension",
+    "code": "squares = [x**2 for x in range(10)]",
+    "topics": ["comprehensions", "lists"],
+    "explain": ["Builds a list of squares from 0 to 81"]
+  }
+]
+```
+
+Required fields: `id`, `code`.
+Optional fields: `language` (defaults to filename), `difficulty` (defaults to 1), `title`, `topics`, `explain`.
+
+### Config file schema
+
+Each config file is a single JSON object:
+
+```json
+{
+  "description": "Start easy, loosen whitespace rules",
+  "difficultyBias": "easier",
+  "warmup": true,
+  "preferShorterSnippets": true,
+  "whitespace": "lenient"
+}
+```
+
+All fields are optional. Missing fields inherit from app defaults.
+
+Valid `difficultyBias` values: `"easier"`, `"harder"`, `"match"`.
+Valid `whitespace` values: `"strict"`, `"lenient"`, `"normalize"`.
+Valid `backspace` values: `"always"`, `"limited"`, `"never"`.
+`accuracyFloor`: number, 0-100.
+
+### manifest.json
+
+```json
+{
+  "appVersion": "0.6.0",
+  "exportedAt": "2025-01-15T10:30:00Z",
+  "snippetFileCount": 3,
+  "configFileCount": 2
+}
+```
+
+The manifest is informational only. Bundles without a manifest are still importable.
+
+### Design guarantees
+
+- **Standard ZIP**: No proprietary headers, encryption, or compression schemes.
+- **Plain JSON**: Readable and editable with any text editor.
+- **No lock-in**: Files work outside the app. The schema is documented here.
+- **Non-destructive import**: Existing files are never overwritten.
+- **Path safety**: Import sanitizes paths and rejects directory traversal attempts.
+- **No network**: Export and import are local operations. No upload, no download, no accounts.
