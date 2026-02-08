@@ -128,6 +128,25 @@ public static class TypistIdentityService
             identity.AccuracyStdDev = Math.Sqrt(variance);
         }
 
+        // "Then vs Now" — compare early and recent sessions in primary language
+        // Only shown when there's enough history for a meaningful comparison.
+        if (!string.IsNullOrEmpty(identity.PrimaryLanguage) &&
+            longitudinal.TrendsByLanguage.TryGetValue(identity.PrimaryLanguage, out var primaryTrend) &&
+            primaryTrend.RecentWpm.Count >= 20)
+        {
+            // "Then" = the oldest 10 data points in the rolling buffer
+            // "Now"  = the newest 10
+            var nowWpm = primaryTrend.RecentWpm.Take(10).Average();
+            var thenWpm = primaryTrend.RecentWpm.Skip(primaryTrend.RecentWpm.Count - 10).Take(10).Average();
+            var nowAcc = primaryTrend.RecentAccuracy.Take(10).Average();
+            var thenAcc = primaryTrend.RecentAccuracy.Skip(primaryTrend.RecentAccuracy.Count - 10).Take(10).Average();
+
+            identity.ThenWpm = thenWpm;
+            identity.NowWpm = nowWpm;
+            identity.ThenAccuracy = thenAcc;
+            identity.NowAccuracy = nowAcc;
+        }
+
         // Active days in the last 14 calendar days
         if (longitudinal.SessionTimestamps.Count > 0)
         {
@@ -196,6 +215,27 @@ public sealed class TypistIdentity
     public int TotalSessions { get; set; }
 
     /// <summary>
+    /// Average WPM from the user's earliest sessions in their primary language.
+    /// Used for "then vs now" factual comparison. Null if not enough data.
+    /// </summary>
+    public double? ThenWpm { get; set; }
+
+    /// <summary>
+    /// Average WPM from the user's most recent sessions in their primary language.
+    /// </summary>
+    public double? NowWpm { get; set; }
+
+    /// <summary>
+    /// Average accuracy from the user's earliest sessions in their primary language.
+    /// </summary>
+    public double? ThenAccuracy { get; set; }
+
+    /// <summary>
+    /// Average accuracy from the user's most recent sessions in their primary language.
+    /// </summary>
+    public double? NowAccuracy { get; set; }
+
+    /// <summary>
     /// Coefficient of variation of recent WPM (stddev / mean).
     /// Lower = more consistent, higher = more variable.
     /// Not labeled "good" or "bad" — just factual.
@@ -242,6 +282,23 @@ public sealed class TypistIdentity
         if (TypicalAccuracy.HasValue)
         {
             lines.Add($"Typical accuracy: {TypicalAccuracy.Value:F0}%");
+        }
+
+        // Then vs Now — factual comparison, no judgment
+        if (ThenWpm.HasValue && NowWpm.HasValue)
+        {
+            double wpmDelta = NowWpm.Value - ThenWpm.Value;
+            string wpmSign = wpmDelta >= 0 ? "+" : "";
+            string line = $"Then \u2192 Now: {ThenWpm.Value:F0} \u2192 {NowWpm.Value:F0} WPM ({wpmSign}{wpmDelta:F0})";
+
+            if (ThenAccuracy.HasValue && NowAccuracy.HasValue)
+            {
+                double accDelta = NowAccuracy.Value - ThenAccuracy.Value;
+                string accSign = accDelta >= 0 ? "+" : "";
+                line += $" \u00b7 {ThenAccuracy.Value:F0}% \u2192 {NowAccuracy.Value:F0}% ({accSign}{accDelta:F1}%)";
+            }
+
+            lines.Add(line);
         }
 
         if (PracticeSpanDays.HasValue && PracticeSpanDays.Value > 0)
