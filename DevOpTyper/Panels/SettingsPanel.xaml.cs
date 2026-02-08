@@ -1,12 +1,26 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 
 namespace DevOpTyper.Panels;
 
 public sealed partial class SettingsPanel : UserControl
 {
+    // Volume change events so MainWindow can update AudioService
+    public event EventHandler<double>? AmbientVolumeChanged;
+    public event EventHandler<double>? KeyboardVolumeChanged;
+    public event EventHandler<double>? UiVolumeChanged;
+
     public SettingsPanel()
     {
         InitializeComponent();
+
+        // Wire slider value changes to events
+        AmbientVolumeSlider.ValueChanged += (s, e) =>
+            AmbientVolumeChanged?.Invoke(this, e.NewValue / 100.0);
+        KeyboardVolumeSlider.ValueChanged += (s, e) =>
+            KeyboardVolumeChanged?.Invoke(this, e.NewValue / 100.0);
+        UiVolumeSlider.ValueChanged += (s, e) =>
+            UiVolumeChanged?.Invoke(this, e.NewValue / 100.0);
     }
 
     /// <summary>

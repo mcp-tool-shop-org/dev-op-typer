@@ -16,6 +16,9 @@ public sealed partial class MainWindow : Window
     private readonly SnippetService _snippetService = new();
     private readonly SmartSnippetSelector _smartSelector;
     private readonly PersistenceService _persistenceService = new();
+    private readonly AudioService _audioService = new();
+    private readonly KeyboardSoundHandler _keyboardSound;
+    private readonly UiFeedbackService _uiFeedback;
     private Profile _profile = new();
     private bool _settingsPanelOpen = false;
 
@@ -28,6 +31,21 @@ public sealed partial class MainWindow : Window
         // Initialize services
         _snippetService.Initialize();
         _smartSelector = new SmartSnippetSelector(_snippetService);
+
+        // Initialize audio
+        _audioService.Initialize();
+        _keyboardSound = new KeyboardSoundHandler(_audioService);
+        _uiFeedback = new UiFeedbackService(_audioService);
+
+        // Apply volume from settings panel defaults
+        _audioService.SetVolumes(
+            SettingsPanel.AmbientVolume,
+            SettingsPanel.KeyboardVolume,
+            SettingsPanel.UiVolume
+        );
+
+        // Start ambient audio
+        _audioService.PlayRandomAmbient();
 
         // Load persisted profile
         var persisted = _persistenceService.Load();
@@ -43,6 +61,11 @@ public sealed partial class MainWindow : Window
         TypingPanel.ResetClicked += ResetTest_Click;
         TypingPanel.SkipClicked += SkipTest_Click;
         TypingPanel.TypingTextChanged += TypingBox_TextChanged;
+
+        // Wire up settings panel volume sliders
+        SettingsPanel.AmbientVolumeChanged += (_, val) => _audioService.SetAmbientVolume(val);
+        SettingsPanel.KeyboardVolumeChanged += (_, val) => _audioService.SetKeyboardVolume(val);
+        SettingsPanel.UiVolumeChanged += (_, val) => _audioService.SetUiVolume(val);
 
         // Initial state
         UpdateLevelBadge();
@@ -60,10 +83,10 @@ public sealed partial class MainWindow : Window
     private void LoadNewSnippet()
     {
         var language = SettingsPanel.SelectedLanguage;
-        
+
         // Use smart selection for better learning experience
         var snippet = _smartSelector.SelectNext(language, _profile);
-        
+
         TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
         _currentSnippet = snippet;
 
@@ -74,7 +97,7 @@ public sealed partial class MainWindow : Window
     private void LoadSnippetForWeakChars()
     {
         var language = SettingsPanel.SelectedLanguage;
-        
+
         if (_profile.WeakChars.Count > 0)
         {
             var snippet = _smartSelector.SelectForWeakChars(language, _profile, _profile.WeakChars);
@@ -93,20 +116,24 @@ public sealed partial class MainWindow : Window
 
     private void StartTest_Click(object sender, RoutedEventArgs e)
     {
+        _uiFeedback.OnButtonClick();
         if (_currentSnippet != null)
         {
             bool hardcore = SettingsPanel.IsHardcoreMode;
             _typingEngine.StartSession(_currentSnippet, hardcore);
+            _keyboardSound.Reset();
             TypingPanel.FocusTypingBox();
         }
     }
 
     private void ResetTest_Click(object sender, RoutedEventArgs e)
     {
+        _uiFeedback.OnButtonClick();
         _typingEngine.Reset();
         TypingPanel.ClearTyping();
         StatsPanel.Reset();
-        
+        _keyboardSound.Reset();
+
         if (_currentSnippet != null)
         {
             bool hardcore = SettingsPanel.IsHardcoreMode;
@@ -117,6 +144,7 @@ public sealed partial class MainWindow : Window
 
     private void SkipTest_Click(object sender, RoutedEventArgs e)
     {
+        _uiFeedback.OnButtonClick();
         _typingEngine.CancelSession();
         LoadNewSnippet();
     }
@@ -127,6 +155,9 @@ public sealed partial class MainWindow : Window
         {
             var typed = TypingPanel.TypedText;
             _typingEngine.UpdateTypedText(typed, SettingsPanel.IsHardcoreMode);
+
+            // Play keyboard sound
+            _keyboardSound.OnTextChanged(typed);
         }
     }
 
@@ -171,9 +202,12 @@ public sealed partial class MainWindow : Window
     {
         DispatcherQueue.TryEnqueue(() =>
         {
+            // Play completion sound
+            _keyboardSound.OnSessionComplete();
+
             // Update profile with results
             _profile.AddXp(e.XpEarned);
-            
+
             if (_currentSnippet != null)
             {
                 _profile.UpdateRating(_currentSnippet.Language, e.FinalAccuracy, e.FinalWpm);
@@ -201,7 +235,36 @@ public sealed partial class MainWindow : Window
 
     private void SettingsToggleButton_Click(object sender, RoutedEventArgs e)
     {
+        _uiFeedback.OnButtonClick();
         _settingsPanelOpen = !_settingsPanelOpen;
         SettingsColumn.Width = _settingsPanelOpen ? new GridLength(280) : new GridLength(0);
+    }
+
+    private void AmbientRandomButton_Click(object sender, RoutedEventArgs e)
+    {
+        _audioService.PlayRandomAmbient();
+        UpdateAmbientMuteButton(false);
+    }
+
+    private bool _ambientMuted = false;
+
+    private void AmbientMuteButton_Click(object sender, RoutedEventArgs e)
+    {
+        _ambientMuted = !_ambientMuted;
+        if (_ambientMuted)
+        {
+            _audioService.StopAmbient();
+        }
+        else
+        {
+            _audioService.PlayRandomAmbient();
+        }
+        UpdateAmbientMuteButton(_ambientMuted);
+    }
+
+    private void UpdateAmbientMuteButton(bool muted)
+    {
+        _ambientMuted = muted;
+        AmbientMuteButton.Content = muted ? "🔇 Muted" : "🔊 Ambient";
     }
 }

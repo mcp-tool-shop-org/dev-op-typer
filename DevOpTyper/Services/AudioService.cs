@@ -1,20 +1,33 @@
-using Windows.Media.Core;
-using Windows.Media.Playback;
+using System.Runtime.InteropServices;
 
 namespace DevOpTyper.Services;
 
 /// <summary>
-/// Audio service with volume controls, mute toggles, and channel management.
+/// Audio service using Win32 native APIs for reliable playback in unpackaged WinUI 3 apps.
+/// - SFX: uses PlaySound (fire-and-forget, async)
+/// - Ambient: uses mciSendString for looping background playback with volume control
 /// </summary>
 public sealed class AudioService
 {
-    private readonly MediaPlayer _ambientPlayer = new();
-    private readonly List<MediaPlayer> _sfxPlayers = new();
+    #region Win32 Interop
+
+    [DllImport("winmm.dll", CharSet = CharSet.Unicode)]
+    private static extern int mciSendString(string command, System.Text.StringBuilder? returnString, int returnSize, IntPtr callback);
+
+    [DllImport("winmm.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern bool PlaySound(string pszSound, IntPtr hmod, uint fdwSound);
+
+    // PlaySound flags
+    private const uint SND_FILENAME = 0x00020000;
+    private const uint SND_ASYNC = 0x0001;
+    private const uint SND_NODEFAULT = 0x0002;
+
+    #endregion
+
     private readonly List<string> _ambientFiles = new();
     private readonly List<string> _keyFiles = new();
     private readonly List<string> _errorFiles = new();
     private readonly List<string> _successFiles = new();
-
     private string _uiClick = "";
 
     // Volume levels (0.0 - 1.0)
@@ -31,7 +44,8 @@ public sealed class AudioService
     // State tracking
     private bool _isInitialized;
     private bool _isAmbientPlaying;
-    private int _sfxPlayerIndex;
+    private string _currentAmbientAlias = "dotAmbient";
+    private int _currentAmbientIndex = -1;
 
     // Events
     public event EventHandler<AudioVolumeChangedEventArgs>? VolumeChanged;
@@ -57,16 +71,13 @@ public sealed class AudioService
     {
         if (_isInitialized) return;
 
-        // Discover files in output Assets folder
         var baseDir = Path.Combine(AppContext.BaseDirectory, "Assets", "Sounds");
-
         var ambDir = Path.Combine(baseDir, "Ambient");
         var sfxDir = Path.Combine(baseDir, "Sfx");
 
         if (Directory.Exists(ambDir))
         {
             _ambientFiles.AddRange(Directory.GetFiles(ambDir, "*.wav").OrderBy(x => x));
-            _ambientFiles.AddRange(Directory.GetFiles(ambDir, "*.mp3").OrderBy(x => x));
         }
 
         if (Directory.Exists(sfxDir))
@@ -79,25 +90,9 @@ public sealed class AudioService
             if (File.Exists(ui)) _uiClick = ui;
         }
 
-        _ambientPlayer.IsLoopingEnabled = true;
-        _ambientPlayer.MediaEnded += OnAmbientEnded;
-
-        // Pool SFX players for concurrent sounds
-        for (int i = 0; i < 8; i++)
-        {
-            _sfxPlayers.Add(new MediaPlayer());
-        }
+        System.Diagnostics.Debug.WriteLine($"[AudioService] Init: Ambient={_ambientFiles.Count}, Keys={_keyFiles.Count}, UI={HasUiClick}");
 
         _isInitialized = true;
-    }
-
-    private void OnAmbientEnded(MediaPlayer sender, object args)
-    {
-        // Auto-advance to next ambient track
-        if (_isAmbientPlaying && _ambientFiles.Count > 1)
-        {
-            PlayRandomAmbient();
-        }
     }
 
     #region Volume Control
@@ -106,7 +101,7 @@ public sealed class AudioService
     {
         var oldVol = _ambientVol;
         _ambientVol = Clamp01(volume);
-        _ambientPlayer.Volume = GetEffectiveVolume(_ambientVol, _ambientMuted);
+        ApplyAmbientVolume();
         VolumeChanged?.Invoke(this, new AudioVolumeChangedEventArgs(AudioChannel.Ambient, oldVol, _ambientVol));
     }
 
@@ -139,7 +134,7 @@ public sealed class AudioService
     {
         if (_ambientMuted == muted) return;
         _ambientMuted = muted;
-        _ambientPlayer.Volume = GetEffectiveVolume(_ambientVol, _ambientMuted);
+        ApplyAmbientVolume();
         MuteChanged?.Invoke(this, new AudioMuteChangedEventArgs(AudioChannel.Ambient, muted));
     }
 
@@ -161,7 +156,7 @@ public sealed class AudioService
     {
         if (_masterMuted == muted) return;
         _masterMuted = muted;
-        _ambientPlayer.Volume = GetEffectiveVolume(_ambientVol, _ambientMuted);
+        ApplyAmbientVolume();
         MuteChanged?.Invoke(this, new AudioMuteChangedEventArgs(AudioChannel.Master, muted));
     }
 
@@ -172,94 +167,118 @@ public sealed class AudioService
 
     #endregion
 
-    #region Playback
+    #region Ambient Playback (mciSendString)
 
     public void PlayRandomAmbient()
     {
         if (_ambientFiles.Count == 0) return;
 
-        var pick = _ambientFiles[Random.Shared.Next(_ambientFiles.Count)];
-        _ambientPlayer.Source = MediaSource.CreateFromUri(new Uri(pick));
-        _ambientPlayer.Volume = GetEffectiveVolume(_ambientVol, _ambientMuted);
-        _ambientPlayer.Play();
-        _isAmbientPlaying = true;
+        int idx;
+        do { idx = Random.Shared.Next(_ambientFiles.Count); }
+        while (idx == _currentAmbientIndex && _ambientFiles.Count > 1);
+
+        _currentAmbientIndex = idx;
+        PlayAmbientFile(_ambientFiles[idx]);
     }
 
     public void PlayAmbientTrack(int index)
     {
         if (index < 0 || index >= _ambientFiles.Count) return;
+        _currentAmbientIndex = index;
+        PlayAmbientFile(_ambientFiles[index]);
+    }
 
-        _ambientPlayer.Source = MediaSource.CreateFromUri(new Uri(_ambientFiles[index]));
-        _ambientPlayer.Volume = GetEffectiveVolume(_ambientVol, _ambientMuted);
-        _ambientPlayer.Play();
+    private void PlayAmbientFile(string filePath)
+    {
+        // Stop any current ambient
+        MciCommand($"close {_currentAmbientAlias}");
+
+        // Open and play with repeat
+        var result = MciCommand($"open \"{filePath}\" type waveaudio alias {_currentAmbientAlias}");
+        if (result != 0)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AudioService] mci open failed ({result}): {filePath}");
+            return;
+        }
+
+        ApplyAmbientVolume();
+        MciCommand($"play {_currentAmbientAlias} repeat");
         _isAmbientPlaying = true;
+        System.Diagnostics.Debug.WriteLine($"[AudioService] Ambient playing: {Path.GetFileName(filePath)}");
+    }
+
+    private void ApplyAmbientVolume()
+    {
+        int vol = (_masterMuted || _ambientMuted) ? 0 : (int)(_ambientVol * 1000);
+        MciCommand($"setaudio {_currentAmbientAlias} volume to {vol}");
     }
 
     public void StopAmbient()
     {
-        _ambientPlayer.Pause();
+        MciCommand($"stop {_currentAmbientAlias}");
+        MciCommand($"close {_currentAmbientAlias}");
         _isAmbientPlaying = false;
     }
 
     public void PauseAmbient()
     {
-        _ambientPlayer.Pause();
+        MciCommand($"pause {_currentAmbientAlias}");
     }
 
     public void ResumeAmbient()
     {
         if (_isAmbientPlaying)
         {
-            _ambientPlayer.Play();
+            MciCommand($"resume {_currentAmbientAlias}");
         }
     }
+
+    private int MciCommand(string command)
+    {
+        return mciSendString(command, null, 0, IntPtr.Zero);
+    }
+
+    #endregion
+
+    #region SFX Playback (PlaySound - fire and forget)
 
     public void PlayKeyClick()
     {
         if (_keyFiles.Count == 0 || _keyMuted || _masterMuted) return;
         var pick = _keyFiles[Random.Shared.Next(_keyFiles.Count)];
-        PlayOneShot(pick, _keyVol);
+        PlaySfx(pick);
     }
 
     public void PlayUiClick()
     {
         if (string.IsNullOrWhiteSpace(_uiClick) || _uiMuted || _masterMuted) return;
-        PlayOneShot(_uiClick, _uiVol);
+        PlaySfx(_uiClick);
     }
 
     public void PlayError()
     {
         if (_errorFiles.Count == 0 || _uiMuted || _masterMuted) return;
         var pick = _errorFiles[Random.Shared.Next(_errorFiles.Count)];
-        PlayOneShot(pick, _uiVol);
+        PlaySfx(pick);
     }
 
     public void PlaySuccess()
     {
         if (_successFiles.Count == 0 || _uiMuted || _masterMuted) return;
         var pick = _successFiles[Random.Shared.Next(_successFiles.Count)];
-        PlayOneShot(pick, _uiVol);
+        PlaySfx(pick);
     }
 
-    private void PlayOneShot(string filePath, double volume)
+    private void PlaySfx(string filePath)
     {
-        // Round-robin through pooled players
-        _sfxPlayerIndex = (_sfxPlayerIndex + 1) % _sfxPlayers.Count;
-        var p = _sfxPlayers[_sfxPlayerIndex];
-        p.Source = MediaSource.CreateFromUri(new Uri(filePath));
-        p.Volume = GetEffectiveVolume(volume, false);
-        p.Play();
+        // SND_ASYNC returns immediately, playback happens on the calling thread
+        // Do NOT use Task.Run — thread pool threads have no message pump for async playback
+        PlaySound(filePath, IntPtr.Zero, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
     }
 
     #endregion
 
     #region Helpers
-
-    private double GetEffectiveVolume(double baseVolume, bool isMuted)
-    {
-        if (_masterMuted || isMuted) return 0;
-        return baseVolume;
-    }
 
     private static double Clamp01(double v) => v < 0 ? 0 : (v > 1 ? 1 : v);
 
@@ -269,13 +288,7 @@ public sealed class AudioService
 
     public void Dispose()
     {
-        _ambientPlayer.MediaEnded -= OnAmbientEnded;
-        _ambientPlayer.Dispose();
-        foreach (var p in _sfxPlayers)
-        {
-            p.Dispose();
-        }
-        _sfxPlayers.Clear();
+        StopAmbient();
     }
 
     #endregion

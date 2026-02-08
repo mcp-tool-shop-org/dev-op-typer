@@ -14,5 +14,70 @@
       "CTEs make queries readable.",
       "Practice quotes, commas, and indentation."
     ]
+  },
+  {
+    "id": "sql-join",
+    "language": "sql",
+    "difficulty": 2,
+    "topics": [
+      "join",
+      "inner-join",
+      "aliases"
+    ],
+    "title": "Inner JOIN",
+    "code": "SELECT o.id, c.name, o.total\nFROM orders o\nINNER JOIN customers c ON c.id = o.customer_id\nWHERE o.total > 100;\n",
+    "explain": [
+      "JOIN combines rows from two tables on a matching key.",
+      "Table aliases (o, c) keep queries concise."
+    ]
+  },
+  {
+    "id": "sql-subquery",
+    "language": "sql",
+    "difficulty": 3,
+    "topics": [
+      "subquery",
+      "where-in",
+      "nesting"
+    ],
+    "title": "Subquery filter",
+    "code": "SELECT name, email\nFROM users\nWHERE id IN (\n  SELECT user_id FROM purchases\n  WHERE amount >= 500\n);\n",
+    "explain": [
+      "Subqueries let you filter by results from another query.",
+      "IN checks membership against the inner result set."
+    ]
+  },
+  {
+    "id": "sql-insert",
+    "language": "sql",
+    "difficulty": 1,
+    "topics": [
+      "insert",
+      "values",
+      "dml"
+    ],
+    "title": "INSERT row",
+    "code": "INSERT INTO products (name, price, category)\nVALUES ('Mechanical Keyboard', 89.99, 'peripherals');\n",
+    "explain": [
+      "INSERT INTO adds a new row to a table.",
+      "Column list and VALUES must match in order and count."
+    ]
+  },
+  {
+    "id": "sql-update",
+    "language": "sql",
+    "difficulty": 2,
+    "topics": [
+      "update",
+      "set",
+      "where",
+      "dml"
+    ],
+    "title": "UPDATE with WHERE",
+    "code": "UPDATE employees\nSET salary = salary * 1.05,\n    updated_at = CURRENT_TIMESTAMP\nWHERE department = 'engineering';\n",
+    "explain": [
+      "Always include a WHERE clause to avoid updating every row.",
+      "Multiple columns are separated by commas in the SET clause."
+    ]
   }
 ]

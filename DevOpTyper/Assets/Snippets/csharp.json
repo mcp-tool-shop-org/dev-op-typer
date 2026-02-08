@@ -31,5 +31,86 @@
       "Records are immutable-ish data types.",
       "Practice braces, quotes, and with initializers."
     ]
+  },
+  {
+    "id": "cs-async-await",
+    "language": "csharp",
+    "difficulty": 3,
+    "topics": [
+      "async",
+      "await",
+      "Task",
+      "HttpClient"
+    ],
+    "title": "Async/await",
+    "code": "public async Task<string> GetPageAsync(string url)\n{\n    using var client = new HttpClient();\n    return await client.GetStringAsync(url);\n}\n",
+    "explain": [
+      "async methods return Task<T> and use await for I/O.",
+      "using var disposes the HttpClient when the scope ends."
+    ]
+  },
+  {
+    "id": "cs-switch-expr",
+    "language": "csharp",
+    "difficulty": 4,
+    "topics": [
+      "switch-expression",
+      "pattern-matching",
+      "discard"
+    ],
+    "title": "Switch expression",
+    "code": "string grade = score switch\n{\n    >= 90 => \"A\",\n    >= 80 => \"B\",\n    >= 70 => \"C\",\n    _ => \"F\"\n};\n",
+    "explain": [
+      "Switch expressions return a value inline.",
+      "_ is the discard pattern (default case)."
+    ]
+  },
+  {
+    "id": "cs-string-interpolation",
+    "language": "csharp",
+    "difficulty": 1,
+    "topics": [
+      "string-interpolation",
+      "formatting",
+      "variables"
+    ],
+    "title": "String interpolation",
+    "code": "var name = \"Alice\";\nvar total = 42.567;\nConsole.WriteLine($\"{name} owes {total:C2}\");\n",
+    "explain": [
+      "$ before the string enables {expression} placeholders.",
+      ":C2 formats a number as currency with 2 decimal places."
+    ]
+  },
+  {
+    "id": "cs-interface",
+    "language": "csharp",
+    "difficulty": 3,
+    "topics": [
+      "interface",
+      "abstraction",
+      "contracts"
+    ],
+    "title": "Interface definition",
+    "code": "public interface ILogger\n{\n    void Log(string message);\n    void Warn(string message) => Log($\"WARN: {message}\");\n}\n",
+    "explain": [
+      "Interfaces define a contract that classes must implement.",
+      "Default interface methods provide optional fallback behavior."
+    ]
+  },
+  {
+    "id": "cs-foreach",
+    "language": "csharp",
+    "difficulty": 1,
+    "topics": [
+      "foreach",
+      "loop",
+      "collections"
+    ],
+    "title": "Foreach loop",
+    "code": "var names = new[] { \"Alice\", \"Bob\", \"Carol\" };\nforeach (var name in names)\n    Console.WriteLine($\"Hello, {name}!\");\n",
+    "explain": [
+      "foreach iterates every element without an index variable.",
+      "new[] creates an implicitly typed array."
+    ]
   }
 ]
