@@ -274,7 +274,89 @@ public sealed partial class StatsPanel : UserControl
         }
     }
 
+    /// <summary>
+    /// Updates the intent pattern section — shows factual averages
+    /// grouped by declared intent. No judgment, no scoring.
+    /// Only shown when the user has 3+ sessions with declared intents.
+    /// </summary>
+    public void UpdateIntentPatterns(SessionHistory history)
+    {
+        IntentPatternContainer.Children.Clear();
+
+        // Group sessions that have a declared intent
+        var withIntent = history.Records
+            .Where(r => r.DeclaredIntent.HasValue)
+            .GroupBy(r => r.DeclaredIntent!.Value)
+            .Where(g => g.Count() >= 2) // Need at least 2 sessions per intent
+            .OrderByDescending(g => g.Count())
+            .ToList();
+
+        if (withIntent.Count == 0)
+        {
+            IntentPatternDivider.Visibility = Visibility.Collapsed;
+            IntentPatternHeader.Visibility = Visibility.Collapsed;
+            IntentPatternContainer.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        IntentPatternDivider.Visibility = Visibility.Visible;
+        IntentPatternHeader.Visibility = Visibility.Visible;
+        IntentPatternContainer.Visibility = Visibility.Visible;
+
+        foreach (var group in withIntent)
+        {
+            var avgWpm = group.Average(r => r.Wpm);
+            var avgAcc = group.Average(r => r.Accuracy);
+            var count = group.Count();
+
+            var row = CreateIntentPatternRow(group.Key, avgWpm, avgAcc, count);
+            IntentPatternContainer.Children.Add(row);
+        }
+    }
+
     #region UI Row Builders
+
+    /// <summary>
+    /// Creates a row showing intent-grouped averages. Factual only.
+    /// </summary>
+    private static Border CreateIntentPatternRow(
+        UserIntent intent, double avgWpm, double avgAcc, int sessionCount)
+    {
+        var border = new Border
+        {
+            Background = (Brush)Application.Current.Resources["DotSurface2Brush"],
+            CornerRadius = new CornerRadius(4),
+            Padding = new Thickness(8, 6, 8, 6)
+        };
+
+        var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        var nameBlock = new TextBlock
+        {
+            Text = intent.ToString(),
+            FontSize = 11,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        Grid.SetColumn(nameBlock, 0);
+
+        var statsBlock = new TextBlock
+        {
+            Text = $"{avgWpm:F0} WPM \u00b7 {avgAcc:F0}% \u00b7 {sessionCount} sessions",
+            FontSize = 10,
+            Foreground = (Brush)Application.Current.Resources["DotTextMutedBrush"],
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        Grid.SetColumn(statsBlock, 1);
+
+        grid.Children.Add(nameBlock);
+        grid.Children.Add(statsBlock);
+
+        border.Child = grid;
+        return border;
+    }
 
     private static Grid CreateWeakSpotRow(CharWeakness w, WeaknessTrajectory trajectory = WeaknessTrajectory.New)
     {

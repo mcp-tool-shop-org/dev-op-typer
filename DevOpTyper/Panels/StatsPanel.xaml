@@ -149,6 +149,18 @@
                 <StackPanel x:Name="TrendContainer" Spacing="6" Visibility="Collapsed"/>
 
                 <!-- Divider -->
+                <Border x:Name="IntentPatternDivider" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4" Visibility="Collapsed"/>
+
+                <!-- Intent Patterns Section (v0.4.0) -->
+                <TextBlock x:Name="IntentPatternHeader"
+                           Text="By Intent"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Visibility="Collapsed"/>
+
+                <StackPanel x:Name="IntentPatternContainer" Spacing="6" Visibility="Collapsed"/>
+
+                <!-- Divider -->
                 <Border x:Name="SuggestionDivider" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4" Visibility="Collapsed"/>
 
                 <!-- Suggestions Section -->

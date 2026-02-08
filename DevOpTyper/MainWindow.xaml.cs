@@ -685,6 +685,9 @@ public sealed partial class MainWindow : Window
         var pacing = _sessionPacer.GetSnapshot(blob.Longitudinal);
         StatsPanel.UpdatePacing(pacing);
 
+        // Intent patterns (v0.4.0) — factual correlations, no judgment
+        StatsPanel.UpdateIntentPatterns(blob.History);
+
         // Practice suggestions (Phase 2)
         var suggestions = _recommender.Suggest(blob, language);
         StatsPanel.UpdateSuggestions(suggestions);
