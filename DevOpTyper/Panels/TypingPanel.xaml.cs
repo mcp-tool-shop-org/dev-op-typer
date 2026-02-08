@@ -1,12 +1,23 @@
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 namespace DevOpTyper.Panels;
 
 public sealed partial class TypingPanel : UserControl
 {
+    public event RoutedEventHandler? StartClicked;
+    public event RoutedEventHandler? ResetClicked;
+    public event RoutedEventHandler? SkipClicked;
+    public event TextChangedEventHandler? TypingTextChanged;
+
     public TypingPanel()
     {
         InitializeComponent();
+
+        StartButton.Click += (s, e) => StartClicked?.Invoke(s, e);
+        ResetButton.Click += (s, e) => ResetClicked?.Invoke(s, e);
+        SkipButton.Click += (s, e) => SkipClicked?.Invoke(s, e);
+        TypingBox.TextChanged += (s, e) => TypingTextChanged?.Invoke(s, e);
     }
 
     /// <summary>
@@ -37,6 +48,6 @@ public sealed partial class TypingPanel : UserControl
     /// </summary>
     public void FocusTypingBox()
     {
-        TypingBox.Focus(Microsoft.UI.Xaml.FocusState.Programmatic);
+        TypingBox.Focus(FocusState.Programmatic);
     }
 }

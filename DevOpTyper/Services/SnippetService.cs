@@ -58,4 +58,15 @@ public sealed class SnippetService
             return _cache[language];
         }
     }
+
+    /// <summary>
+    /// Gets a random snippet for the given language.
+    /// </summary>
+    public Snippet? GetRandomSnippet(string language)
+    {
+        language = string.IsNullOrWhiteSpace(language) ? "python" : language;
+        var list = Load(language);
+        if (list.Count == 0) return null;
+        return list[Random.Shared.Next(list.Count)];
+    }
 }

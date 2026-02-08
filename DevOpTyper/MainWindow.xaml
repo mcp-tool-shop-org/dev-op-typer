@@ -5,9 +5,58 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:panels="using:DevOpTyper.Panels"
+    xmlns:vm="using:DevOpTyper.ViewModels"
     mc:Ignorable="d"
     Title="Dev-Op-Typer">
+    
     <Grid>
-        <TextBlock Text="Dev-Op-Typer" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="32" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Title Bar -->
+        <Grid Grid.Row="0" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0">
+                <TextBlock Text="Dev-Op-Typer" FontSize="16" FontWeight="SemiBold"/>
+                <Border Background="{ThemeResource AccentFillColorDefaultBrush}" 
+                        CornerRadius="4" 
+                        Padding="8,2" 
+                        Margin="12,0,0,0">
+                    <TextBlock x:Name="LevelBadge" Text="Lv 1 • 0 XP" FontSize="12" Foreground="White"/>
+                </Border>
+            </StackPanel>
+            
+            <Button Grid.Column="1" 
+                    x:Name="SettingsToggleButton"
+                    Content="⚙" 
+                    FontSize="16"
+                    Margin="0,0,16,0"
+                    Click="SettingsToggleButton_Click"/>
+        </Grid>
+        
+        <!-- Main Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition x:Name="SettingsColumn" Width="0"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Typing Panel -->
+            <panels:TypingPanel x:Name="TypingPanel" Grid.Column="0"/>
+            
+            <!-- Stats Panel -->
+            <panels:StatsPanel x:Name="StatsPanel" Grid.Column="1" Width="220" Margin="0,16,16,16"/>
+            
+            <!-- Settings Panel (collapsible) -->
+            <panels:SettingsPanel x:Name="SettingsPanel" Grid.Column="2"/>
+        </Grid>
     </Grid>
 </Window>
