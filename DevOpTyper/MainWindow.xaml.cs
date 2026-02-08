@@ -143,6 +143,13 @@ public sealed partial class MainWindow : Window
                 .Count(r => r.SnippetId == _currentSnippet.Id);
             _typingEngine.RepeatCount = repeats;
 
+            // Attach practice context with snapshot of current state
+            var context = PracticeContext.Default();
+            context.EffectiveDifficulty = _currentSnippet.Difficulty;
+            context.RatingAtStart = _profile.GetRating(_currentSnippet.Language);
+            if (repeats > 0) context.Intent = PracticeIntent.Repeat;
+
+            _typingEngine.PracticeContext = context;
             _typingEngine.StartSession(_currentSnippet, hardcore, rules);
             _lastHeatmapIndex = 0;
             _keyboardSound.Reset();
@@ -284,7 +291,8 @@ public sealed partial class MainWindow : Window
                     duration: _typingEngine.Elapsed,
                     difficulty: _currentSnippet.Difficulty,
                     xpEarned: e.XpEarned,
-                    hardcoreMode: SettingsPanel.IsHardcoreMode
+                    hardcoreMode: SettingsPanel.IsHardcoreMode,
+                    context: e.Context
                 );
                 blob.History.AddRecord(record);
 

@@ -76,6 +76,12 @@ public sealed class SessionRecord
     public bool IsPerfect => ErrorCount == 0;
 
     /// <summary>
+    /// Optional practice context describing the intent behind this session.
+    /// Null for sessions created before v0.3.0 or when no context applies.
+    /// </summary>
+    public PracticeContext? Context { get; set; }
+
+    /// <summary>
     /// Creates a session record from a completed session.
     /// </summary>
     public static SessionRecord FromSession(
@@ -89,7 +95,8 @@ public sealed class SessionRecord
         TimeSpan duration,
         int difficulty,
         int xpEarned,
-        bool hardcoreMode)
+        bool hardcoreMode,
+        PracticeContext? context = null)
     {
         return new SessionRecord
         {
@@ -103,7 +110,8 @@ public sealed class SessionRecord
             DurationSeconds = Math.Round(duration.TotalSeconds, 1),
             Difficulty = difficulty,
             XpEarned = xpEarned,
-            HardcoreMode = hardcoreMode
+            HardcoreMode = hardcoreMode,
+            Context = context
         };
     }
 }

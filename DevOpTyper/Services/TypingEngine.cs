@@ -16,6 +16,7 @@ public sealed class TypingEngine
     private CharDiff[] _currentDiff = Array.Empty<CharDiff>();
     private TypingRules _rules = new();
     private string _normalizedTarget = "";
+    private PracticeContext? _practiceContext;
 
     public event EventHandler<TypingResultEventArgs>? SessionCompleted;
     public event EventHandler? SessionStarted;
@@ -72,6 +73,17 @@ public sealed class TypingEngine
     {
         get => _session.RepeatCount;
         set => _session.RepeatCount = value;
+    }
+
+    /// <summary>
+    /// Optional practice context for the next/current session.
+    /// Set before calling StartSession. Attached to the SessionRecord on completion.
+    /// Cleared automatically when the session ends.
+    /// </summary>
+    public PracticeContext? PracticeContext
+    {
+        get => _practiceContext;
+        set => _practiceContext = value;
     }
 
     /// <summary>
@@ -194,8 +206,12 @@ public sealed class TypingEngine
             FinalWpm = LiveWpm,
             FinalAccuracy = LiveAccuracy,
             ErrorCount = ErrorCount,
-            XpEarned = XpEarned
+            XpEarned = XpEarned,
+            Context = _practiceContext
         };
+
+        // Clear context after use — next session starts clean
+        _practiceContext = null;
 
         SessionCompleted?.Invoke(this, result);
     }
@@ -233,4 +249,9 @@ public class TypingResultEventArgs : EventArgs
     public double FinalAccuracy { get; init; }
     public int ErrorCount { get; init; }
     public int XpEarned { get; init; }
+
+    /// <summary>
+    /// Optional practice context from the session. Null for v0.2.0 sessions.
+    /// </summary>
+    public PracticeContext? Context { get; init; }
 }
