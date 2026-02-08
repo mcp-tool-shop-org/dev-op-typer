@@ -113,17 +113,25 @@ public sealed partial class MainWindow : Window
     private void LoadNewSnippet()
     {
         var language = SettingsPanel.SelectedLanguage;
-        var blob = _persistenceService.Load();
 
-        // Compute adaptive difficulty and weakness report (Phase 3)
-        var difficultyProfile = _adaptiveDifficulty.ComputeDifficulty(
-            language, _profile, blob.Longitudinal);
-        var weaknessReport = _weaknessTracker.GetReport(
-            language, _profile.Heatmap, blob.Longitudinal);
+        Snippet snippet;
+        if (SettingsPanel.IsAdaptiveDifficulty)
+        {
+            // Adaptive: use trend-aware difficulty and trajectory scoring
+            var blob = _persistenceService.Load();
+            var difficultyProfile = _adaptiveDifficulty.ComputeDifficulty(
+                language, _profile, blob.Longitudinal);
+            var weaknessReport = _weaknessTracker.GetReport(
+                language, _profile.Heatmap, blob.Longitudinal);
 
-        // Use adaptive selection with trend-aware difficulty and trajectory scoring
-        var snippet = _smartSelector.SelectAdaptive(
-            language, _profile, difficultyProfile, weaknessReport);
+            snippet = _smartSelector.SelectAdaptive(
+                language, _profile, difficultyProfile, weaknessReport);
+        }
+        else
+        {
+            // Non-adaptive: use basic skill-rated selection
+            snippet = _smartSelector.SelectNext(language, _profile);
+        }
 
         TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
         _currentSnippet = snippet;
