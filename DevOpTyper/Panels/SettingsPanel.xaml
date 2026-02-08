@@ -139,6 +139,36 @@
                 </StackPanel>
 
                 <StackPanel Spacing="4">
+                    <TextBlock Text="Focus Area"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="FocusAreaCombo"
+                                  HorizontalAlignment="Stretch"
+                                  SelectedIndex="0">
+                            <ComboBoxItem Content="None" Tag=""/>
+                            <ComboBoxItem Content="Brackets &amp; Braces" Tag="brackets"/>
+                            <ComboBoxItem Content="Operators" Tag="operators"/>
+                            <ComboBoxItem Content="String Handling" Tag="strings"/>
+                            <ComboBoxItem Content="Control Flow" Tag="control"/>
+                            <ComboBoxItem Content="Functions" Tag="functions"/>
+                            <ComboBoxItem Content="Data Structures" Tag="data"/>
+                        </ComboBox>
+                        <Button x:Name="ClearFocusButton"
+                                Content="Clear"
+                                Grid.Column="1"
+                                FontSize="11"
+                                Padding="6,3"
+                                Margin="4,0,0,0"
+                                VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Spacing="4">
                     <TextBlock Text="Practice Note"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                FontSize="12"/>

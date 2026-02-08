@@ -220,6 +220,15 @@ public sealed class AppSettings
     /// </summary>
     public string? PracticeNote { get; set; }
 
+    /// <summary>
+    /// Active focus area for snippet selection.
+    /// When set, snippet selection preferentially includes snippets
+    /// that touch this area (e.g., "brackets", "loops", "operators").
+    /// Null = no focus — standard selection applies.
+    /// The user can clear this at any time. It never locks them in.
+    /// </summary>
+    public string? FocusArea { get; set; }
+
     #endregion
 
     #region Statistics Display
@@ -293,7 +302,8 @@ public sealed class AppSettings
             ShowElapsedTime = ShowElapsedTime,
             ShowIntentChips = ShowIntentChips,
             DefaultIntent = DefaultIntent,
-            PracticeNote = PracticeNote
+            PracticeNote = PracticeNote,
+            FocusArea = FocusArea
         };
     }
 }

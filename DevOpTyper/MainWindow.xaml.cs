@@ -193,6 +193,10 @@ public sealed partial class MainWindow : Window
             // Capture user-declared intent (v0.4.0) — purely descriptive, no scoring impact
             context.DeclaredIntent = TypingPanel.SelectedUserIntent;
 
+            // Apply focus area from settings if no other focus is set (v0.4.0)
+            if (string.IsNullOrEmpty(context.Focus))
+                context.Focus = SettingsPanel.FocusArea;
+
             _typingEngine.PracticeContext = context;
             _typingEngine.StartSession(_currentSnippet, hardcore, rules);
             _sessionPacer.OnSessionStarted();
@@ -755,6 +759,7 @@ public sealed partial class MainWindow : Window
         _settings.ShowIntentChips = SettingsPanel.ShowIntentChips;
         _settings.DefaultIntent = SettingsPanel.DefaultIntent;
         _settings.PracticeNote = SettingsPanel.PracticeNote;
+        _settings.FocusArea = SettingsPanel.FocusArea;
 
         return _settings;
     }

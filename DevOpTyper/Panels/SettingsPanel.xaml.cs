@@ -46,6 +46,12 @@ public sealed partial class SettingsPanel : UserControl
         {
             AccuracyFloorLabel.Text = $"{(int)e.NewValue}%";
         };
+
+        // Clear focus area — always available, no penalty
+        ClearFocusButton.Click += (_, _) =>
+        {
+            FocusAreaCombo.SelectedIndex = 0; // "None"
+        };
     }
 
     /// <summary>
@@ -305,6 +311,19 @@ public sealed partial class SettingsPanel : UserControl
         : PracticeNoteBox.Text.Trim();
 
     /// <summary>
+    /// Gets the active focus area, or null for none.
+    /// </summary>
+    public string? FocusArea
+    {
+        get
+        {
+            var item = FocusAreaCombo.SelectedItem as ComboBoxItem;
+            var tag = item?.Tag?.ToString();
+            return string.IsNullOrEmpty(tag) ? null : tag;
+        }
+    }
+
+    /// <summary>
     /// Loads practice preferences from saved settings.
     /// </summary>
     public void LoadPracticePreferences(AppSettings settings)
@@ -322,6 +341,21 @@ public sealed partial class SettingsPanel : UserControl
         };
 
         PracticeNoteBox.Text = settings.PracticeNote ?? "";
+
+        // Restore focus area — find by Tag match
+        FocusAreaCombo.SelectedIndex = 0; // Default to "None"
+        if (!string.IsNullOrEmpty(settings.FocusArea))
+        {
+            for (int i = 0; i < FocusAreaCombo.Items.Count; i++)
+            {
+                if (FocusAreaCombo.Items[i] is ComboBoxItem item &&
+                    string.Equals(item.Tag?.ToString(), settings.FocusArea, StringComparison.OrdinalIgnoreCase))
+                {
+                    FocusAreaCombo.SelectedIndex = i;
+                    break;
+                }
+            }
+        }
     }
 
     #endregion
