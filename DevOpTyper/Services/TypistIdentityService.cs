@@ -399,6 +399,46 @@ public sealed class TypistIdentity
             lines.Add($"{ActiveDaysLast14.Value} active days in the last 2 weeks");
         }
 
+        // Milestones — factual marks, not celebrations.
+        // Shown once per milestone threshold. No confetti, no "Congratulations!".
+        var milestone = ComputeMilestone();
+        if (milestone != null)
+            lines.Add(milestone);
+
         return lines;
+    }
+
+    /// <summary>
+    /// Computes the most recent milestone worth noting.
+    /// Returns null if no milestone has been reached.
+    /// Each milestone is stated as a fact, not an achievement.
+    /// </summary>
+    private string? ComputeMilestone()
+    {
+        // Session milestones
+        string? sessionMilestone = TotalSessions switch
+        {
+            >= 1000 => "1,000 sessions",
+            >= 500 => "500 sessions",
+            >= 250 => "250 sessions",
+            >= 100 => "100 sessions",
+            >= 50 => "50 sessions",
+            _ => null
+        };
+
+        // Time milestones
+        string? timeMilestone = PracticeSpanDays switch
+        {
+            >= 730 => "2+ years of practice",
+            >= 365 => "1 year of practice",
+            >= 180 => "6 months of practice",
+            >= 90 => "3 months of practice",
+            _ => null
+        };
+
+        // Show the more impressive one, or combine if both exist
+        if (sessionMilestone != null && timeMilestone != null)
+            return $"{sessionMilestone} \u00b7 {timeMilestone}";
+        return sessionMilestone ?? timeMilestone;
     }
 }
