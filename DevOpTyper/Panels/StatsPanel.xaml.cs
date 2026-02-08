@@ -98,7 +98,7 @@ public sealed partial class StatsPanel : UserControl
     {
         WeakSpotsContainer.Children.Clear();
 
-        // Show weakness summary if report has trajectory data (Phase 3)
+        // Show weakness summary if trajectory data is available
         if (report != null && report.HasData && !string.IsNullOrEmpty(report.Summary))
         {
             WeaknessSummaryText.Text = report.Summary;
@@ -136,7 +136,7 @@ public sealed partial class StatsPanel : UserControl
             WeakSpotsContainer.Children.Add(row);
         }
 
-        // Show resolved weaknesses if any (Phase 3)
+        // Show resolved weaknesses if any
         if (report?.ResolvedWeaknesses.Count > 0)
         {
             var resolvedHeader = new TextBlock
@@ -293,7 +293,7 @@ public sealed partial class StatsPanel : UserControl
             var stats = history.GetLifetimeStats();
             var bests = history.GetPersonalBests();
 
-            // Build language breakdown for rediscovery (v0.5.0)
+            // Per-language session breakdown
             var langBreakdown = history.Records
                 .GroupBy(r => r.Language, StringComparer.OrdinalIgnoreCase)
                 .Where(g => g.Count() >= 2)
@@ -748,7 +748,7 @@ public sealed partial class StatsPanel : UserControl
         stack.Children.Add(titleGrid);
         stack.Children.Add(statsBlock);
 
-        // Show note if present (v0.4.0)
+        // Show note if present
         if (!string.IsNullOrEmpty(session.Note))
         {
             var noteBlock = new TextBlock
@@ -821,7 +821,7 @@ public sealed partial class StatsPanel : UserControl
             _ => "="
         };
 
-        // Show plateau as normal, not a problem (v0.5.0)
+        // Show plateau as normal, not a problem
         string plateauNote = trend.PlateauLength >= 8 ? " \u2022 steady" : "";
 
         var statsBlock = new TextBlock

@@ -75,7 +75,7 @@
                                Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
                 </StackPanel>
 
-                <!-- Pacing indicator (Phase 3) — informational, never steals focus -->
+                <!-- Pacing indicator — informational, never steals focus -->
                 <TextBlock x:Name="PacingLabel"
                            FontSize="11"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -85,7 +85,7 @@
                            IsTextSelectionEnabled="True"
                            IsTabStop="False"/>
 
-                <!-- Orientation cue (v0.5.0) — subtle context, never steals focus -->
+                <!-- Orientation cue — subtle context, never steals focus -->
                 <TextBlock x:Name="OrientationCue"
                            FontSize="10"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -106,7 +106,7 @@
                            FontWeight="SemiBold"
                            AutomationProperties.HeadingLevel="Level2"/>
 
-                <!-- Weakness summary with trajectory (Phase 3) -->
+                <!-- Weakness summary with trajectory -->
                 <TextBlock x:Name="WeaknessSummaryText"
                            FontSize="10"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -159,7 +159,7 @@
                 <!-- Divider -->
                 <Border x:Name="IdentityDivider" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4" Visibility="Collapsed"/>
 
-                <!-- Typist Identity Section (v0.4.0 Phase 4) — longitudinal self-portrait -->
+                <!-- Typist Identity Section — longitudinal self-portrait -->
                 <TextBlock x:Name="IdentityHeader"
                            Text="Your Typing"
                            FontSize="14"
@@ -187,7 +187,7 @@
                 <!-- Divider -->
                 <Border x:Name="IntentPatternDivider" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4" Visibility="Collapsed"/>
 
-                <!-- Intent Patterns Section (v0.4.0) -->
+                <!-- Intent Patterns Section -->
                 <TextBlock x:Name="IntentPatternHeader"
                            Text="By Intent"
                            FontSize="14"
@@ -201,7 +201,7 @@
                 <!-- Divider -->
                 <Border x:Name="PatternDivider" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4" Visibility="Collapsed"/>
 
-                <!-- Patterns Section (v0.4.0) — observational, not prescriptive -->
+                <!-- Patterns Section — observational, not prescriptive -->
                 <TextBlock x:Name="PatternHeader"
                            Text="Patterns"
                            FontSize="14"

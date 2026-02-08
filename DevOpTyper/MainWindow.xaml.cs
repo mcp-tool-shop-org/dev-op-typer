@@ -86,22 +86,22 @@ public sealed partial class MainWindow : Window
         TypingPanel.SkipClicked += SkipTest_Click;
         TypingPanel.TypingTextChanged += TypingBox_TextChanged;
 
-        // Wire up actionable intelligence events (Phase 4)
+        // Wire up suggestion and weakness practice events
         StatsPanel.SuggestionFollowed += OnSuggestionFollowed;
         StatsPanel.WeaknessPracticeRequested += OnWeaknessPracticeRequested;
         TypingPanel.CompletionActionClicked += OnCompletionActionClicked;
 
-        // Wire up reflection events (v0.4.0)
+        // Wire up session note events
         TypingPanel.SessionNoteSubmitted += OnSessionNoteSubmitted;
 
         // Restore typing rules UI from saved settings
         SettingsPanel.LoadTypingRules(_settings.TypingRules);
 
-        // Restore practice preferences (v0.4.0)
+        // Restore practice preferences
         SettingsPanel.LoadPracticePreferences(_settings);
         ApplyPracticePreferences();
 
-        // Session pacing (Phase 3)
+        // Session pacing
         _sessionPacer.OnAppLaunched();
 
         // Initial state
@@ -147,7 +147,7 @@ public sealed partial class MainWindow : Window
         TypingPanel.ClearTyping();
         StatsPanel.Reset();
 
-        // Soft session frame (v0.5.0) — show typical range for this language
+        // Soft session frame — show typical range for this language
         StatsPanel.UpdateSessionFrame(_persistenceService.Load().Longitudinal, language);
     }
 
@@ -193,10 +193,10 @@ public sealed partial class MainWindow : Window
             if (repeats > 0 && context.Intent == PracticeIntent.Freeform)
                 context.Intent = PracticeIntent.Repeat;
 
-            // Capture user-declared intent (v0.4.0) — purely descriptive, no scoring impact
+            // Capture user-declared intent — purely descriptive, no scoring impact
             context.DeclaredIntent = TypingPanel.SelectedUserIntent;
 
-            // Apply focus area from settings if no other focus is set (v0.4.0)
+            // Apply focus area from settings if no other focus is set
             if (string.IsNullOrEmpty(context.Focus))
                 context.Focus = SettingsPanel.FocusArea;
 
@@ -527,7 +527,7 @@ public sealed partial class MainWindow : Window
                     context: e.Context
                 );
 
-                // Propagate user-declared intent to the session record (v0.4.0)
+                // Propagate user-declared intent to the session record
                 record.DeclaredIntent = e.Context?.DeclaredIntent;
 
                 blob.History.AddRecord(record);
@@ -549,14 +549,14 @@ public sealed partial class MainWindow : Window
             UpdateLevelBadge();
             RefreshAnalytics(blob);
 
-            // Show completion banner with contextual next action (Phase 4)
+            // Show completion banner with contextual next action
             bool isPerfect = e.ErrorCount == 0;
             var (actionLabel, actionTag) = GetCompletionAction(blob);
             TypingPanel.ShowCompletionBanner(
                 e.FinalWpm, e.FinalAccuracy, e.XpEarned, isPerfect,
                 actionLabel, actionTag);
 
-            // Session retrospective (v0.4.0) — factual observations, no judgment
+            // Session retrospective — factual observations, no judgment
             var retroLines = BuildRetrospective(e, blob);
             TypingPanel.ShowRetrospective(retroLines);
 
@@ -677,36 +677,36 @@ public sealed partial class MainWindow : Window
     {
         var language = SettingsPanel.SelectedLanguage;
 
-        // Weakness report with trajectory context (Phase 3)
+        // Weakness report with trajectory context
         var weaknessReport = _weaknessTracker.GetReport(
             language, blob.Profile.Heatmap, blob.Longitudinal);
         StatsPanel.UpdateWeakSpots(blob.Profile.Heatmap, weaknessReport);
 
         StatsPanel.UpdateHistory(blob.History);
 
-        // Trend analysis (Phase 2)
+        // Trend analysis
         var trends = _trendAnalyzer.AnalyzeAll(blob.Longitudinal);
         StatsPanel.UpdateTrends(trends);
 
-        // Pacing snapshot (Phase 3)
+        // Pacing snapshot
         var pacing = _sessionPacer.GetSnapshot(blob.Longitudinal);
         StatsPanel.UpdatePacing(pacing);
 
-        // Orientation cue (v0.5.0) — subtle context for returning users
+        // Orientation cue — subtle context for returning users
         StatsPanel.UpdateOrientationCue(blob.History, language);
 
-        // Typist identity (v0.4.0 Phase 4) — longitudinal self-portrait
+        // Typist identity — longitudinal self-portrait
         var identity = TypistIdentityService.Build(blob.History, blob.Longitudinal);
         StatsPanel.UpdateIdentity(identity);
 
-        // Intent patterns (v0.4.0) — factual correlations, no judgment
+        // Intent patterns — factual correlations, no judgment
         StatsPanel.UpdateIntentPatterns(blob.History);
 
-        // Deeper patterns (v0.4.0) — observational, not prescriptive
+        // Deeper patterns — observational, not prescriptive
         var patterns = PatternDetector.Detect(blob.History, blob.Longitudinal);
         StatsPanel.UpdatePatterns(patterns);
 
-        // Practice suggestions (Phase 2)
+        // Practice suggestions
         var suggestions = _recommender.Suggest(blob, language);
         StatsPanel.UpdateSuggestions(suggestions);
     }
@@ -769,7 +769,7 @@ public sealed partial class MainWindow : Window
         _settings.ReducedMotion = SettingsPanel.IsReducedMotion;
         _settings.TypingRules = SettingsPanel.GetTypingRules();
 
-        // Practice preferences (v0.4.0)
+        // Practice preferences
         _settings.ShowIntentChips = SettingsPanel.ShowIntentChips;
         _settings.DefaultIntent = SettingsPanel.DefaultIntent;
         _settings.PracticeNote = SettingsPanel.PracticeNote;
