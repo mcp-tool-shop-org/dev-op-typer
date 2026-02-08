@@ -5,6 +5,38 @@ All notable changes to Dev-Op-Typer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-02-08
+
+### Added
+- **Practice context metadata** — `PracticeContext` captures session intent (Freeform, WeaknessTarget, Repeat, Exploration, Warmup), focus, difficulty snapshot, and rating at start for longitudinal analysis
+- **Longitudinal data accumulation** — `LongitudinalData` stores per-language rolling WPM/accuracy (last 50), session timestamps (last 200), and daily weakness snapshots (cap 90)
+- **Trend analysis** — `TrendAnalyzer` computes WPM/accuracy direction, velocity (linear regression), and combined momentum per language; requires 5+ sessions for activation
+- **Fatigue detection** — `FatigueDetector` observes session cadence (sessions/hour, gap analysis) and classifies as Fresh, Steady, ActivePace, or HighIntensity with non-judgmental labels
+- **Practice recommendations** — `PracticeRecommender` suggests weakness targeting, break reminders, neglected language revisits, warmup sessions, and exploration based on longitudinal data
+- **Adaptive difficulty engine** — `AdaptiveDifficultyEngine` computes trend-aware target difficulty with range (min/max/target) and confidence, adjusting based on momentum
+- **Session pacing** — `SessionPacer` tracks real-time per-launch pacing with lifecycle events and pace labels ("Ready to start", "Warming up", "Good pace", "In the zone", "Intense session")
+- **Weakness tracking with trajectory** — `WeaknessTracker` enriches weakness reports with improvement context (Improving, Steady, Worsening, New), resolved weakness detection, and overall trajectory summary
+- **Adaptive snippet selection** — `SmartSnippetSelector.SelectAdaptive()` uses difficulty profile range and weakness trajectory multipliers (Worsening 1.5x, New 1.3x, Improving 0.5x)
+- **Actionable suggestions** — Suggestion rows in StatsPanel display "Try" buttons for one-click follow-through; `SuggestionAction` enum routes to weakness, warmup, harder, or language-switch snippet loading
+- **Practice These button** — Weak spots section shows a "Practice These" button that loads snippets targeting displayed weak characters
+- **Session completion banner** — TypingPanel shows results (WPM, accuracy, XP) after session completion with "Perfect!" title for zero-error runs and contextual "Practice weak chars" action
+- **Trends section in StatsPanel** — Per-language momentum with direction arrows and recent averages
+- **Suggestions section in StatsPanel** — Prioritized practice recommendations with type-specific styling
+- **Pacing indicator** — Shows sessions today, time since last session, and pace label in StatsPanel
+
+### Changed
+- `LoadNewSnippet` respects Adaptive Difficulty toggle — falls back to basic `SelectNext` when toggle is off
+- `StartTest_Click` consumes pending context from action handlers instead of always defaulting to Freeform
+- Repeat intent only applied when no other intent is already set
+- Completion banner auto-dismissed on Start, Reset, and Skip clicks
+- All action paths (weakness practice, easy/harder/language snippets) set appropriate `PracticeContext` with correct intent
+- `PersistenceService.SanitizeBlob` extended with null-checks for longitudinal data fields
+
+### Technical
+- All v0.3.0 data additions use nullable fields and collection defaults — v0.2.0 persisted state deserializes unchanged with no schema version bump
+- `GetTargetDifficultyStatic` exposed as public on `SmartSnippetSelector` for external difficulty queries
+- Clean service composition: TrendAnalyzer (standalone), FatigueDetector (standalone), WeaknessTracker (uses TrendAnalyzer), PracticeRecommender (uses both), AdaptiveDifficultyEngine (uses TrendAnalyzer)
+
 ## [0.2.0] - 2026-02-08
 
 ### Added
@@ -113,6 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[0.3.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.3.0
 [0.2.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.2.0
 [0.1.1]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.1.1
 [0.1.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.1.0
