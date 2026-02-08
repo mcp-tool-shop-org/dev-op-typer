@@ -5,6 +5,35 @@ All notable changes to Dev-Op-Typer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-02-08
+
+### Added
+- **Per-character visual renderer** — `TypingPresenter` control renders each character with color-coded diff states (correct/error/pending/caret/extra) using batched `Run` elements in a `RichTextBlock`
+- **Mistake heatmap** — `MistakeHeatmap` tracks per-character error frequencies with confusion pairs, replacing binary `WeakChars` with frequency-weighted data
+- **Weak spots analytics** — StatsPanel shows top 5 weakest characters with error rates, visual error bars, and group weakness aggregation
+- **Session history panel** — Recent sessions displayed with WPM, accuracy, errors, XP earned, and perfect run indicators
+- **Lifetime stats** — Aggregate statistics (total sessions, averages, personal bests) shown after 3+ sessions
+- **Typing rules system** — Configurable whitespace, line endings, trailing spaces, and backspace behavior with `TypingRules` model and `NormalizeText()` preprocessor
+- **Adaptive difficulty toggle** — UI control for enabling/disabling smart snippet selection
+- **Accuracy floor** — Configurable minimum accuracy threshold (0-100%) below which no XP is earned
+- **Anti-grind XP formula** — Speed soft cap above 80 WPM, difficulty multiplier (D1-D5), diminishing returns for repeated snippets, completion bonus
+- **CharDiff engine** — `CharDiffAnalyzer` produces typed-vs-target diff arrays with correct/error/pending/extra states and typing rules integration
+- **TypingEngine overhaul** — Emits `DiffUpdated`, `ProgressUpdated`, `SessionCompleted`, `TextCorrected` events; supports typing rules and repeat tracking
+
+### Changed
+- Per-character heatmap recording is now incremental (O(1) per keystroke, not O(n))
+- `PersistenceService.Load()` sanitizes and clamps all deserialized values on load
+- `SessionState` guards against NaN/Infinity in WPM, accuracy, and XP calculations
+- Empty targets no longer start sessions
+- `TypingPresenter` skips re-render when cursor position and diff length are unchanged
+- Schema version bumped to v3 with automatic migration from v2 (seeds heatmap from legacy WeakChars)
+- `Profile.RecordMiss/RecordHit` update both legacy WeakChars and new Heatmap
+- Backup recovery wrapped in independent try/catch for double-corruption resilience
+
+### Fixed
+- **Critical**: Heatmap inflation bug — every keystroke re-recorded hits/misses for ALL previously typed characters
+- Corrupt state files no longer crash the app (SanitizeBlob clamps impossible values)
+
 ## [0.1.1] - 2026-02-07
 
 ### Added
@@ -84,5 +113,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[0.2.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.2.0
 [0.1.1]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.1.1
 [0.1.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.1.0
