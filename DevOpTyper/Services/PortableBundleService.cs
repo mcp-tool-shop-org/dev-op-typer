@@ -92,6 +92,15 @@ public sealed class PortableBundleService
                 return result;
             }
 
+            // Safety: never import into the app's install directory
+            var appBase = AppContext.BaseDirectory;
+            if (userSnippetsDir.StartsWith(appBase, StringComparison.OrdinalIgnoreCase) ||
+                userConfigsDir.StartsWith(appBase, StringComparison.OrdinalIgnoreCase))
+            {
+                result.Error = "Cannot import into the app directory";
+                return result;
+            }
+
             using var zip = ZipFile.OpenRead(zipPath);
 
             // Validate: must have manifest or at least some JSON files

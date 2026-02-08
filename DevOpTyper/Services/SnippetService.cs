@@ -87,7 +87,8 @@ public sealed class SnippetService
     }
 
     /// <summary>
-    /// Merges user-authored snippets into the cache and language tracks.
+    /// Merges user-authored snippets into the in-memory cache and language tracks.
+    /// This is a read-only merge — no files are written, no built-in assets modified.
     /// User snippets are appended to existing language lists or create
     /// new language entries. All selection methods automatically include them.
     /// </summary>

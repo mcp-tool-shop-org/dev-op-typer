@@ -57,11 +57,20 @@ public sealed class UserContentService
         if (_initialized) return;
         _initialized = true;
 
-        // User snippets live next to the app's persisted data
+        // User snippets live in %LOCALAPPDATA%, never in the app's install directory.
+        // This isolation ensures user content can never corrupt built-in assets.
         var appDataDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "DevOpTyper");
         var userDir = Path.Combine(appDataDir, ExtensionBoundary.UserSnippetsDir);
+
+        // Safety: reject if the path somehow resolves inside the app directory
+        var appBase = AppContext.BaseDirectory;
+        if (userDir.StartsWith(appBase, StringComparison.OrdinalIgnoreCase))
+        {
+            _loadErrors.Add("User snippets directory must not be inside the app directory");
+            return;
+        }
 
         if (!Directory.Exists(userDir))
         {

@@ -61,11 +61,20 @@ public sealed class PracticeConfigService
         // Always start with the built-in default
         _configs.Add(PracticeConfig.Default);
 
-        // User configs live next to the app's persisted data
+        // User configs live in %LOCALAPPDATA%, never in the app's install directory.
+        // This isolation ensures user configs can never corrupt built-in assets.
         var appDataDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "DevOpTyper");
         var configDir = Path.Combine(appDataDir, ExtensionBoundary.UserConfigsDir);
+
+        // Safety: reject if the path somehow resolves inside the app directory
+        var appBase = AppContext.BaseDirectory;
+        if (configDir.StartsWith(appBase, StringComparison.OrdinalIgnoreCase))
+        {
+            _loadErrors.Add("User configs directory must not be inside the app directory");
+            return;
+        }
 
         if (!Directory.Exists(configDir))
         {
