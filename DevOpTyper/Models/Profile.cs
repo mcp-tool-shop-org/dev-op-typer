@@ -12,6 +12,12 @@ public sealed class Profile
         ["java"] = 1200
     };
 
+    // Characters the user struggles with most
+    public HashSet<char> WeakChars { get; set; } = new();
+
+    // Topics the user needs more practice on
+    public HashSet<string> WeakTopics { get; set; } = new();
+
     public void AddXp(int amount)
     {
         Xp += Math.Max(0, amount);
@@ -22,6 +28,58 @@ public sealed class Profile
             Xp -= XpNeededForNext(Level);
             Level++;
         }
+    }
+
+    /// <summary>
+    /// Gets the rating for a specific language, defaulting to 1200.
+    /// </summary>
+    public int GetRating(string language)
+    {
+        return RatingByLanguage.TryGetValue(language, out var rating) ? rating : 1200;
+    }
+
+    /// <summary>
+    /// Updates the rating for a language based on session performance.
+    /// </summary>
+    public void UpdateRating(string language, double accuracy, double wpm)
+    {
+        if (!RatingByLanguage.ContainsKey(language))
+        {
+            RatingByLanguage[language] = 1200;
+        }
+
+        // Simple rating adjustment based on performance
+        int adjustment = 0;
+        
+        if (accuracy >= 98 && wpm >= 60)
+            adjustment = 25; // Excellent
+        else if (accuracy >= 95 && wpm >= 45)
+            adjustment = 15; // Good
+        else if (accuracy >= 90)
+            adjustment = 5;  // Okay
+        else if (accuracy < 80)
+            adjustment = -10; // Needs practice
+        
+        RatingByLanguage[language] = Math.Clamp(RatingByLanguage[language] + adjustment, 800, 2000);
+    }
+
+    /// <summary>
+    /// Records characters that were typed incorrectly to track weak points.
+    /// </summary>
+    public void RecordWeakChar(char c)
+    {
+        if (!char.IsLetterOrDigit(c) && !char.IsWhiteSpace(c))
+        {
+            WeakChars.Add(c);
+        }
+    }
+
+    /// <summary>
+    /// Removes a character from weak chars if user types it correctly multiple times.
+    /// </summary>
+    public void ClearWeakChar(char c)
+    {
+        WeakChars.Remove(c);
     }
 
     public static int XpNeededForNext(int level) => 200 + (level * 40);
