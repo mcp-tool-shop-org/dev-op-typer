@@ -106,6 +106,39 @@ public static class TypistIdentityService
         // Total sessions
         identity.TotalSessions = history.TotalSessions;
 
+        // WPM steadiness — coefficient of variation of recent WPM
+        // Low CV = consistent; high CV = variable. No judgment on either.
+        if (allRecentWpm.Count >= 10)
+        {
+            double mean = allRecentWpm.Average();
+            if (mean > 0)
+            {
+                double variance = allRecentWpm.Sum(v => (v - mean) * (v - mean)) / allRecentWpm.Count;
+                double stddev = Math.Sqrt(variance);
+                double cv = stddev / mean;
+                identity.WpmVariability = cv;
+            }
+        }
+
+        // Accuracy steadiness — standard deviation of recent accuracy
+        if (allRecentAcc.Count >= 10)
+        {
+            double mean = allRecentAcc.Average();
+            double variance = allRecentAcc.Sum(v => (v - mean) * (v - mean)) / allRecentAcc.Count;
+            identity.AccuracyStdDev = Math.Sqrt(variance);
+        }
+
+        // Active days in the last 14 calendar days
+        if (longitudinal.SessionTimestamps.Count > 0)
+        {
+            var cutoff = DateTime.UtcNow.AddDays(-14);
+            identity.ActiveDaysLast14 = longitudinal.SessionTimestamps
+                .Where(t => t >= cutoff)
+                .Select(t => t.Date)
+                .Distinct()
+                .Count();
+        }
+
         return identity;
     }
 }
@@ -163,6 +196,25 @@ public sealed class TypistIdentity
     public int TotalSessions { get; set; }
 
     /// <summary>
+    /// Coefficient of variation of recent WPM (stddev / mean).
+    /// Lower = more consistent, higher = more variable.
+    /// Not labeled "good" or "bad" — just factual.
+    /// </summary>
+    public double? WpmVariability { get; set; }
+
+    /// <summary>
+    /// Standard deviation of recent accuracy values.
+    /// Lower = steadier accuracy across sessions.
+    /// </summary>
+    public double? AccuracyStdDev { get; set; }
+
+    /// <summary>
+    /// Number of distinct days with sessions in the last 14 calendar days.
+    /// Not a streak — just a count. No penalty for gaps.
+    /// </summary>
+    public int? ActiveDaysLast14 { get; set; }
+
+    /// <summary>
     /// Produces display-ready summary lines. Returns only lines with data.
     /// All language neutral, factual, no judgment.
     /// </summary>
@@ -206,6 +258,37 @@ public sealed class TypistIdentity
         if (SessionsPerActiveDay.HasValue)
         {
             lines.Add($"~{SessionsPerActiveDay.Value:F1} sessions per active day");
+        }
+
+        // Consistency metrics — factual, never gamified
+        if (WpmVariability.HasValue)
+        {
+            // Describe variability in neutral terms
+            string label = WpmVariability.Value switch
+            {
+                < 0.10 => "very steady",
+                < 0.20 => "steady",
+                < 0.35 => "moderate variation",
+                _ => "wide variation"
+            };
+            lines.Add($"WPM consistency: {label} (CV {WpmVariability.Value:F2})");
+        }
+
+        if (AccuracyStdDev.HasValue)
+        {
+            string label = AccuracyStdDev.Value switch
+            {
+                < 2.0 => "very steady",
+                < 5.0 => "steady",
+                < 10.0 => "moderate variation",
+                _ => "wide variation"
+            };
+            lines.Add($"Accuracy consistency: {label} (\u00b1{AccuracyStdDev.Value:F1}%)");
+        }
+
+        if (ActiveDaysLast14.HasValue)
+        {
+            lines.Add($"{ActiveDaysLast14.Value} active days in the last 2 weeks");
         }
 
         return lines;
