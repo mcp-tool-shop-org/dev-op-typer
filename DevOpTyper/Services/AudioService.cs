@@ -115,10 +115,19 @@ public sealed class AudioService
     #endregion
 
     private readonly List<string> _ambientFiles = new();
-    private readonly List<string> _keyFiles = new();
+    private List<string> _keyFiles = new();
     private readonly List<string> _errorFiles = new();
     private readonly List<string> _successFiles = new();
     private string _uiClick = "";
+
+    // Theme support
+    private readonly Dictionary<string, List<string>> _themeKeyFiles = new();
+    private string _currentTheme = "Mechanical";
+    private string _sfxDir = "";
+
+    // Soundscape support
+    private readonly Dictionary<string, List<string>> _soundscapeFiles = new();
+    private string _currentSoundscape = "Default";
 
     // Volume levels (0.0 - 1.0)
     private double _ambientVol = 0.5;
@@ -157,26 +166,86 @@ public sealed class AudioService
     public bool HasErrorSounds => _errorFiles.Count > 0;
     public bool HasSuccessSounds => _successFiles.Count > 0;
 
+    // Public theme info
+    public string CurrentTheme => _currentTheme;
+    public IReadOnlyList<string> AvailableThemes => _themeKeyFiles.Keys.OrderBy(k => k).ToList();
+
+    // Public soundscape info
+    public string CurrentSoundscape => _currentSoundscape;
+    public IReadOnlyList<string> AvailableSoundscapes => _soundscapeFiles.Keys.OrderBy(k => k).ToList();
+
     public void Initialize()
     {
         if (_isInitialized) return;
 
         var baseDir = Path.Combine(AppContext.BaseDirectory, "Assets", "Sounds");
         var ambDir = Path.Combine(baseDir, "Ambient");
-        var sfxDir = Path.Combine(baseDir, "Sfx");
+        _sfxDir = Path.Combine(baseDir, "Sfx");
 
         if (Directory.Exists(ambDir))
         {
-            _ambientFiles.AddRange(Directory.GetFiles(ambDir, "*.wav").OrderBy(x => x));
+            // Discover soundscapes from subdirectories
+            foreach (var scapeDir in Directory.GetDirectories(ambDir))
+            {
+                var scapeName = Path.GetFileName(scapeDir);
+                var wavFiles = Directory.GetFiles(scapeDir, "*.wav").OrderBy(x => x).ToList();
+                if (wavFiles.Count > 0)
+                {
+                    _soundscapeFiles[scapeName] = wavFiles;
+                    Log($"Init: Soundscape '{scapeName}' = {wavFiles.Count} ambient tracks");
+                }
+            }
+
+            // Set default soundscape
+            if (_soundscapeFiles.ContainsKey(_currentSoundscape))
+                _ambientFiles.AddRange(_soundscapeFiles[_currentSoundscape]);
+            else if (_soundscapeFiles.Count > 0)
+            {
+                _currentSoundscape = _soundscapeFiles.Keys.First();
+                _ambientFiles.AddRange(_soundscapeFiles[_currentSoundscape]);
+            }
+
+            // Backward compat: if no subdirectories found, check for loose WAV files
+            if (_soundscapeFiles.Count == 0)
+            {
+                var looseFiles = Directory.GetFiles(ambDir, "*.wav").OrderBy(x => x).ToList();
+                if (looseFiles.Count > 0)
+                {
+                    _soundscapeFiles["Default"] = looseFiles;
+                    _ambientFiles.AddRange(looseFiles);
+                    Log($"Init: Fallback - found {looseFiles.Count} loose ambient files in root");
+                }
+            }
         }
 
-        if (Directory.Exists(sfxDir))
+        if (Directory.Exists(_sfxDir))
         {
-            _keyFiles.AddRange(Directory.GetFiles(sfxDir, "key_*.wav").OrderBy(x => x));
-            _errorFiles.AddRange(Directory.GetFiles(sfxDir, "error_*.wav").OrderBy(x => x));
-            _successFiles.AddRange(Directory.GetFiles(sfxDir, "success_*.wav").OrderBy(x => x));
+            // Discover keyboard themes from subdirectories
+            foreach (var themeDir in Directory.GetDirectories(_sfxDir))
+            {
+                var themeName = Path.GetFileName(themeDir);
+                var keyFiles = Directory.GetFiles(themeDir, "key_*.wav").OrderBy(x => x).ToList();
+                if (keyFiles.Count > 0)
+                {
+                    _themeKeyFiles[themeName] = keyFiles;
+                    Log($"Init: Theme '{themeName}' = {keyFiles.Count} key sounds");
+                }
+            }
 
-            var ui = Path.Combine(sfxDir, "ui_click.wav");
+            // Set default theme
+            if (_themeKeyFiles.ContainsKey(_currentTheme))
+                _keyFiles = _themeKeyFiles[_currentTheme];
+            else if (_themeKeyFiles.Count > 0)
+            {
+                _currentTheme = _themeKeyFiles.Keys.First();
+                _keyFiles = _themeKeyFiles[_currentTheme];
+            }
+
+            // Non-theme SFX (error, success, ui_click stay in root Sfx dir)
+            _errorFiles.AddRange(Directory.GetFiles(_sfxDir, "error_*.wav").OrderBy(x => x));
+            _successFiles.AddRange(Directory.GetFiles(_sfxDir, "success_*.wav").OrderBy(x => x));
+
+            var ui = Path.Combine(_sfxDir, "ui_click.wav");
             if (File.Exists(ui)) _uiClick = ui;
         }
 
@@ -188,8 +257,9 @@ public sealed class AudioService
         {
             InitSfxEngine();
 
-            // Pre-load all SFX into memory buffers (like Web Audio decodeAudioData)
-            foreach (var f in _keyFiles) PreloadSfx(f);
+            // Pre-load ALL theme SFX into memory buffers (like Web Audio decodeAudioData)
+            foreach (var themeFiles in _themeKeyFiles.Values)
+                foreach (var f in themeFiles) PreloadSfx(f);
             foreach (var f in _errorFiles) PreloadSfx(f);
             foreach (var f in _successFiles) PreloadSfx(f);
             if (!string.IsNullOrEmpty(_uiClick)) PreloadSfx(_uiClick);
@@ -276,6 +346,44 @@ public sealed class AudioService
 
     #endregion
 
+    #region Theme Switching
+
+    public void SwitchKeyboardTheme(string theme)
+    {
+        if (!_themeKeyFiles.ContainsKey(theme))
+        {
+            Log($"SwitchKeyboardTheme: unknown theme '{theme}', available: {string.Join(", ", _themeKeyFiles.Keys)}");
+            return;
+        }
+
+        _currentTheme = theme;
+        _keyFiles = _themeKeyFiles[theme];
+        Log($"SwitchKeyboardTheme: switched to '{theme}' ({_keyFiles.Count} key sounds)");
+    }
+
+    public void SwitchSoundscape(string name)
+    {
+        if (!_soundscapeFiles.ContainsKey(name))
+        {
+            Log($"SwitchSoundscape: unknown soundscape '{name}', available: {string.Join(", ", _soundscapeFiles.Keys)}");
+            return;
+        }
+
+        _currentSoundscape = name;
+        _ambientFiles.Clear();
+        _ambientFiles.AddRange(_soundscapeFiles[name]);
+        _currentAmbientIndex = -1;
+        Log($"SwitchSoundscape: switched to '{name}' ({_ambientFiles.Count} tracks)");
+
+        // If ambient was playing, restart with first track of new soundscape
+        if (_isAmbientPlaying)
+        {
+            PlayAmbientTrack(0);
+        }
+    }
+
+    #endregion
+
     #region Ambient Playback (mciSendString with mpegvideo)
 
     public void PlayRandomAmbient()
@@ -325,6 +433,17 @@ public sealed class AudioService
     {
         int vol = (_masterMuted || _ambientMuted) ? 0 : (int)(_ambientVol * 1000);
         MciCmd($"setaudio {_currentAmbientAlias} volume to {vol}");
+    }
+
+    /// <summary>
+    /// Replays the current ambient track from the start (or first track if none selected).
+    /// Use this when unmuting — keeps the same track instead of randomizing.
+    /// </summary>
+    public void ResumeCurrentAmbient()
+    {
+        if (_ambientFiles.Count == 0) return;
+        int idx = _currentAmbientIndex >= 0 ? _currentAmbientIndex : 0;
+        PlayAmbientTrack(idx);
     }
 
     public void StopAmbient()

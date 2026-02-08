@@ -61,6 +61,16 @@ public sealed class AppSettings
     /// </summary>
     public string KeyboardSoundMode { get; set; } = "EveryKey";
 
+    /// <summary>
+    /// Keyboard sound theme (Mechanical, Membrane, Thock, Clicky).
+    /// </summary>
+    public string KeyboardSoundTheme { get; set; } = "Mechanical";
+
+    /// <summary>
+    /// Selected ambient soundscape name.
+    /// </summary>
+    public string SelectedSoundscape { get; set; } = "Default";
+
     #endregion
 
     #region Typing Settings
@@ -225,6 +235,8 @@ public sealed class AppSettings
             KeyboardVolume = KeyboardVolume,
             UiClickVolume = UiClickVolume,
             KeyboardSoundMode = KeyboardSoundMode,
+            KeyboardSoundTheme = KeyboardSoundTheme,
+            SelectedSoundscape = SelectedSoundscape,
             HardcoreMode = HardcoreMode,
             AutoAdvance = AutoAdvance,
             AutoAdvanceDelay = AutoAdvanceDelay,

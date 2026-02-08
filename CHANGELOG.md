@@ -5,6 +5,30 @@ All notable changes to Dev-Op-Typer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-02-07
+
+### Added
+- Dynamic audio content system — keyboard themes and soundscapes auto-discovered from filesystem
+- Soundscape selector dropdown with 4 categories: Ocean (3), Rain (3), Wind (2), Zen (7)
+- 3 new keyboard sound themes: SoftTouch (laptop chiclet), Topre (HHKB dome), AlpsCream (vintage Alps)
+- AudioTest project with synthesis generators for ambient tracks and keyboard themes
+- Audio.md documentation for audio architecture and contributor workflows
+- Gameplay section in settings panel for Hardcore Mode (separated from Accessibility)
+
+### Changed
+- Ambient playback stays on same track unless Random button is pressed
+- Mute button uses MCI pause/resume instead of stop/close (fixes mute not working)
+- Title bar buttons (Random, Mute, Gear) now always register clicks (SetTitleBar drag region fix)
+- Settings panel toggles visibility properly on gear button click
+- Event handler wiring moved before dropdown population for reliable registration
+- Keyboard theme and soundscape selections now persisted in AppSettings
+
+### Removed
+- Old Clicky and Thock keyboard themes (replaced with better synthesized alternatives)
+- Old flat ambient_01-05.wav files (replaced with categorized soundscape library)
+
+---
+
 ## [0.1.0] - 2026-02-07
 
 ### Added
@@ -60,4 +84,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[0.1.0]: https://github.com/user/dev-op-typer/releases/tag/v0.1.0
+[0.1.1]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.1.1
+[0.1.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.1.0

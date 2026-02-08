@@ -23,7 +23,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0">
+            <StackPanel x:Name="TitleBarDragArea" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0">
                 <TextBlock Text="Dev-Op-Typer" FontSize="16" FontWeight="SemiBold"/>
                 <Border Background="{StaticResource DotAccent2Brush}"
                         CornerRadius="4"
@@ -33,7 +33,7 @@
                 </Border>
             </StackPanel>
             
-            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="4" Margin="0,0,140,0">
+            <StackPanel x:Name="TitleBarButtons" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="4" Margin="0,0,140,0">
                 <!-- Ambient: Random -->
                 <Button x:Name="AmbientRandomButton"
                         Content="🎲 Random"
@@ -70,7 +70,7 @@
             <panels:StatsPanel x:Name="StatsPanel" Grid.Column="1" Width="220" Margin="0,16,16,16"/>
             
             <!-- Settings Panel (collapsible) -->
-            <panels:SettingsPanel x:Name="SettingsPanel" Grid.Column="2"/>
+            <panels:SettingsPanel x:Name="SettingsPanel" Grid.Column="2" Visibility="Collapsed"/>
         </Grid>
     </Grid>
 </Window>

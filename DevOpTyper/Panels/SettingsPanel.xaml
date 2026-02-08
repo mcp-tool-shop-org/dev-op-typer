@@ -71,30 +71,52 @@
                 </StackPanel>
 
                 <StackPanel Spacing="4">
-                    <TextBlock Text="UI Sound Volume" 
+                    <TextBlock Text="Keyboard Sound"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                FontSize="12"/>
-                    <Slider x:Name="UiVolumeSlider" 
+                    <ComboBox x:Name="KeyboardThemeCombo"
+                              HorizontalAlignment="Stretch"/>
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="UI Sound Volume"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <Slider x:Name="UiVolumeSlider"
                             Minimum="0" Maximum="100" Value="60"/>
                 </StackPanel>
 
-                <!-- Accessibility -->
-                <TextBlock Text="Accessibility" 
-                           FontSize="14" 
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Soundscape"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <ComboBox x:Name="SoundscapeCombo"
+                              HorizontalAlignment="Stretch"/>
+                </StackPanel>
+
+                <!-- Gameplay -->
+                <TextBlock Text="Gameplay"
+                           FontSize="14"
                            FontWeight="SemiBold"
                            Margin="0,8,0,0"/>
 
-                <ToggleSwitch x:Name="HardcoreModeToggle" 
+                <ToggleSwitch x:Name="HardcoreModeToggle"
                               Header="Hardcore Mode"
                               OffContent="Off"
                               OnContent="On"/>
 
-                <ToggleSwitch x:Name="HighContrastToggle" 
+                <!-- Accessibility -->
+                <TextBlock Text="Accessibility"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Margin="0,8,0,0"/>
+
+                <ToggleSwitch x:Name="HighContrastToggle"
                               Header="High Contrast"
                               OffContent="Off"
                               OnContent="On"/>
 
-                <ToggleSwitch x:Name="ReducedMotionToggle" 
+                <ToggleSwitch x:Name="ReducedMotionToggle"
                               Header="Reduced Motion"
                               OffContent="Off"
                               OnContent="On"/>

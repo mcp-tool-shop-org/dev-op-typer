@@ -18,12 +18,18 @@ public sealed partial class MainWindow : Window
     private readonly KeyboardSoundHandler _keyboardSound;
     private readonly UiFeedbackService _uiFeedback;
     private Profile _profile = new();
+    private AppSettings _settings = new();
     private bool _settingsPanelOpen = false;
 
     public MainWindow()
     {
         InitializeComponent();
         ExtendsContentIntoTitleBar = true;
+
+        // Set the drag area to just the title text — buttons stay fully interactive
+        // Without this, the entire title bar row is a drag region and eats button clicks
+        SetTitleBar(TitleBarDragArea);
+
         SetWindowSize(1200, 760);
 
         // Initialize services
@@ -35,19 +41,30 @@ public sealed partial class MainWindow : Window
         _keyboardSound = new KeyboardSoundHandler(_audioService);
         _uiFeedback = new UiFeedbackService(_audioService);
 
-        // Apply volume from settings panel defaults
-        _audioService.SetVolumes(
-            SettingsPanel.AmbientVolume,
-            SettingsPanel.KeyboardVolume,
-            SettingsPanel.UiVolume
-        );
-
-        // Start ambient audio (deferred to avoid blocking UI thread — MCI play takes ~1s)
-        DispatcherQueue.TryEnqueue(() => _audioService.PlayRandomAmbient());
-
-        // Load persisted profile
+        // Load persisted data (profile + settings)
         var persisted = _persistenceService.Load();
         _profile = persisted.Profile;
+        _settings = persisted.Settings;
+
+        // Wire up settings panel events FIRST (before any population or audio init)
+        SettingsPanel.AmbientVolumeChanged += (_, val) => _audioService.SetAmbientVolume(val);
+        SettingsPanel.KeyboardVolumeChanged += (_, val) => _audioService.SetKeyboardVolume(val);
+        SettingsPanel.UiVolumeChanged += (_, val) => _audioService.SetUiVolume(val);
+        SettingsPanel.KeyboardThemeChanged += (_, theme) => _audioService.SwitchKeyboardTheme(theme);
+        SettingsPanel.SoundscapeChanged += (_, scape) => _audioService.SwitchSoundscape(scape);
+
+        // Restore saved audio settings
+        _audioService.SetVolumes(_settings.AmbientVolume, _settings.KeyboardVolume, _settings.UiClickVolume);
+        _audioService.SwitchKeyboardTheme(_settings.KeyboardSoundTheme);
+        _audioService.SwitchSoundscape(_settings.SelectedSoundscape);
+
+        // Populate dynamic dropdowns from discovered audio content
+        SettingsPanel.PopulateThemes(_audioService.AvailableThemes, _audioService.CurrentTheme);
+        SettingsPanel.PopulateSoundscapes(_audioService.AvailableSoundscapes, _audioService.CurrentSoundscape);
+
+        // Start ambient audio (deferred to avoid blocking UI thread — MCI play takes ~1s)
+        // Play first track in the soundscape — stays the same until user hits random button
+        DispatcherQueue.TryEnqueue(() => _audioService.PlayAmbientTrack(0));
 
         // Wire up typing engine events
         _typingEngine.ProgressUpdated += OnTypingProgress;
@@ -59,11 +76,6 @@ public sealed partial class MainWindow : Window
         TypingPanel.ResetClicked += ResetTest_Click;
         TypingPanel.SkipClicked += SkipTest_Click;
         TypingPanel.TypingTextChanged += TypingBox_TextChanged;
-
-        // Wire up settings panel volume sliders
-        SettingsPanel.AmbientVolumeChanged += (_, val) => _audioService.SetAmbientVolume(val);
-        SettingsPanel.KeyboardVolumeChanged += (_, val) => _audioService.SetKeyboardVolume(val);
-        SettingsPanel.UiVolumeChanged += (_, val) => _audioService.SetUiVolume(val);
 
         // Initial state
         UpdateLevelBadge();
@@ -212,11 +224,11 @@ public sealed partial class MainWindow : Window
                 _profile.UpdateRating(_currentSnippet.Language, e.FinalAccuracy, e.FinalWpm);
             }
 
-            // Save profile
+            // Save profile + current audio settings
             _persistenceService.Save(new PersistedBlob
             {
                 Profile = _profile,
-                Settings = new AppSettings()
+                Settings = GetCurrentSettings()
             });
 
             // Update XP display
@@ -236,7 +248,16 @@ public sealed partial class MainWindow : Window
     {
         _uiFeedback.OnButtonClick();
         _settingsPanelOpen = !_settingsPanelOpen;
-        SettingsColumn.Width = _settingsPanelOpen ? new GridLength(280) : new GridLength(0);
+        if (_settingsPanelOpen)
+        {
+            SettingsPanel.Visibility = Visibility.Visible;
+            SettingsColumn.Width = new GridLength(280);
+        }
+        else
+        {
+            SettingsPanel.Visibility = Visibility.Collapsed;
+            SettingsColumn.Width = new GridLength(0);
+        }
     }
 
     private void AmbientRandomButton_Click(object sender, RoutedEventArgs e)
@@ -254,11 +275,11 @@ public sealed partial class MainWindow : Window
         _ambientMuted = !_ambientMuted;
         if (_ambientMuted)
         {
-            _audioService.StopAmbient();
+            _audioService.PauseAmbient();
         }
         else
         {
-            _audioService.PlayRandomAmbient();
+            _audioService.ResumeAmbient();
         }
         UpdateAmbientMuteButton(_ambientMuted);
     }
@@ -267,5 +288,18 @@ public sealed partial class MainWindow : Window
     {
         _ambientMuted = muted;
         AmbientMuteButton.Content = muted ? "🔇 Muted" : "🔊 Ambient";
+    }
+
+    private AppSettings GetCurrentSettings()
+    {
+        _settings.AmbientVolume = SettingsPanel.AmbientVolume;
+        _settings.KeyboardVolume = SettingsPanel.KeyboardVolume;
+        _settings.UiClickVolume = SettingsPanel.UiVolume;
+        _settings.KeyboardSoundTheme = SettingsPanel.SelectedKeyboardTheme;
+        _settings.SelectedSoundscape = SettingsPanel.SelectedSoundscape;
+        _settings.HardcoreMode = SettingsPanel.IsHardcoreMode;
+        _settings.HighContrast = SettingsPanel.IsHighContrast;
+        _settings.ReducedMotion = SettingsPanel.IsReducedMotion;
+        return _settings;
     }
 }
