@@ -112,8 +112,9 @@ public sealed class SnippetService
 
             if (track != null)
             {
-                // Existing language — update count and difficulties
+                // Existing language — update count, difficulties, and user content flag
                 track.SnippetCount = existing.Count;
+                track.HasUserContent = true;
                 track.AvailableDifficulties = existing
                     .Select(s => s.DifficultyLabel)
                     .Distinct()
@@ -129,6 +130,7 @@ public sealed class SnippetService
                     DisplayName = char.ToUpper(language[0]) + language[1..],
                     Icon = LanguageIcons.GetValueOrDefault(language, "📝"),
                     SnippetCount = userSnippets.Count,
+                    HasUserContent = true,
                     AvailableDifficulties = userSnippets
                         .Select(s => s.DifficultyLabel)
                         .Distinct()

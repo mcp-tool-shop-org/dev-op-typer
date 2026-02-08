@@ -109,5 +109,11 @@ public sealed class LanguageTrack
     public string Icon { get; set; } = "";
     public int SnippetCount { get; set; }
     public string[] AvailableDifficulties { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// Whether this track includes user-authored snippets.
+    /// Display-only — never affects selection or scoring.
+    /// </summary>
+    public bool HasUserContent { get; set; }
 }
 
