@@ -24,6 +24,7 @@ public sealed partial class MainWindow : Window
     private readonly SessionPacer _sessionPacer = new();
     private readonly WeaknessTracker _weaknessTracker = new();
     private readonly PracticeConfigService _practiceConfigService = new();
+    private readonly CommunitySignalService _communitySignals = new();
     private Profile _profile = new();
     private AppSettings _settings = new();
     private bool _settingsPanelOpen = false;
@@ -115,6 +116,9 @@ public sealed partial class MainWindow : Window
         // Community content status
         SettingsPanel.UpdateCommunityContentStatus(_snippetService.CommunityContent);
 
+        // Community signals (display-only — never affects frozen services)
+        _communitySignals.Initialize();
+
         // Practice configs
         _practiceConfigService.Initialize();
         SettingsPanel.PopulateConfigs(
@@ -185,6 +189,10 @@ public sealed partial class MainWindow : Window
 
         // Show explanatory perspectives (if any) between sessions
         ExplanationPanel.SetSnippet(snippet);
+
+        // Show community signal hint (if available and enabled)
+        var signal = _communitySignals.GetSignal(snippet.Id);
+        TypingPanel.ShowCommunityHint(signal);
 
         // Soft session frame — show typical range for this language
         StatsPanel.UpdateSessionFrame(_persistenceService.Load().Longitudinal, language);

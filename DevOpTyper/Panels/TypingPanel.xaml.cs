@@ -142,6 +142,43 @@ public sealed partial class TypingPanel : UserControl
     }
 
     /// <summary>
+    /// Shows a subtle community hint below the snippet title.
+    /// Uses collective language — "typically" and "often", never "you should"
+    /// or comparative framing. Null or empty signal hides the hint.
+    /// </summary>
+    public void ShowCommunityHint(AggregateSignal? signal)
+    {
+        if (signal == null)
+        {
+            CommunityHint.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var parts = new List<string>();
+
+        if (signal.TypicalWpm.HasValue)
+            parts.Add($"typically ~{signal.TypicalWpm.Value:F0} WPM");
+
+        if (signal.TypicalAccuracy.HasValue)
+            parts.Add($"~{signal.TypicalAccuracy.Value:F0}% accuracy");
+
+        if (signal.CommonDifficulties.Length > 0)
+            parts.Add($"often tricky: {string.Join(", ", signal.CommonDifficulties.Take(3))}");
+
+        if (!string.IsNullOrWhiteSpace(signal.Hint))
+            parts.Add(signal.Hint);
+
+        if (parts.Count == 0)
+        {
+            CommunityHint.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        CommunityHint.Text = string.Join(" · ", parts);
+        CommunityHint.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
     /// Updates the per-character diff display.
     /// Call this on every DiffUpdated or ProgressUpdated event.
     /// </summary>

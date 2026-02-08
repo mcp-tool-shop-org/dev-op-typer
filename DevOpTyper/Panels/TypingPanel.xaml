@@ -39,6 +39,16 @@
                                VerticalAlignment="Center"/>
                 </Grid>
 
+                <!-- Community hint (subtle, collective language, never comparative) -->
+                <TextBlock x:Name="CommunityHint"
+                           FontSize="10"
+                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                           TextWrapping="Wrap"
+                           Visibility="Collapsed"
+                           IsTabStop="False"
+                           AutomationProperties.LiveSetting="Off"
+                           Margin="0,-4,0,0"/>
+
                 <!-- Per-character diff renderer (replaces old plain TargetCode TextBlock) -->
                 <controls:TypingPresenter x:Name="CodeRenderer"/>
             </StackPanel>
