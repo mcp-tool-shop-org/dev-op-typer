@@ -30,6 +30,10 @@ public sealed class PracticeContext
     /// What the session focuses on, if anything.
     /// Examples: "brackets", "python:loops", a specific weak char.
     /// Null = no particular focus.
+    ///
+    /// AUTOMATION GUARD: This field is descriptive metadata only.
+    /// No service reads Focus for snippet selection, difficulty,
+    /// or any automated decision. It is stored for retrospective display.
     /// </summary>
     public string? Focus { get; set; }
 

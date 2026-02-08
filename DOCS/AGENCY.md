@@ -110,6 +110,43 @@ These are permanent constraints, not temporary omissions.
 
 ---
 
+## Automation Boundary (Phase 3)
+
+Phase 3 introduced depth features: focus areas, pattern detection, and suggestion overrides. None of these automate decisions.
+
+### Focus Area
+
+- Focus Area is a user-set preference stored in `AppSettings.FocusArea`.
+- It is written to `PracticeContext.Focus` as descriptive metadata.
+- **No service reads `PracticeContext.Focus` for selection logic.** It is a label.
+- The user can change or clear their focus area at any time. No cooldown, no penalty.
+
+### Pattern Detection
+
+- `PatternDetector.Detect()` returns `List<string>` — plain text observations.
+- It never returns structured data, actions, or commands.
+- It never triggers snippet selection, difficulty changes, or suggestions.
+- Its output is displayed in StatsPanel and nowhere else.
+
+### Suggestion Overrides
+
+- Users can dismiss individual suggestions with a × button.
+- Users can hide all suggestions via the Show Suggestions toggle.
+- Dismissed suggestions are session-scoped — **never persisted across restarts**.
+- The system never remembers, penalizes, or escalates based on dismissals.
+- `ShowSuggestions = false` is a valid, permanent choice.
+
+### Verification
+
+Any future feature must satisfy:
+
+1. **No service reads `DeclaredIntent`, `Focus`, or `ShowSuggestions` for scoring or selection.**
+2. **No dismissed suggestion alters future behavior.**
+3. **Pattern observations produce strings, never actions.**
+4. **Turning off any v0.4.0 feature leaves the app functionally identical to v0.3.0.**
+
+---
+
 ## Backward Compatibility
 
 v0.4.0 additions follow the same pattern as v0.3.0:

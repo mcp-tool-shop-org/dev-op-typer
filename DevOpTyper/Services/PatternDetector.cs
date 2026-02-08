@@ -7,6 +7,11 @@ namespace DevOpTyper.Services;
 /// All observations are descriptive — never prescriptive, never evaluative.
 /// Uses neutral language: "tends to", "averages", "compared to".
 /// Never uses: "you should", "consider", "try", "improve".
+///
+/// AUTOMATION GUARD: This service returns List&lt;string&gt; only.
+/// It never returns structured data, actions, or commands.
+/// No service may consume its output for snippet selection,
+/// difficulty adjustment, or any automated decision-making.
 /// </summary>
 public static class PatternDetector
 {
