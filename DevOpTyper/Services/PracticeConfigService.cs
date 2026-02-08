@@ -29,6 +29,12 @@ public sealed class PracticeConfigService
     public string? UserConfigsPath { get; private set; }
 
     /// <summary>
+    /// The directory where community-shared configs live.
+    /// Null if no community configs directory exists.
+    /// </summary>
+    public string? CommunityConfigsPath { get; private set; }
+
+    /// <summary>
     /// Whether any user configs were found and loaded.
     /// </summary>
     public bool HasUserConfigs => _configs.Any(c => c.IsUserAuthored);
@@ -77,6 +83,22 @@ public sealed class PracticeConfigService
         foreach (var file in files.Take(ExtensionBoundary.MaxUserConfigs))
         {
             LoadConfigFile(file);
+        }
+
+        // Also scan community configs if available.
+        // Community configs appear in the dropdown alongside user configs
+        // with no visual distinction — same as how community snippets work.
+        var communityConfigsDir = Path.Combine(appDataDir,
+            ExtensionBoundary.CommunityContentDir, "configs");
+        if (Directory.Exists(communityConfigsDir))
+        {
+            CommunityConfigsPath = communityConfigsDir;
+            var communityFiles = Directory.GetFiles(communityConfigsDir,
+                $"*{ExtensionBoundary.ConfigFileExtension}");
+            foreach (var file in communityFiles.Take(ExtensionBoundary.MaxCommunityConfigs))
+            {
+                LoadConfigFile(file);
+            }
         }
     }
 
