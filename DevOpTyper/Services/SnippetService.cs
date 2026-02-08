@@ -13,12 +13,18 @@ public sealed class SnippetService
     private readonly Dictionary<string, List<Snippet>> _cache = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<LanguageTrack> _languageTracks = new();
     private readonly UserContentService _userContent = new();
+    private readonly CommunityContentService _communityContent = new();
     private bool _initialized = false;
 
     /// <summary>
     /// Exposes the user content service for UI queries (e.g., "Open folder").
     /// </summary>
     public UserContentService UserContent => _userContent;
+
+    /// <summary>
+    /// Exposes the community content service for UI queries.
+    /// </summary>
+    public CommunityContentService CommunityContent => _communityContent;
 
     /// <summary>
     /// Supported language icons for UI display.
@@ -83,6 +89,14 @@ public sealed class SnippetService
             MergeUserContent();
         }
 
+        // Merge community-shared content if any exists.
+        // This is a no-op if the CommunityContent directory doesn't exist.
+        _communityContent.Initialize();
+        if (_communityContent.HasCommunityContent)
+        {
+            MergeCommunityContent();
+        }
+
         _initialized = true;
     }
 
@@ -133,6 +147,61 @@ public sealed class SnippetService
                     SnippetCount = userSnippets.Count,
                     HasUserContent = true,
                     AvailableDifficulties = userSnippets
+                        .Select(s => s.DifficultyLabel)
+                        .Distinct()
+                        .OrderBy(d => d)
+                        .ToArray()
+                });
+            }
+        }
+    }
+
+    /// <summary>
+    /// Merges community-shared snippets into the in-memory cache and language tracks.
+    /// Same pattern as MergeUserContent — community content is indistinguishable
+    /// from user content at runtime. Both receive the same treatment.
+    /// </summary>
+    private void MergeCommunityContent()
+    {
+        if (!_communityContent.HasCommunityContent) return;
+
+        foreach (var language in _communityContent.GetCommunityLanguages())
+        {
+            var communitySnippets = _communityContent.GetSnippets(language);
+            if (communitySnippets.Count == 0) continue;
+
+            // Merge into cache
+            if (!_cache.TryGetValue(language, out var existing))
+            {
+                existing = new List<Snippet>();
+                _cache[language] = existing;
+            }
+            existing.AddRange(communitySnippets);
+
+            // Update or create language track
+            var track = _languageTracks.FirstOrDefault(t =>
+                t.Id.Equals(language, StringComparison.OrdinalIgnoreCase));
+
+            if (track != null)
+            {
+                track.SnippetCount = existing.Count;
+                track.HasUserContent = true;
+                track.AvailableDifficulties = existing
+                    .Select(s => s.DifficultyLabel)
+                    .Distinct()
+                    .OrderBy(d => d)
+                    .ToArray();
+            }
+            else
+            {
+                _languageTracks.Add(new LanguageTrack
+                {
+                    Id = language,
+                    DisplayName = char.ToUpper(language[0]) + language[1..],
+                    Icon = LanguageIcons.GetValueOrDefault(language, "📝"),
+                    SnippetCount = communitySnippets.Count,
+                    HasUserContent = true,
+                    AvailableDifficulties = communitySnippets
                         .Select(s => s.DifficultyLabel)
                         .Distinct()
                         .OrderBy(d => d)

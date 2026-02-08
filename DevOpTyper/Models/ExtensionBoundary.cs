@@ -62,6 +62,25 @@ public static class ExtensionBoundary
     /// </summary>
     public const int MaxUserConfigs = 20;
 
+    /// <summary>
+    /// Community-shared content lives in a separate directory from user-authored content.
+    /// At runtime, community content is indistinguishable from user content —
+    /// the separation is organizational only.
+    /// </summary>
+    public const string CommunityContentDir = "CommunityContent";
+
+    /// <summary>
+    /// Maximum number of community snippet files the system will load.
+    /// Higher than user limit because community content may accumulate
+    /// from multiple bundle imports over time.
+    /// </summary>
+    public const int MaxCommunitySnippetFiles = 100;
+
+    /// <summary>
+    /// Maximum number of community practice configurations.
+    /// </summary>
+    public const int MaxCommunityConfigs = 40;
+
     // ────────────────────────────────────────────────────────
     //  FROZEN — the system guarantees these remain stable
     //
