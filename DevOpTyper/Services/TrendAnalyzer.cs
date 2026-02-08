@@ -115,6 +115,8 @@ public sealed class TrendAnalyzer
     /// <summary>
     /// Determines direction from a sequence of values (newest first).
     /// Compares recent average (last 5) to older average (last 5 before that).
+    /// Declines require confirmation from a wider window to avoid
+    /// overreacting to a single bad session or temporary dip.
     /// </summary>
     private static TrendDirection ComputeDirection(List<double> values)
     {
@@ -126,7 +128,22 @@ public sealed class TrendAnalyzer
         double threshold = older * 0.03; // 3% change threshold
 
         if (diff > threshold) return TrendDirection.Improving;
-        if (diff < -threshold) return TrendDirection.Declining;
+
+        if (diff < -threshold)
+        {
+            // Before calling it a decline, check a wider window.
+            // A true decline persists; a bad day doesn't.
+            if (values.Count >= 15)
+            {
+                double widerRecent = values.Take(10).Average();
+                double widerOlder = values.Skip(10).Take(5).Average();
+                double widerDiff = widerRecent - widerOlder;
+                if (widerDiff >= -widerOlder * 0.02)
+                    return TrendDirection.Stable; // Narrow dip, wider trend is fine
+            }
+            return TrendDirection.Declining;
+        }
+
         return TrendDirection.Stable;
     }
 

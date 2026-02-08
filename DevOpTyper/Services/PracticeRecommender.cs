@@ -68,18 +68,20 @@ public sealed class PracticeRecommender
             var summary = _trendAnalyzer.Analyze(lang, trend);
             if (summary != null)
             {
-                // Declining trend — suggest focused practice
+                // Declining trend — suggest lighter practice, not alarm.
+                // Short-term dips are normal. Only surface this when
+                // the trend analyzer has confirmed a persistent decline.
                 if (summary.OverallMomentum == Momentum.Negative ||
                     summary.OverallMomentum == Momentum.StrongNegative)
                 {
                     suggestions.Add(new PracticeSuggestion
                     {
                         Type = SuggestionType.AddressTrend,
-                        Title = $"Focus on {lang} fundamentals",
+                        Title = $"Try some lighter {lang} snippets",
                         Reason = summary.AccuracyDirection == TrendDirection.Declining
-                            ? "Accuracy has been declining recently"
-                            : "Speed has been declining recently",
-                        Priority = SuggestionPriority.Normal,
+                            ? "Recent accuracy dipped a bit"
+                            : "Recent speed dipped a bit",
+                        Priority = SuggestionPriority.Low, // Low, not Normal — stay calm
                         Intent = PracticeIntent.WeaknessTarget,
                         Focus = lang,
                         Action = SuggestionAction.LoadEasySnippet
