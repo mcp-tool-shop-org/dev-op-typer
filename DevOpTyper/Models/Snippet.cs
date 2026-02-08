@@ -43,6 +43,15 @@ public sealed class Snippet
     public string[] Explain { get; set; } = Array.Empty<string>();
 
     /// <summary>
+    /// Whether this snippet was authored by the user (vs built-in).
+    /// User-authored snippets behave identically to built-in ones during
+    /// practice — same scoring, same XP, same session records.
+    /// This flag exists only so the UI can optionally distinguish origin.
+    /// </summary>
+    [JsonIgnore]
+    public bool IsUserAuthored { get; set; }
+
+    /// <summary>
     /// Special characters used in this snippet (computed).
     /// </summary>
     [JsonIgnore]
