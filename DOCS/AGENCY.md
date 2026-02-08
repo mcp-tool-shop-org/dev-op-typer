@@ -803,3 +803,6 @@ Any teaching feature must satisfy:
 29. Disabling any teaching toggle has zero impact beyond hiding the UI.
 30. No frozen service references any v0.8.0 type.
 31. Scaffold toggle in Settings immediately hides/shows hints with zero other impact.
+32. No v0.8.0 feature gates content by user level, rating, or session count.
+33. LayersPanel.SetSnippet() has no parameters or branches for user level/history.
+34. ScaffoldFadeService fades by per-snippet completions, never by user level.
