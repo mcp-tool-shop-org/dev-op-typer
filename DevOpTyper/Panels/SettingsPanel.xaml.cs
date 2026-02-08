@@ -528,5 +528,36 @@ public sealed partial class SettingsPanel : UserControl
         OpenUserSnippetsFolderRequested?.Invoke(this, EventArgs.Empty);
     }
 
+    /// <summary>
+    /// Event fired when the user clicks "Export".
+    /// </summary>
+    public event EventHandler? ExportBundleRequested;
+
+    /// <summary>
+    /// Event fired when the user clicks "Import".
+    /// </summary>
+    public event EventHandler? ImportBundleRequested;
+
+    /// <summary>
+    /// Wires the export and import buttons.
+    /// Called once during initialization.
+    /// </summary>
+    public void WireBundleButtons()
+    {
+        ExportBundleButton.Click += (_, _) => ExportBundleRequested?.Invoke(this, EventArgs.Empty);
+        ImportBundleButton.Click += (_, _) => ImportBundleRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Shows a status message after an export or import operation.
+    /// </summary>
+    public void ShowBundleStatus(string message)
+    {
+        BundleStatus.Text = message;
+        BundleStatus.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+            BundleStatus, message);
+    }
+
     #endregion
 }

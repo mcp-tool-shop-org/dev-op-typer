@@ -106,6 +106,11 @@ public sealed partial class MainWindow : Window
         SettingsPanel.UpdateUserSnippetStatus(_snippetService.UserContent);
         SettingsPanel.OpenUserSnippetsFolderRequested += OnOpenUserSnippetsFolder;
 
+        // Export/import bundle
+        SettingsPanel.WireBundleButtons();
+        SettingsPanel.ExportBundleRequested += OnExportBundle;
+        SettingsPanel.ImportBundleRequested += OnImportBundle;
+
         // Practice configs
         _practiceConfigService.Initialize();
         SettingsPanel.PopulateConfigs(
@@ -873,5 +878,70 @@ public sealed partial class MainWindow : Window
     {
         return _practiceConfigService.GetConfig(
             SettingsPanel.SelectedPracticeConfigName);
+    }
+
+    /// <summary>
+    /// Exports user content as a portable ZIP bundle.
+    /// Uses a file picker so the user chooses where to save.
+    /// </summary>
+    private async void OnExportBundle(object? sender, EventArgs e)
+    {
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileSavePicker();
+            picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            picker.FileTypeChoices.Add("ZIP Archive", new[] { ".zip" });
+            picker.SuggestedFileName = $"devop-typer-content-{DateTime.Now:yyyyMMdd}";
+
+            // Initialize picker with window handle
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+            var file = await picker.PickSaveFileAsync();
+            if (file == null) return; // User cancelled
+
+            var bundleService = new PortableBundleService();
+            var result = bundleService.Export(file.Path, _snippetService.UserContent, _practiceConfigService);
+
+            SettingsPanel.ShowBundleStatus(result != null
+                ? "Exported successfully"
+                : "Nothing to export — no user content found");
+        }
+        catch (Exception ex)
+        {
+            SettingsPanel.ShowBundleStatus($"Export failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Imports a portable ZIP bundle into user content directories.
+    /// Uses a file picker to select the ZIP file.
+    /// </summary>
+    private async void OnImportBundle(object? sender, EventArgs e)
+    {
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker();
+            picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            picker.FileTypeFilter.Add(".zip");
+
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+            var file = await picker.PickSingleFileAsync();
+            if (file == null) return; // User cancelled
+
+            var snippetsDir = _snippetService.UserContent.EnsureUserSnippetsDirectory();
+            var configsDir = _practiceConfigService.EnsureUserConfigsDirectory();
+
+            var bundleService = new PortableBundleService();
+            var result = bundleService.Import(file.Path, snippetsDir, configsDir);
+
+            SettingsPanel.ShowBundleStatus(result.Summary);
+        }
+        catch (Exception ex)
+        {
+            SettingsPanel.ShowBundleStatus($"Import failed: {ex.Message}");
+        }
     }
 }

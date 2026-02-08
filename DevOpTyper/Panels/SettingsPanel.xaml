@@ -339,13 +339,34 @@
                            AutomationProperties.LiveSetting="Assertive"
                            IsTabStop="False"/>
 
-                <Button x:Name="OpenUserSnippetsButton"
-                        Content="Open Snippets Folder"
-                        FontSize="11"
-                        Padding="8,4"
-                        Margin="0,4,0,0"
-                        AutomationProperties.Name="Open snippets folder in file explorer"
-                        ToolTipService.ToolTip="Opens the folder where you can add your own snippet files"/>
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <Button x:Name="OpenUserSnippetsButton"
+                            Content="Open Folder"
+                            FontSize="11"
+                            Padding="8,4"
+                            AutomationProperties.Name="Open snippets folder in file explorer"
+                            ToolTipService.ToolTip="Opens the folder where you can add your own snippet files"/>
+                    <Button x:Name="ExportBundleButton"
+                            Content="Export"
+                            FontSize="11"
+                            Padding="8,4"
+                            AutomationProperties.Name="Export user content as portable ZIP bundle"
+                            ToolTipService.ToolTip="Save all your snippets and configs as a ZIP file"/>
+                    <Button x:Name="ImportBundleButton"
+                            Content="Import"
+                            FontSize="11"
+                            Padding="8,4"
+                            AutomationProperties.Name="Import a portable ZIP bundle"
+                            ToolTipService.ToolTip="Load snippets and configs from a ZIP file"/>
+                </StackPanel>
+
+                <TextBlock x:Name="BundleStatus"
+                           FontSize="10"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           TextWrapping="Wrap"
+                           Visibility="Collapsed"
+                           IsTabStop="False"
+                           AutomationProperties.LiveSetting="Polite"/>
 
                 <!-- Save Button -->
                 <Button x:Name="SaveSettingsButton"
