@@ -5,12 +5,20 @@ namespace DevOpTyper.Services;
 
 /// <summary>
 /// Service for loading and selecting code snippets for typing practice.
+/// Transparently merges built-in and user-authored content.
+/// If no user content exists, behavior is identical to v0.5.0.
 /// </summary>
 public sealed class SnippetService
 {
     private readonly Dictionary<string, List<Snippet>> _cache = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<LanguageTrack> _languageTracks = new();
+    private readonly UserContentService _userContent = new();
     private bool _initialized = false;
+
+    /// <summary>
+    /// Exposes the user content service for UI queries (e.g., "Open folder").
+    /// </summary>
+    public UserContentService UserContent => _userContent;
 
     /// <summary>
     /// Supported language icons for UI display.
@@ -67,7 +75,68 @@ public sealed class SnippetService
             }
         }
 
+        // Merge user-authored content if any exists.
+        // This is a no-op if the UserSnippets directory doesn't exist.
+        _userContent.Initialize();
+        if (_userContent.HasUserContent)
+        {
+            MergeUserContent();
+        }
+
         _initialized = true;
+    }
+
+    /// <summary>
+    /// Merges user-authored snippets into the cache and language tracks.
+    /// User snippets are appended to existing language lists or create
+    /// new language entries. All selection methods automatically include them.
+    /// </summary>
+    private void MergeUserContent()
+    {
+        foreach (var language in _userContent.GetUserLanguages())
+        {
+            var userSnippets = _userContent.GetSnippets(language);
+            if (userSnippets.Count == 0) continue;
+
+            // Merge into cache
+            if (!_cache.TryGetValue(language, out var existing))
+            {
+                existing = new List<Snippet>();
+                _cache[language] = existing;
+            }
+            existing.AddRange(userSnippets);
+
+            // Update or create language track
+            var track = _languageTracks.FirstOrDefault(t =>
+                t.Id.Equals(language, StringComparison.OrdinalIgnoreCase));
+
+            if (track != null)
+            {
+                // Existing language — update count and difficulties
+                track.SnippetCount = existing.Count;
+                track.AvailableDifficulties = existing
+                    .Select(s => s.DifficultyLabel)
+                    .Distinct()
+                    .OrderBy(d => d)
+                    .ToArray();
+            }
+            else
+            {
+                // New language from user content
+                _languageTracks.Add(new LanguageTrack
+                {
+                    Id = language,
+                    DisplayName = char.ToUpper(language[0]) + language[1..],
+                    Icon = LanguageIcons.GetValueOrDefault(language, "📝"),
+                    SnippetCount = userSnippets.Count,
+                    AvailableDifficulties = userSnippets
+                        .Select(s => s.DifficultyLabel)
+                        .Distinct()
+                        .OrderBy(d => d)
+                        .ToArray()
+                });
+            }
+        }
     }
 
     /// <summary>
