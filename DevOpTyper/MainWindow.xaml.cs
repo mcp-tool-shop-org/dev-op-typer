@@ -85,6 +85,10 @@ public sealed partial class MainWindow : Window
         TypingPanel.SkipClicked += SkipTest_Click;
         TypingPanel.TypingTextChanged += TypingBox_TextChanged;
 
+        // Wire up actionable intelligence events (Phase 4)
+        StatsPanel.SuggestionFollowed += OnSuggestionFollowed;
+        StatsPanel.WeaknessPracticeRequested += OnWeaknessPracticeRequested;
+
         // Restore typing rules UI from saved settings
         SettingsPanel.LoadTypingRules(_settings.TypingRules);
 
@@ -198,6 +202,164 @@ public sealed partial class MainWindow : Window
         _uiFeedback.OnButtonClick();
         _typingEngine.CancelSession();
         LoadNewSnippet();
+    }
+
+    /// <summary>
+    /// Handles a suggestion being followed — loads the appropriate snippet.
+    /// </summary>
+    private void OnSuggestionFollowed(object? sender, PracticeSuggestion suggestion)
+    {
+        _uiFeedback.OnButtonClick();
+        _typingEngine.CancelSession();
+
+        switch (suggestion.Action)
+        {
+            case SuggestionAction.LoadWeaknessSnippet:
+                LoadSnippetForWeakCharsFromPayload(suggestion.ActionPayload);
+                break;
+
+            case SuggestionAction.LoadEasySnippet:
+                LoadEasySnippet();
+                break;
+
+            case SuggestionAction.LoadHarderSnippet:
+                LoadHarderSnippet();
+                break;
+
+            case SuggestionAction.SwitchLanguage:
+                // Switch language in settings, then load snippet for that language
+                if (!string.IsNullOrEmpty(suggestion.ActionPayload))
+                {
+                    // Note: language switching works through SettingsPanel.SelectedLanguage
+                    // which reads the combo box. We load directly for the target language.
+                    LoadSnippetForLanguage(suggestion.ActionPayload);
+                }
+                break;
+
+            default:
+                LoadNewSnippet();
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Handles weakness practice request — loads a snippet targeting weak chars.
+    /// </summary>
+    private void OnWeaknessPracticeRequested(object? sender, HashSet<char> weakChars)
+    {
+        _uiFeedback.OnButtonClick();
+        _typingEngine.CancelSession();
+
+        var language = SettingsPanel.SelectedLanguage;
+        var snippet = _smartSelector.SelectForWeakChars(language, _profile, weakChars);
+        TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
+        _currentSnippet = snippet;
+        TypingPanel.ClearTyping();
+        StatsPanel.Reset();
+    }
+
+    /// <summary>
+    /// Loads a snippet targeting specific weak characters from a comma-separated payload.
+    /// </summary>
+    private void LoadSnippetForWeakCharsFromPayload(string? payload)
+    {
+        var weakChars = new HashSet<char>();
+        if (!string.IsNullOrEmpty(payload))
+        {
+            foreach (var part in payload.Split(','))
+            {
+                if (part.Length > 0) weakChars.Add(part[0]);
+            }
+        }
+
+        if (weakChars.Count > 0)
+        {
+            var language = SettingsPanel.SelectedLanguage;
+            var snippet = _smartSelector.SelectForWeakChars(language, _profile, weakChars);
+            TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
+            _currentSnippet = snippet;
+            TypingPanel.ClearTyping();
+            StatsPanel.Reset();
+        }
+        else
+        {
+            LoadNewSnippet();
+        }
+    }
+
+    /// <summary>
+    /// Loads an easy snippet for warmup or trend recovery.
+    /// </summary>
+    private void LoadEasySnippet()
+    {
+        var language = SettingsPanel.SelectedLanguage;
+        var allSnippets = _snippetService.GetSnippets(language).ToList();
+        var easy = allSnippets
+            .Where(s => s.Difficulty <= 2)
+            .OrderBy(_ => Random.Shared.Next())
+            .FirstOrDefault();
+
+        var snippet = easy ?? allSnippets.FirstOrDefault();
+        if (snippet != null)
+        {
+            TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
+            _currentSnippet = snippet;
+            TypingPanel.ClearTyping();
+            StatsPanel.Reset();
+        }
+        else
+        {
+            LoadNewSnippet();
+        }
+    }
+
+    /// <summary>
+    /// Loads a harder snippet for exploration.
+    /// </summary>
+    private void LoadHarderSnippet()
+    {
+        var language = SettingsPanel.SelectedLanguage;
+        int currentRating = _profile.GetRating(language);
+        int targetDifficulty = Math.Min(5, SmartSnippetSelector.GetTargetDifficultyStatic(currentRating) + 1);
+
+        var allSnippets = _snippetService.GetSnippets(language).ToList();
+        var harder = allSnippets
+            .Where(s => s.Difficulty >= targetDifficulty)
+            .OrderBy(_ => Random.Shared.Next())
+            .FirstOrDefault();
+
+        var snippet = harder ?? allSnippets.LastOrDefault();
+        if (snippet != null)
+        {
+            TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
+            _currentSnippet = snippet;
+            TypingPanel.ClearTyping();
+            StatsPanel.Reset();
+        }
+        else
+        {
+            LoadNewSnippet();
+        }
+    }
+
+    /// <summary>
+    /// Loads a snippet for a specific language (used by "Revisit X" suggestions).
+    /// </summary>
+    private void LoadSnippetForLanguage(string language)
+    {
+        var blob = _persistenceService.Load();
+        var difficultyProfile = _adaptiveDifficulty.ComputeDifficulty(
+            language, _profile, blob.Longitudinal);
+        var weaknessReport = _weaknessTracker.GetReport(
+            language, _profile.Heatmap, blob.Longitudinal);
+
+        var snippet = _smartSelector.SelectAdaptive(
+            language, _profile, difficultyProfile, weaknessReport);
+
+        TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
+        _currentSnippet = snippet;
+        TypingPanel.ClearTyping();
+        StatsPanel.Reset();
     }
 
     private void TypingBox_TextChanged(object sender, TextChangedEventArgs e)

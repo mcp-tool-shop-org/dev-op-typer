@@ -313,6 +313,14 @@ public sealed class SmartSnippetSelector
         return score;
     }
 
+    /// <summary>
+    /// Maps a skill rating to target difficulty (public for external callers).
+    /// </summary>
+    public static int GetTargetDifficultyStatic(int rating)
+    {
+        return GetTargetDifficulty(rating);
+    }
+
     private static int GetTargetDifficulty(int rating)
     {
         return rating switch
