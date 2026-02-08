@@ -9,11 +9,15 @@ namespace DevOpTyper.Services;
 public sealed class TypingEngine
 {
     private readonly SessionState _session = new();
+    private readonly CharDiffAnalyzer _diffAnalyzer = new();
     private Snippet? _currentSnippet;
+    private string _lastTyped = "";
+    private CharDiff[] _currentDiff = Array.Empty<CharDiff>();
 
     public event EventHandler<TypingResultEventArgs>? SessionCompleted;
     public event EventHandler? SessionStarted;
     public event EventHandler<TypingProgressEventArgs>? ProgressUpdated;
+    public event EventHandler<CharDiff[]>? DiffUpdated;
 
     /// <summary>
     /// Gets whether a typing session is currently active.
@@ -51,13 +55,26 @@ public sealed class TypingEngine
     public int XpEarned => _session.XpEarned;
 
     /// <summary>
+    /// Gets the current character diff array.
+    /// </summary>
+    public CharDiff[] CurrentDiff => _currentDiff;
+
+    /// <summary>
+    /// Gets the index of the first error, or -1 if none.
+    /// </summary>
+    public int FirstErrorIndex => _diffAnalyzer.FirstErrorIndex(_currentDiff);
+
+    /// <summary>
     /// Starts a new typing session with the given snippet.
     /// </summary>
     public void StartSession(Snippet snippet)
     {
         _currentSnippet = snippet ?? throw new ArgumentNullException(nameof(snippet));
+        _lastTyped = "";
+        _currentDiff = _diffAnalyzer.ComputeDiff(snippet.Code ?? "", "");
         _session.Start(snippet.Code ?? "");
         SessionStarted?.Invoke(this, EventArgs.Empty);
+        DiffUpdated?.Invoke(this, _currentDiff);
     }
 
     /// <summary>
@@ -69,16 +86,28 @@ public sealed class TypingEngine
     {
         if (!IsRunning) return;
 
+        typed ??= "";
+        _lastTyped = typed;
+
+        // Compute diff
+        var target = _currentSnippet?.Code ?? "";
+        _currentDiff = _diffAnalyzer.ComputeDiff(target, typed);
+        
         _session.Update(typed, hardcoreMode);
 
-        ProgressUpdated?.Invoke(this, new TypingProgressEventArgs
+        var progress = new TypingProgressEventArgs
         {
             Wpm = LiveWpm,
             Accuracy = LiveAccuracy,
             ErrorCount = ErrorCount,
-            TypedLength = typed?.Length ?? 0,
-            TargetLength = _currentSnippet?.Code?.Length ?? 0
-        });
+            TypedLength = typed.Length,
+            TargetLength = target.Length,
+            FirstErrorIndex = _diffAnalyzer.FirstErrorIndex(_currentDiff),
+            Diff = _currentDiff
+        };
+
+        ProgressUpdated?.Invoke(this, progress);
+        DiffUpdated?.Invoke(this, _currentDiff);
 
         if (_session.IsComplete)
         {
@@ -129,10 +158,14 @@ public class TypingProgressEventArgs : EventArgs
     public int ErrorCount { get; init; }
     public int TypedLength { get; init; }
     public int TargetLength { get; init; }
+    public int FirstErrorIndex { get; init; } = -1;
+    public CharDiff[] Diff { get; init; } = Array.Empty<CharDiff>();
 
     public double CompletionPercentage => TargetLength > 0
         ? 100.0 * TypedLength / TargetLength
         : 0;
+
+    public bool HasErrors => ErrorCount > 0;
 }
 
 /// <summary>
