@@ -189,4 +189,44 @@ v0.3.0 introduced intentional practice — the system could observe patterns and
 
 v0.4.0 ensures the developer stays in charge. The system's intelligence is available but never assertive. The developer chooses when to engage with structure and when to ignore it.
 
+v0.5.0 values continuity over novelty. The app should feel trustworthy over months or years. Returning after a long break should feel natural. Progress is understood as uneven but valid. Nothing pressures the user to "perform."
+
 A developer who never selects an intent, never writes a practice note, and never follows a suggestion is using the app correctly.
+
+---
+
+## Continuity Principles (v0.5.0)
+
+v0.5.0 is about the app aging well with the user.
+
+### Core Beliefs
+
+| Belief | Implication |
+|---|---|
+| Long gaps are normal | No penalty, no "welcome back" fanfare, no catch-up pressure |
+| Updates should be invisible | History, identity, and preferences survive version transitions |
+| Plateaus are valid | Flat progress is not a problem to solve |
+| Regression happens | Temporary dips do not dominate the narrative |
+| Familiarity beats novelty | Predictable behavior is more valuable than new features |
+| Personalization is gentle | The app adapts slowly and reversibly |
+
+### What the System Explicitly Does Not Do (v0.5.0 additions)
+
+| The system does not... | Because... |
+|---|---|
+| Show "welcome back" banners | Returning is normal, not an event |
+| Highlight what changed between versions | Updates should feel continuous |
+| Alert about regression | Temporary dips are not emergencies |
+| Accelerate suggestions after long gaps | Urgency undermines trust |
+| Reset personalization on update | Stability means your app stays yours |
+| Over-explain new features | The app should feel familiar, not tutorial-heavy |
+
+### Longevity Contract
+
+The user's data is theirs. Across any number of version updates:
+
+1. **Session history is never discarded.** Records persist within their cap (500).
+2. **Identity is computed from existing data.** No new persisted fields required for identity.
+3. **Preferences are additive.** New settings default to sensible values. Existing settings are preserved.
+4. **Behavior is stable.** Core workflows (start, type, complete) never change feel.
+5. **Adaptation is reversible.** Any personalization the system applies can be undone or frozen.
