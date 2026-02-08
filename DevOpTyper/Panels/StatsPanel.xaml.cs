@@ -648,6 +648,19 @@ public sealed partial class StatsPanel : UserControl
         grid.Children.Add(detailBlock);
         grid.Children.Add(barBorder);
 
+        // Accessible name: calm trajectory language
+        string trajectoryA11y = trajectory switch
+        {
+            WeaknessTrajectory.Improving => "getting better",
+            WeaknessTrajectory.Worsening => "needs attention",
+            WeaknessTrajectory.Steady => "stable",
+            _ => ""
+        };
+        string a11yName = trajectoryA11y.Length > 0
+            ? $"Weak character {charDisplay}, {w.ErrorRate:P0} error rate, {trajectoryA11y}"
+            : $"Weak character {charDisplay}, {w.ErrorRate:P0} error rate";
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(grid, a11yName);
+
         return grid;
     }
 
@@ -774,6 +787,17 @@ public sealed partial class StatsPanel : UserControl
             _ => ""
         };
 
+        // Screen-reader momentum: calm, never panicked
+        string momentumLabel = trend.OverallMomentum switch
+        {
+            Momentum.StrongPositive => "rising",
+            Momentum.Positive => "up slightly",
+            Momentum.Neutral => "steady",
+            Momentum.Negative => "dipped recently",
+            Momentum.StrongNegative => "dipped recently",
+            _ => "steady"
+        };
+
         var titleBlock = new TextBlock
         {
             Text = $"{trend.Language} {arrow}",
@@ -808,6 +832,12 @@ public sealed partial class StatsPanel : UserControl
 
         stack.Children.Add(titleBlock);
         stack.Children.Add(statsBlock);
+
+        // Accessible name: factual, calm — never says "declining"
+        string plateauA11y = trend.PlateauLength >= 8 ? ", steady plateau" : "";
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+            border,
+            $"{trend.Language} trend: {trend.RecentAvgWpm:F0} WPM, {trend.RecentAvgAccuracy:F0}% accuracy, {momentumLabel}{plateauA11y}");
 
         border.Child = stack;
         return border;
