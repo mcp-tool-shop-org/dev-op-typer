@@ -751,6 +751,32 @@ Guidance notes are contextual observations that emerge from collective experienc
 - Guidance is optional enhancement, never dependency
 - Removing all guidance data returns the app to v0.7.0 behavior
 
+### Mentorship Without Mentors (v0.8.0)
+
+Traditional mentorship requires a mentor — someone with authority, a curriculum, and progress expectations. Dev-Op-Typer rejects this model. Instead, it offers **mentorship signals** that emerge from collective experience without any individual authority.
+
+**How guidance replaces mentors:**
+- A mentor says "you should watch the semicolons here" — guidance says "this pattern often trips people up at the semicolons"
+- A mentor tracks whether you followed their advice — guidance forgets the moment you dismiss it
+- A mentor escalates when you ignore them — guidance stays silent until the next snippet loads
+- A mentor knows your history — guidance has no access to your performance data
+
+**Collective language rules:**
+- ✅ "Most people find this tricky at the brackets"
+- ✅ "Typically takes a few attempts to get the indentation right"
+- ✅ "The semicolons here often catch people off guard"
+- ❌ "You should pay attention to the semicolons"
+- ❌ "Watch out for the brackets" (imperative = directive)
+- ❌ "Your accuracy on this snippet is below average" (comparative = evaluative)
+
+**What guidance is not:**
+- Not a hint system (hints imply there's something to solve)
+- Not a warning system (warnings imply danger)
+- Not a tutoring system (tutoring implies a curriculum)
+- Not a correction system (corrections imply errors)
+
+Guidance is contextual experience, shared without expectation. The user is always free to dismiss it, ignore it, or disable it entirely — and the system will never know the difference.
+
 ### Skill Layer Principles
 
 Skill layers offer different depths on the same snippet. A snippet might have "Essentials" (what the syntax means), "Deeper" (why this pattern exists), and "Advanced" (performance implications). Labels describe the content's depth, not the user's level.
