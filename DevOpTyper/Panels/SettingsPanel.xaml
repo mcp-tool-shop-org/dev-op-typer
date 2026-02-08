@@ -413,6 +413,20 @@
                               AutomationProperties.Name="Show or hide community signal hints"
                               ToolTipService.ToolTip="When enabled, shows collective patterns like typical WPM for each snippet"/>
 
+                <!-- Teaching (v0.8.0) -->
+                <TextBlock Text="Teaching"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Margin="0,8,0,0"
+                           AutomationProperties.HeadingLevel="Level2"/>
+
+                <ToggleSwitch x:Name="ShowScaffoldsToggle"
+                              Header="Show scaffold hints"
+                              IsOn="True"
+                              FontSize="11"
+                              AutomationProperties.Name="Show or hide scaffold hints on snippets"
+                              ToolTipService.ToolTip="When enabled, shows optional learning hints that fade with competence"/>
+
                 <!-- Save Button -->
                 <Button x:Name="SaveSettingsButton"
                         Content="Save Settings"

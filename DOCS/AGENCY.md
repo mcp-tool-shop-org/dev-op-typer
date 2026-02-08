@@ -764,3 +764,4 @@ Any teaching feature must satisfy:
 28. No teaching feature gates content by progress.
 29. Disabling any teaching toggle has zero impact beyond hiding the UI.
 30. No frozen service references any v0.8.0 type.
+31. Scaffold toggle in Settings immediately hides/shows hints with zero other impact.

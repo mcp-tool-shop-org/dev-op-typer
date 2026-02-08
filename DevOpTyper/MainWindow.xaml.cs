@@ -135,6 +135,25 @@ public sealed partial class MainWindow : Window
             }
         };
 
+        // Scaffold hints toggle (v0.8.0)
+        SettingsPanel.ScaffoldsChanged += (_, enabled) =>
+        {
+            _settings.ShowScaffolds = enabled;
+            if (_currentSnippet != null)
+            {
+                if (enabled)
+                {
+                    var blob = _persistenceService.Load();
+                    var opacity = ScaffoldFadeService.ComputeOpacity(_currentSnippet.Id, blob.History);
+                    TypingPanel.ShowScaffold(_currentSnippet.Scaffolds, opacity);
+                }
+                else
+                {
+                    TypingPanel.ShowScaffold(null);
+                }
+            }
+        };
+
         // Community signals (display-only — never affects frozen services)
         _communitySignals.Initialize();
 

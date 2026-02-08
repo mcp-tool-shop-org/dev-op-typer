@@ -390,11 +390,13 @@ public sealed partial class SettingsPanel : UserControl
 
     /// <summary>
     /// Whether scaffold hints are shown on snippets.
-    /// Wired to a toggle in the Teaching section (added in Commit 5).
-    /// Until then, defaults to true.
     /// </summary>
-    private bool _showScaffolds = true;
-    public bool ShowScaffolds => _showScaffolds;
+    public bool ShowScaffolds => ShowScaffoldsToggle.IsOn;
+
+    /// <summary>
+    /// Fired when the user toggles scaffold hints on or off.
+    /// </summary>
+    public event EventHandler<bool>? ScaffoldsChanged;
 
     /// <summary>
     /// Fired when the user toggles community signals on or off.
@@ -451,7 +453,7 @@ public sealed partial class SettingsPanel : UserControl
         CommunitySignalsToggle.IsOn = settings.ShowCommunitySignals;
 
         // Teaching settings (v0.8.0)
-        _showScaffolds = settings.ShowScaffolds;
+        ShowScaffoldsToggle.IsOn = settings.ShowScaffolds;
 
         // Map DefaultIntent to combo index (0=None, 1=Focus, 2=Challenge, 3=Maintenance, 4=Exploration)
         DefaultIntentCombo.SelectedIndex = settings.DefaultIntent switch
@@ -571,6 +573,9 @@ public sealed partial class SettingsPanel : UserControl
         OpenCommunityFolderButton.Click += (_, _) => OpenCommunityFolderRequested?.Invoke(this, EventArgs.Empty);
         ImportCommunityBundleButton.Click += (_, _) => ImportBundleRequested?.Invoke(this, EventArgs.Empty);
         CommunitySignalsToggle.Toggled += (_, _) => CommunitySignalsChanged?.Invoke(this, CommunitySignalsToggle.IsOn);
+
+        // Teaching toggles (v0.8.0)
+        ShowScaffoldsToggle.Toggled += (_, _) => ScaffoldsChanged?.Invoke(this, ShowScaffoldsToggle.IsOn);
     }
 
     /// <summary>
