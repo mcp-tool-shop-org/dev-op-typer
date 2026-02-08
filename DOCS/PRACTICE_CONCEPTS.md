@@ -118,6 +118,29 @@ Use if helpful. Ignore if not.
 
 ---
 
+## Guidance vs Instruction (v0.5.0)
+
+v0.5.0 adds orientation cues and session framing. These are **guidance**, not **instruction**.
+
+| Guidance | Instruction |
+|---|---|
+| Shows what happened before | Tells you what to do next |
+| Describes typical ranges | Sets targets or goals |
+| Shows context silently | Demands attention |
+| Can be missed entirely | Blocks until acknowledged |
+| Uses past tense or neutral present | Uses imperative ("you should") |
+| Never changes behavior | Gates features or progression |
+
+### Examples of guidance (all v0.5.0 additions)
+
+- "Last session: Binary Search (42 WPM)" — orientation cue
+- "Python - ~45 WPM - ~92%" — soft session frame
+- "python: 42 - csharp: 18" — language breakdown
+
+None of these are instructions. The app never mandates behavior.
+
+---
+
 ## What the System Deliberately Does Not Do
 
 - **No daily streaks.** The system records when you practice. It does not reward consistency or punish gaps.
