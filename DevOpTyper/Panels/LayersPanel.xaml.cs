@@ -60,7 +60,10 @@ public sealed partial class LayersPanel : UserControl
         ExpandToggle.IsChecked = false;
         ContentArea.Visibility = Visibility.Collapsed;
 
-        // Build layer UI elements — each individually expandable
+        // Build layer UI elements — each individually expandable.
+        // All layers start collapsed. The user chooses which depth to explore.
+        // No layer is pre-expanded, recommended, or labeled "start here".
+        // The system never tracks which layers the user expands.
         var elements = new List<StackPanel>();
         bool isFirst = true;
 
