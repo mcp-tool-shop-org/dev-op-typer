@@ -20,6 +20,7 @@ public sealed partial class MainWindow : Window
     private Profile _profile = new();
     private AppSettings _settings = new();
     private bool _settingsPanelOpen = false;
+    private int _lastHeatmapIndex = 0; // Tracks how far we've recorded hits/misses
 
     public MainWindow()
     {
@@ -143,6 +144,7 @@ public sealed partial class MainWindow : Window
             _typingEngine.RepeatCount = repeats;
 
             _typingEngine.StartSession(_currentSnippet, hardcore, rules);
+            _lastHeatmapIndex = 0;
             _keyboardSound.Reset();
             TypingPanel.FocusTypingBox();
         }
@@ -155,6 +157,7 @@ public sealed partial class MainWindow : Window
         TypingPanel.ClearTyping();
         StatsPanel.Reset();
         _keyboardSound.Reset();
+        _lastHeatmapIndex = 0;
 
         if (_currentSnippet != null)
         {
@@ -227,11 +230,16 @@ public sealed partial class MainWindow : Window
                 _typingEngine.XpEarned
             );
 
-            // Feed per-character results into the mistake heatmap
+            // Feed ONLY newly typed characters into the heatmap (not the entire diff).
+            // _lastHeatmapIndex tracks where we've already recorded, so each char
+            // is counted exactly once. This prevents inflated hit/miss counts and
+            // reduces per-keystroke work from O(n) to O(1).
             if (e.Diff.Length > 0)
             {
-                foreach (var diff in e.Diff)
+                int typedSoFar = e.TypedLength;
+                for (int i = _lastHeatmapIndex; i < typedSoFar && i < e.Diff.Length; i++)
                 {
+                    var diff = e.Diff[i];
                     if (diff.State == CharState.Error)
                     {
                         _profile.RecordMiss(diff.Expected, diff.Actual);
@@ -241,6 +249,7 @@ public sealed partial class MainWindow : Window
                         _profile.RecordHit(diff.Expected);
                     }
                 }
+                _lastHeatmapIndex = typedSoFar;
             }
         });
     }

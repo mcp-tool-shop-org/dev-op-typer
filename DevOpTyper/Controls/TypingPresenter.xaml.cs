@@ -74,6 +74,10 @@ public sealed partial class TypingPresenter : UserControl
             return;
         }
 
+        // Skip re-render if nothing changed (same cursor, same diff length)
+        if (cursorPosition == _lastTypedLength && diff.Length == _lastDiffLength)
+            return;
+
         ResolveBrushesIfNeeded();
 
         // Rebuild the RichTextBlock content

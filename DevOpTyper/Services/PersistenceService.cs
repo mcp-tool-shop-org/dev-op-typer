@@ -72,6 +72,7 @@ public sealed class PersistenceService
                 var blob = JsonSerializer.Deserialize<PersistedBlob>(json, SerializerOptions);
                 if (blob is not null)
                 {
+                    SanitizeBlob(blob);
                     _cachedBlob = blob;
                     DataLoaded?.Invoke(this, new DataLoadedEventArgs(true, _cachedBlob));
                     return blob;
@@ -81,12 +82,20 @@ public sealed class PersistenceService
         catch (Exception ex)
         {
             // Try loading from backup
-            var backup = TryLoadBackup();
-            if (backup != null)
+            try
             {
-                _cachedBlob = backup;
-                DataLoaded?.Invoke(this, new DataLoadedEventArgs(true, _cachedBlob, fromBackup: true));
-                return backup;
+                var backup = TryLoadBackup();
+                if (backup != null)
+                {
+                    SanitizeBlob(backup);
+                    _cachedBlob = backup;
+                    DataLoaded?.Invoke(this, new DataLoadedEventArgs(true, _cachedBlob, fromBackup: true));
+                    return backup;
+                }
+            }
+            catch
+            {
+                // Backup also corrupt — fall through to fresh blob
             }
 
             DataLoaded?.Invoke(this, new DataLoadedEventArgs(false, null, error: ex.Message));
@@ -94,6 +103,49 @@ public sealed class PersistenceService
 
         _cachedBlob = new PersistedBlob();
         return _cachedBlob;
+    }
+
+    /// <summary>
+    /// Validates and clamps deserialized data to prevent nonsense values
+    /// from corrupt or hand-edited state files.
+    /// </summary>
+    private static void SanitizeBlob(PersistedBlob blob)
+    {
+        // Profile
+        blob.Profile ??= new();
+        if (blob.Profile.Xp < 0) blob.Profile.Xp = 0;
+        if (blob.Profile.Level < 1) blob.Profile.Level = 1;
+        blob.Profile.Heatmap ??= new();
+        blob.Profile.WeakChars ??= new();
+
+        // Settings
+        blob.Settings ??= new();
+        blob.Settings.TypingRules ??= new();
+        blob.Settings.AmbientVolume = Math.Clamp(blob.Settings.AmbientVolume, 0, 1);
+        blob.Settings.KeyboardVolume = Math.Clamp(blob.Settings.KeyboardVolume, 0, 1);
+        blob.Settings.UiClickVolume = Math.Clamp(blob.Settings.UiClickVolume, 0, 1);
+        blob.Settings.TypingRules.AccuracyFloorForXp = Math.Clamp(blob.Settings.TypingRules.AccuracyFloorForXp, 0, 100);
+
+        // History
+        blob.History ??= new();
+        blob.History.Records ??= new();
+
+        // Sanitize session records — clamp impossible values
+        foreach (var r in blob.History.Records)
+        {
+            if (double.IsNaN(r.Wpm) || double.IsInfinity(r.Wpm) || r.Wpm < 0) r.Wpm = 0;
+            if (double.IsNaN(r.Accuracy) || double.IsInfinity(r.Accuracy)) r.Accuracy = 0;
+            r.Accuracy = Math.Clamp(r.Accuracy, 0, 100);
+            if (r.XpEarned < 0) r.XpEarned = 0;
+            if (r.ErrorCount < 0) r.ErrorCount = 0;
+            if (r.TotalChars < 0) r.TotalChars = 0;
+            if (r.DurationSeconds < 0) r.DurationSeconds = 0;
+            r.Difficulty = Math.Clamp(r.Difficulty, 1, 5);
+        }
+
+        // Collections
+        blob.FavoriteSnippetIds ??= new();
+        blob.LastPracticedByLanguage ??= new();
     }
 
     /// <summary>

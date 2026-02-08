@@ -43,6 +43,12 @@ public sealed class SessionState
     public void Start(string target)
     {
         _target = target ?? "";
+        if (_target.Length == 0)
+        {
+            // Empty target — nothing to type, don't start
+            IsRunning = false;
+            return;
+        }
         IsRunning = true;
         IsComplete = false;
         ErrorCount = 0;
@@ -82,6 +88,10 @@ public sealed class SessionState
         // WPM (treat 5 chars = 1 word)
         double minutes = Math.Max(1e-6, _sw.Elapsed.TotalMinutes);
         LiveWpm = (typed.Length / 5.0) / minutes;
+
+        // Guard against NaN/Infinity
+        if (double.IsNaN(LiveWpm) || double.IsInfinity(LiveWpm)) LiveWpm = 0;
+        if (double.IsNaN(LiveAccuracy) || double.IsInfinity(LiveAccuracy)) LiveAccuracy = 0;
 
         // XP formula (v0.2.0): accuracy floor + difficulty mult + speed curve + diminishing returns
         //
@@ -124,7 +134,13 @@ public sealed class SessionState
                 _ => 0.25   // Third+: quarter
             };
 
-            XpEarned = (int)Math.Round(baseXp * diffMult * repeatMult);
+            double xp = baseXp * diffMult * repeatMult;
+
+            // Guard against NaN/Infinity from degenerate inputs
+            if (double.IsNaN(xp) || double.IsInfinity(xp) || xp < 0)
+                xp = 0;
+
+            XpEarned = (int)Math.Round(xp);
         }
 
         if (typed.Length >= _target.Length && errors == 0 && typed == _target)
