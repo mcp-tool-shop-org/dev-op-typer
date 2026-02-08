@@ -210,9 +210,12 @@ public sealed partial class TypingPanel : UserControl
             CompletionActionButton.Visibility = Visibility.Collapsed;
         }
 
-        // Clear any previous retrospective
+        // Clear any previous retrospective and note
         RetrospectiveSection.Visibility = Visibility.Collapsed;
         RetrospectiveText.Text = "";
+        NoteInput.Text = "";
+        NoteInput.Visibility = Visibility.Collapsed;
+        AddNoteLink.Visibility = Visibility.Visible;
 
         CompletionBanner.Visibility = Visibility.Visible;
     }

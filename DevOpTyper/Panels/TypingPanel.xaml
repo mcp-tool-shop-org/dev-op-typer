@@ -115,14 +115,17 @@
                 <!-- Session Retrospective (v0.4.0) — optional, dismissible -->
                 <StackPanel x:Name="RetrospectiveSection"
                             Spacing="2"
-                            Visibility="Collapsed">
+                            Visibility="Collapsed"
+                            AutomationProperties.Name="Session review">
                     <Border Height="1"
                             Background="{ThemeResource DividerStrokeColorDefaultBrush}"
                             Margin="0,2,0,2"/>
                     <TextBlock x:Name="RetrospectiveText"
                                FontSize="11"
                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                               TextWrapping="Wrap"/>
+                               TextWrapping="Wrap"
+                               IsTextSelectionEnabled="True"
+                               AutomationProperties.Name="Session observations"/>
                 </StackPanel>
 
                 <!-- Session Note (v0.4.0) — optional, never prompted -->
@@ -130,13 +133,17 @@
                     <HyperlinkButton x:Name="AddNoteLink"
                                      Content="Add a note"
                                      FontSize="11"
-                                     Padding="0"/>
+                                     Padding="0"
+                                     TabIndex="100"
+                                     AutomationProperties.Name="Add a note to this session"/>
                     <TextBox x:Name="NoteInput"
                              PlaceholderText="What's on your mind?"
                              MaxLength="280"
                              FontSize="11"
                              TextWrapping="Wrap"
                              AcceptsReturn="False"
+                             TabIndex="101"
+                             AutomationProperties.Name="Session note"
                              Visibility="Collapsed"/>
                 </StackPanel>
             </StackPanel>
@@ -151,20 +158,25 @@
             <StackPanel x:Name="IntentChipBar"
                         Orientation="Horizontal"
                         HorizontalAlignment="Center"
-                        Spacing="4">
+                        Spacing="4"
+                        AutomationProperties.Name="Practice intent selection">
                 <TextBlock Text="Intent:"
                            FontSize="11"
                            Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                            VerticalAlignment="Center"
                            Margin="0,0,2,0"/>
                 <ToggleButton x:Name="IntentFocusChip" Content="Focus"
-                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"/>
+                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"
+                              AutomationProperties.Name="Focus intent — concentrated practice"/>
                 <ToggleButton x:Name="IntentChallengeChip" Content="Challenge"
-                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"/>
+                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"
+                              AutomationProperties.Name="Challenge intent — push beyond comfort"/>
                 <ToggleButton x:Name="IntentMaintenanceChip" Content="Maintenance"
-                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"/>
+                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"
+                              AutomationProperties.Name="Maintenance intent — keeping skills sharp"/>
                 <ToggleButton x:Name="IntentExplorationChip" Content="Exploration"
-                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"/>
+                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"
+                              AutomationProperties.Name="Exploration intent — trying something new"/>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal"
