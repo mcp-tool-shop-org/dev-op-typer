@@ -63,31 +63,11 @@ public sealed class PracticeConfig
     public string? DifficultyBias { get; set; }
 
     /// <summary>
-    /// Whether to start with an easy warmup snippet before adaptive selection.
-    /// When true, the first snippet of a session uses difficulty 1-2 regardless
-    /// of adaptive level. Subsequent snippets use normal selection.
-    /// </summary>
-    public bool? Warmup { get; set; }
-
-    /// <summary>
-    /// Prefer shorter snippets (under 150 chars) when true.
-    /// Prefer longer snippets (over 300 chars) when false.
-    /// Null means no length preference.
-    /// </summary>
-    public bool? PreferShorterSnippets { get; set; }
-
-    /// <summary>
     /// Language filter. When set, only snippets in this language are selected.
     /// Overrides the language dropdown in settings.
     /// Null means use whatever language is currently selected.
     /// </summary>
     public string? Language { get; set; }
-
-    /// <summary>
-    /// Topic/tag filter. When set, prefer snippets with this topic.
-    /// Null means no topic preference.
-    /// </summary>
-    public string? FocusTopic { get; set; }
 
     // ────────────────────────────────────────────────────────
     //  Typing rules overrides — optional, inherit from defaults

@@ -29,20 +29,9 @@ public sealed class PracticeConfigService
     public string? UserConfigsPath { get; private set; }
 
     /// <summary>
-    /// All available configs (built-in Default + user-authored).
-    /// The Default config is always first.
-    /// </summary>
-    public IReadOnlyList<PracticeConfig> Configs => _configs;
-
-    /// <summary>
     /// Whether any user configs were found and loaded.
     /// </summary>
     public bool HasUserConfigs => _configs.Any(c => c.IsUserAuthored);
-
-    /// <summary>
-    /// Number of user config files successfully loaded.
-    /// </summary>
-    public int LoadedConfigCount => _configs.Count(c => c.IsUserAuthored);
 
     /// <summary>
     /// Errors encountered during loading.

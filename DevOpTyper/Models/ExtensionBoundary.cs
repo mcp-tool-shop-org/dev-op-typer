@@ -64,50 +64,25 @@ public static class ExtensionBoundary
 
     // ────────────────────────────────────────────────────────
     //  FROZEN — the system guarantees these remain stable
+    //
+    //  Core services (TypingEngine, SessionState, PersistenceService,
+    //  TypistIdentityService) must not be affected by extensions.
+    //
+    //  Data formats (PersistedBlob, SessionHistory, LongitudinalData,
+    //  MistakeHeatmap) must remain backward-compatible.
+    //
+    //  Trust guarantees:
+    //  - Accuracy and WPM computation are always correct
+    //  - XP formula is consistent across all content
+    //  - Session records are identical for built-in and user content
+    //  - No extension can prevent the user from typing
+    //  - No extension can alter persisted history
+    //  - No extension introduces network calls or telemetry
+    //
+    //  These are documented in DOCS/AGENCY.md. They exist as comments
+    //  (not runtime arrays) because they are design constraints,
+    //  not data the app operates on.
     // ────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Core services that must not be affected by extensions.
-    /// No user content or configuration may alter:
-    /// - TypingEngine (keystroke processing, diff computation)
-    /// - SessionState (XP calculation, completion detection)
-    /// - PersistenceService (data format, sanitization)
-    /// - TypistIdentityService (identity computation)
-    /// </summary>
-    public static readonly string[] FrozenServices =
-    [
-        "TypingEngine",
-        "SessionState",
-        "PersistenceService",
-        "TypistIdentityService"
-    ];
-
-    /// <summary>
-    /// Data formats that must remain backward-compatible.
-    /// User data is never invalidated by extension features.
-    /// </summary>
-    public static readonly string[] FrozenFormats =
-    [
-        "PersistedBlob (schema v3)",
-        "SessionHistory records",
-        "LongitudinalData trends",
-        "MistakeHeatmap entries"
-    ];
-
-    /// <summary>
-    /// Behaviors that extensions may not override.
-    /// These are the core trust guarantees.
-    /// </summary>
-    public static readonly string[] FrozenBehaviors =
-    [
-        "Accuracy computation is always correct",
-        "WPM computation is always correct",
-        "XP formula is consistent across all content",
-        "Session records are identical for built-in and user content",
-        "No extension can prevent the user from typing",
-        "No extension can alter persisted history",
-        "No extension introduces network calls or telemetry"
-    ];
 
     /// <summary>
     /// Validates that a user snippet file won't exceed boundaries.
