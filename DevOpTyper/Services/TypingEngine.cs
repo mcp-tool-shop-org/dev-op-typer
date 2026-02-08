@@ -10,6 +10,7 @@ public sealed class TypingEngine
 {
     private readonly SessionState _session = new();
     private readonly CharDiffAnalyzer _diffAnalyzer = new();
+    private readonly HardcoreModeEnforcer _hardcoreEnforcer = new();
     private Snippet? _currentSnippet;
     private string _lastTyped = "";
     private CharDiff[] _currentDiff = Array.Empty<CharDiff>();
@@ -18,6 +19,7 @@ public sealed class TypingEngine
     public event EventHandler? SessionStarted;
     public event EventHandler<TypingProgressEventArgs>? ProgressUpdated;
     public event EventHandler<CharDiff[]>? DiffUpdated;
+    public event EventHandler<string>? TextCorrected;
 
     /// <summary>
     /// Gets whether a typing session is currently active.
@@ -65,13 +67,19 @@ public sealed class TypingEngine
     public int FirstErrorIndex => _diffAnalyzer.FirstErrorIndex(_currentDiff);
 
     /// <summary>
+    /// Gets the hardcore mode enforcer for status messages.
+    /// </summary>
+    public HardcoreModeEnforcer HardcoreEnforcer => _hardcoreEnforcer;
+
+    /// <summary>
     /// Starts a new typing session with the given snippet.
     /// </summary>
-    public void StartSession(Snippet snippet)
+    public void StartSession(Snippet snippet, bool hardcoreMode = false)
     {
         _currentSnippet = snippet ?? throw new ArgumentNullException(nameof(snippet));
         _lastTyped = "";
         _currentDiff = _diffAnalyzer.ComputeDiff(snippet.Code ?? "", "");
+        _hardcoreEnforcer.Initialize(snippet.Code ?? "", hardcoreMode);
         _session.Start(snippet.Code ?? "");
         SessionStarted?.Invoke(this, EventArgs.Empty);
         DiffUpdated?.Invoke(this, _currentDiff);
@@ -82,11 +90,23 @@ public sealed class TypingEngine
     /// </summary>
     /// <param name="typed">The text the user has typed so far.</param>
     /// <param name="hardcoreMode">Whether hardcore mode is enabled.</param>
-    public void UpdateTypedText(string typed, bool hardcoreMode = false)
+    /// <returns>The validated text (may be corrected in hardcore mode).</returns>
+    public string UpdateTypedText(string typed, bool hardcoreMode = false)
     {
-        if (!IsRunning) return;
+        if (!IsRunning) return typed ?? "";
 
         typed ??= "";
+
+        // Apply hardcore mode enforcement
+        var correctedText = _hardcoreEnforcer.ValidateAndCorrect(typed);
+        bool wasCorrected = correctedText != typed;
+        
+        if (wasCorrected)
+        {
+            TextCorrected?.Invoke(this, correctedText);
+            typed = correctedText;
+        }
+
         _lastTyped = typed;
 
         // Compute diff
@@ -103,7 +123,8 @@ public sealed class TypingEngine
             TypedLength = typed.Length,
             TargetLength = target.Length,
             FirstErrorIndex = _diffAnalyzer.FirstErrorIndex(_currentDiff),
-            Diff = _currentDiff
+            Diff = _currentDiff,
+            HardcoreMessage = _hardcoreEnforcer.GetStatusMessage()
         };
 
         ProgressUpdated?.Invoke(this, progress);
@@ -113,6 +134,8 @@ public sealed class TypingEngine
         {
             OnSessionCompleted();
         }
+
+        return typed;
     }
 
     /// <summary>
@@ -160,12 +183,14 @@ public class TypingProgressEventArgs : EventArgs
     public int TargetLength { get; init; }
     public int FirstErrorIndex { get; init; } = -1;
     public CharDiff[] Diff { get; init; } = Array.Empty<CharDiff>();
+    public string HardcoreMessage { get; init; } = "";
 
     public double CompletionPercentage => TargetLength > 0
         ? 100.0 * TypedLength / TargetLength
         : 0;
 
     public bool HasErrors => ErrorCount > 0;
+    public bool IsHardcoreActive => !string.IsNullOrEmpty(HardcoreMessage);
 }
 
 /// <summary>
