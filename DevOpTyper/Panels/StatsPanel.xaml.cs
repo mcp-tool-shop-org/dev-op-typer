@@ -146,6 +146,19 @@ public sealed partial class StatsPanel : UserControl
                 WeakSpotsContainer.Children.Add(groupRow);
             }
         }
+
+        // "Practice These" button — loads a snippet targeting these weak chars
+        var weakChars = new HashSet<char>(weakest.Select(w => w.Character));
+        var practiceButton = new Button
+        {
+            Content = "Practice These",
+            FontSize = 10,
+            Padding = new Thickness(8, 3, 8, 3),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Margin = new Thickness(0, 4, 0, 0)
+        };
+        practiceButton.Click += (_, _) => WeaknessPracticeRequested?.Invoke(this, weakChars);
+        WeakSpotsContainer.Children.Add(practiceButton);
     }
 
     /// <summary>
