@@ -43,6 +43,14 @@ public sealed class Snippet
     public string[] Explain { get; set; } = Array.Empty<string>();
 
     /// <summary>
+    /// Multiple perspectives on the snippet (v0.7.0).
+    /// Each perspective offers a different viewpoint — no hierarchy,
+    /// no single "correct" explanation enforced. Labels describe the
+    /// perspective's focus, never its author.
+    /// </summary>
+    public ExplanationSet[] Perspectives { get; set; } = Array.Empty<ExplanationSet>();
+
+    /// <summary>
     /// Whether this snippet was authored by the user (vs built-in).
     /// User-authored snippets behave identically to built-in ones during
     /// practice — same scoring, same XP, same session records.
@@ -115,5 +123,27 @@ public sealed class LanguageTrack
     /// Display-only — never affects selection or scoring.
     /// </summary>
     public bool HasUserContent { get; set; }
+}
+
+/// <summary>
+/// A named set of explanatory notes offering one perspective on a snippet.
+/// Multiple perspectives can coexist without hierarchy.
+///
+/// Label describes the perspective's focus (e.g., "Beginner view",
+/// "Performance notes", "Common pitfalls"). It is never an author name.
+/// </summary>
+public sealed class ExplanationSet
+{
+    /// <summary>
+    /// Short label describing this perspective's focus.
+    /// Examples: "Beginner view", "Why this pattern", "Common pitfalls".
+    /// Never an author name — perspectives are about ideas, not people.
+    /// </summary>
+    public string Label { get; set; } = "";
+
+    /// <summary>
+    /// Explanatory notes for this perspective. Short, descriptive lines.
+    /// </summary>
+    public string[] Notes { get; set; } = Array.Empty<string>();
 }
 

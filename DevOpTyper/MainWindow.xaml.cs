@@ -183,6 +183,9 @@ public sealed partial class MainWindow : Window
         TypingPanel.ClearTyping();
         StatsPanel.Reset();
 
+        // Show explanatory perspectives (if any) between sessions
+        ExplanationPanel.SetSnippet(snippet);
+
         // Soft session frame — show typical range for this language
         StatsPanel.UpdateSessionFrame(_persistenceService.Load().Longitudinal, language);
     }
@@ -245,6 +248,10 @@ public sealed partial class MainWindow : Window
             _sessionPacer.OnSessionStarted();
             _lastHeatmapIndex = 0;
             _keyboardSound.Reset();
+
+            // Hide explanations during active typing
+            ExplanationPanel.Hide();
+
             TypingPanel.FocusTypingBox();
         }
     }

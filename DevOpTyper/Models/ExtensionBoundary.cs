@@ -81,6 +81,18 @@ public static class ExtensionBoundary
     /// </summary>
     public const int MaxCommunityConfigs = 40;
 
+    /// <summary>
+    /// Maximum number of perspectives per snippet.
+    /// Prevents UI clutter from unbounded explanation sets.
+    /// </summary>
+    public const int MaxPerspectivesPerSnippet = 5;
+
+    /// <summary>
+    /// Maximum number of notes per perspective.
+    /// Keeps individual perspectives concise and scannable.
+    /// </summary>
+    public const int MaxNotesPerPerspective = 10;
+
     // ────────────────────────────────────────────────────────
     //  FROZEN — the system guarantees these remain stable
     //
