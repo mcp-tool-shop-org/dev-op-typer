@@ -384,6 +384,16 @@ public sealed partial class SettingsPanel : UserControl
     public bool ShowSuggestions => ShowSuggestionsToggle.IsOn;
 
     /// <summary>
+    /// Whether community signal hints are shown.
+    /// </summary>
+    public bool ShowCommunitySignals => CommunitySignalsToggle.IsOn;
+
+    /// <summary>
+    /// Fired when the user toggles community signals on or off.
+    /// </summary>
+    public event EventHandler<bool>? CommunitySignalsChanged;
+
+    /// <summary>
     /// Gets the user's default declared intent, or null for none.
     /// </summary>
     public UserIntent? DefaultIntent
@@ -430,6 +440,7 @@ public sealed partial class SettingsPanel : UserControl
     {
         ShowIntentChipsToggle.IsOn = settings.ShowIntentChips;
         ShowSuggestionsToggle.IsOn = settings.ShowSuggestions;
+        CommunitySignalsToggle.IsOn = settings.ShowCommunitySignals;
 
         // Map DefaultIntent to combo index (0=None, 1=Focus, 2=Challenge, 3=Maintenance, 4=Exploration)
         DefaultIntentCombo.SelectedIndex = settings.DefaultIntent switch
@@ -547,6 +558,7 @@ public sealed partial class SettingsPanel : UserControl
         ExportBundleButton.Click += (_, _) => ExportBundleRequested?.Invoke(this, EventArgs.Empty);
         ImportBundleButton.Click += (_, _) => ImportBundleRequested?.Invoke(this, EventArgs.Empty);
         OpenCommunityFolderButton.Click += (_, _) => OpenCommunityFolderRequested?.Invoke(this, EventArgs.Empty);
+        CommunitySignalsToggle.Toggled += (_, _) => CommunitySignalsChanged?.Invoke(this, CommunitySignalsToggle.IsOn);
     }
 
     /// <summary>

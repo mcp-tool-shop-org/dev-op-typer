@@ -245,6 +245,17 @@ public sealed class AppSettings
 
     #endregion
 
+    #region Community Settings (v0.7.0)
+
+    /// <summary>
+    /// Whether to show community signal hints (typical WPM, common difficulties).
+    /// Default: true. Disabling hides all signal-derived hints with zero other
+    /// impact — no penalty, no nagging, no behavior change.
+    /// </summary>
+    public bool ShowCommunitySignals { get; set; } = true;
+
+    #endregion
+
     #region Statistics Display
 
     /// <summary>
@@ -319,7 +330,8 @@ public sealed class AppSettings
             PracticeNote = PracticeNote,
             FocusArea = FocusArea,
             ShowSuggestions = ShowSuggestions,
-            SelectedPracticeConfig = SelectedPracticeConfig
+            SelectedPracticeConfig = SelectedPracticeConfig,
+            ShowCommunitySignals = ShowCommunitySignals
         };
     }
 }

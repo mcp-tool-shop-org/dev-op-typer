@@ -400,6 +400,13 @@
                             AccessKey="C"/>
                 </StackPanel>
 
+                <ToggleSwitch x:Name="CommunitySignalsToggle"
+                              Header="Show community hints"
+                              IsOn="True"
+                              FontSize="11"
+                              AutomationProperties.Name="Show or hide community signal hints"
+                              ToolTipService.ToolTip="When enabled, shows collective patterns like typical WPM for each snippet"/>
+
                 <!-- Save Button -->
                 <Button x:Name="SaveSettingsButton"
                         Content="Save Settings"

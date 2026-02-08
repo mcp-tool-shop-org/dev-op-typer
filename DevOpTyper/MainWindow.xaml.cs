@@ -116,6 +116,25 @@ public sealed partial class MainWindow : Window
         // Community content status
         SettingsPanel.UpdateCommunityContentStatus(_snippetService.CommunityContent);
 
+        // Community signals toggle
+        SettingsPanel.CommunitySignalsChanged += (_, enabled) =>
+        {
+            _settings.ShowCommunitySignals = enabled;
+            // Immediately update the current hint visibility
+            if (_currentSnippet != null)
+            {
+                if (enabled)
+                {
+                    var signal = _communitySignals.GetSignal(_currentSnippet.Id);
+                    TypingPanel.ShowCommunityHint(signal);
+                }
+                else
+                {
+                    TypingPanel.ShowCommunityHint(null);
+                }
+            }
+        };
+
         // Community signals (display-only — never affects frozen services)
         _communitySignals.Initialize();
 
@@ -191,8 +210,15 @@ public sealed partial class MainWindow : Window
         ExplanationPanel.SetSnippet(snippet);
 
         // Show community signal hint (if available and enabled)
-        var signal = _communitySignals.GetSignal(snippet.Id);
-        TypingPanel.ShowCommunityHint(signal);
+        if (_settings.ShowCommunitySignals)
+        {
+            var signal = _communitySignals.GetSignal(snippet.Id);
+            TypingPanel.ShowCommunityHint(signal);
+        }
+        else
+        {
+            TypingPanel.ShowCommunityHint(null);
+        }
 
         // Soft session frame — show typical range for this language
         StatsPanel.UpdateSessionFrame(_persistenceService.Load().Longitudinal, language);
@@ -831,6 +857,7 @@ public sealed partial class MainWindow : Window
         _settings.FocusArea = SettingsPanel.FocusArea;
         _settings.ShowSuggestions = SettingsPanel.ShowSuggestions;
         _settings.SelectedPracticeConfig = SettingsPanel.SelectedPracticeConfigName;
+        _settings.ShowCommunitySignals = SettingsPanel.ShowCommunitySignals;
 
         return _settings;
     }
