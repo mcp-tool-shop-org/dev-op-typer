@@ -1,0 +1,35 @@
+[
+  {
+    "id": "cs-linq",
+    "language": "csharp",
+    "difficulty": 4,
+    "topics": [
+      "linq",
+      "lambda",
+      "select",
+      "where"
+    ],
+    "title": "LINQ pipeline",
+    "code": "var result = items\n    .Where(x => x % 2 == 0)\n    .Select(x => x * x)\n    .ToList();\n",
+    "explain": [
+      "LINQ is a fluent query style.",
+      "Mind dots, arrows, and semicolons."
+    ]
+  },
+  {
+    "id": "cs-record",
+    "language": "csharp",
+    "difficulty": 5,
+    "topics": [
+      "record",
+      "init",
+      "with-expression"
+    ],
+    "title": "Record + with",
+    "code": "public record User(string Name, int Age);\n\nvar u1 = new User(\"Ada\", 37);\nvar u2 = u1 with { Age = 38 };\n",
+    "explain": [
+      "Records are immutable-ish data types.",
+      "Practice braces, quotes, and with initializers."
+    ]
+  }
+]

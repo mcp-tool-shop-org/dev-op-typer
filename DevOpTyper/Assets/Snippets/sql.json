@@ -1,0 +1,18 @@
+[
+  {
+    "id": "sql-cte",
+    "language": "sql",
+    "difficulty": 4,
+    "topics": [
+      "cte",
+      "group-by",
+      "order-by"
+    ],
+    "title": "CTE + aggregate",
+    "code": "WITH counts AS (\n  SELECT user_id, COUNT(*) AS n\n  FROM events\n  WHERE event_type = 'click'\n  GROUP BY user_id\n)\nSELECT user_id, n\nFROM counts\nORDER BY n DESC\nLIMIT 10;\n",
+    "explain": [
+      "CTEs make queries readable.",
+      "Practice quotes, commas, and indentation."
+    ]
+  }
+]

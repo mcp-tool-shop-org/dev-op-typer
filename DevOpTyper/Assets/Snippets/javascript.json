@@ -1,0 +1,35 @@
+[
+  {
+    "id": "js-async-await",
+    "language": "javascript",
+    "difficulty": 4,
+    "topics": [
+      "async",
+      "await",
+      "fetch",
+      "json"
+    ],
+    "title": "Async fetch",
+    "code": "export async function getUser(id) {\n  const res = await fetch(`/api/users/${id}`);\n  if (!res.ok) throw new Error(`HTTP ${res.status}`);\n  return await res.json();\n}\n",
+    "explain": [
+      "Async/await reads like synchronous code.",
+      "Practice template literals and ${} placeholders."
+    ]
+  },
+  {
+    "id": "js-reduce",
+    "language": "javascript",
+    "difficulty": 3,
+    "topics": [
+      "array",
+      "reduce",
+      "arrow-function"
+    ],
+    "title": "Reduce to map",
+    "code": "const counts = items.reduce((m, x) => {\n  m[x] = (m[x] ?? 0) + 1;\n  return m;\n}, {});\n",
+    "explain": [
+      "Reduce builds a single value from a list.",
+      "Practice ?? and arrow functions."
+    ]
+  }
+]

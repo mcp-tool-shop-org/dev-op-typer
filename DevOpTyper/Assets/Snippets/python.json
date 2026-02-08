@@ -1,0 +1,51 @@
+[
+  {
+    "id": "py-guard-clause",
+    "language": "python",
+    "difficulty": 2,
+    "topics": [
+      "functions",
+      "guards",
+      "comparison",
+      "return"
+    ],
+    "title": "Guard clause",
+    "code": "def clamp(x: int, lo: int, hi: int) -> int:\n    if x < lo:\n        return lo\n    if x > hi:\n        return hi\n    return x\n",
+    "explain": [
+      "Guard clauses keep control-flow flat.",
+      "Note colon, indentation, and comparisons."
+    ]
+  },
+  {
+    "id": "py-list-comp",
+    "language": "python",
+    "difficulty": 3,
+    "topics": [
+      "list-comprehension",
+      "modulo",
+      "filtering"
+    ],
+    "title": "List comprehension",
+    "code": "evens = [n for n in range(1, 101) if n % 2 == 0]\n",
+    "explain": [
+      "Comprehensions combine mapping + filtering.",
+      "Watch brackets, % operator, and ==."
+    ]
+  },
+  {
+    "id": "py-dict",
+    "language": "python",
+    "difficulty": 4,
+    "topics": [
+      "dict",
+      "typing",
+      "for-loop"
+    ],
+    "title": "Counting",
+    "code": "from collections import Counter\n\ncounts: Counter[str] = Counter()\nfor ch in \"Dev-Op-Typer\":\n    counts[ch] += 1\n",
+    "explain": [
+      "Counter is a multiset.",
+      "Quotes, types, and indexing build full-keyboard muscle memory."
+    ]
+  }
+]

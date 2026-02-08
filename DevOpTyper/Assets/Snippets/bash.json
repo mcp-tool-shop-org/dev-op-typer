@@ -1,0 +1,18 @@
+[
+  {
+    "id": "sh-safe",
+    "language": "bash",
+    "difficulty": 3,
+    "topics": [
+      "set",
+      "pipefail",
+      "variables"
+    ],
+    "title": "Safer shell",
+    "code": "set -euo pipefail\n\nDIR=\"${1:-.}\"\nfind \"$DIR\" -type f -name \"*.log\" -print0 | xargs -0 wc -l\n",
+    "explain": [
+      "Pipefail helps surface errors.",
+      "Practice quotes, ${} expansions, and pipes."
+    ]
+  }
+]

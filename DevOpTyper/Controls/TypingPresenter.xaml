@@ -1,0 +1,12 @@
+<UserControl
+    x:Class="DevOpTyper.Controls.TypingPresenter"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid>
+        <RichTextBlock x:Name="PromptBlock"
+                       FontFamily="Consolas"
+                       FontSize="16"
+                       IsTextSelectionEnabled="True"/>
+    </Grid>
+</UserControl>

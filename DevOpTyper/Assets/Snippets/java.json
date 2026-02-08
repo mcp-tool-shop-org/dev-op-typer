@@ -1,0 +1,34 @@
+[
+  {
+    "id": "java-stream",
+    "language": "java",
+    "difficulty": 4,
+    "topics": [
+      "streams",
+      "lambda",
+      "collect"
+    ],
+    "title": "Stream pipeline",
+    "code": "var result = list.stream()\n    .filter(x -> x % 2 == 0)\n    .map(x -> x * x)\n    .collect(java.util.stream.Collectors.toList());\n",
+    "explain": [
+      "Pipeline uses lambdas and method chaining.",
+      "Mind arrows, dots, and semicolons."
+    ]
+  },
+  {
+    "id": "java-record",
+    "language": "java",
+    "difficulty": 5,
+    "topics": [
+      "records",
+      "methods",
+      "string-format"
+    ],
+    "title": "Record + method",
+    "code": "public record Point(int x, int y) {\n    public String fmt() {\n        return String.format(\"(%d, %d)\", x, y);\n    }\n}\n",
+    "explain": [
+      "Records are concise data carriers.",
+      "Practice parentheses, commas, braces, and format strings."
+    ]
+  }
+]

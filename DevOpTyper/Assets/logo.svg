@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0C0E14"/>
+  <rect x="64" y="64" width="384" height="384" rx="72" fill="#121622" stroke="#4ADEC8" stroke-width="10"/>
+  <path d="M205 256 L250 226 L250 196 L170 256 L250 316 L250 286 Z" fill="#4ADEC8"/>
+  <path d="M307 256 L262 226 L262 196 L342 256 L262 316 L262 286 Z" fill="#7DA8FF"/>
+  <rect x="250" y="200" width="12" height="112" fill="#FFD45A"/>
+  <text x="96" y="420" font-family="Segoe UI, Arial" font-size="44" fill="#E6EBF5">Dev-Op-Typer</text>
+</svg>
