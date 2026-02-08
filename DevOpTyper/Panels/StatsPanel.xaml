@@ -75,21 +75,25 @@
                                Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
                 </StackPanel>
 
-                <!-- Pacing indicator (Phase 3) -->
+                <!-- Pacing indicator (Phase 3) — informational, never steals focus -->
                 <TextBlock x:Name="PacingLabel"
                            FontSize="11"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            Visibility="Collapsed"
-                           AutomationProperties.Name="Session pacing"
-                           IsTextSelectionEnabled="True"/>
+                           AutomationProperties.Name="Session pacing - informational only"
+                           AutomationProperties.LiveSetting="Off"
+                           IsTextSelectionEnabled="True"
+                           IsTabStop="False"/>
 
-                <!-- Orientation cue (v0.5.0) — subtle context for returning users -->
+                <!-- Orientation cue (v0.5.0) — subtle context, never steals focus -->
                 <TextBlock x:Name="OrientationCue"
                            FontSize="10"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            Visibility="Collapsed"
-                           AutomationProperties.Name="Orientation cue"
+                           AutomationProperties.Name="Session context - informational only"
+                           AutomationProperties.LiveSetting="Off"
                            IsTextSelectionEnabled="True"
+                           IsTabStop="False"
                            TextWrapping="Wrap"
                            Opacity="0.8"/>
 
