@@ -195,6 +195,7 @@ public sealed partial class MainWindow : Window
     private void ResetTest_Click(object sender, RoutedEventArgs e)
     {
         _uiFeedback.OnButtonClick();
+        TypingPanel.DismissCompletionBanner();
         _typingEngine.Reset();
         TypingPanel.ClearTyping();
         StatsPanel.Reset();
@@ -213,7 +214,9 @@ public sealed partial class MainWindow : Window
     private void SkipTest_Click(object sender, RoutedEventArgs e)
     {
         _uiFeedback.OnButtonClick();
+        TypingPanel.DismissCompletionBanner();
         _typingEngine.CancelSession();
+        _pendingContext = null; // Clear any pending intent from suggestion actions
         LoadNewSnippet();
     }
 
