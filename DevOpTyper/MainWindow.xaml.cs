@@ -278,8 +278,11 @@ public sealed partial class MainWindow : Window
             TypingPanel.ShowGuidance(null);
         }
 
-        // Show skill layers (if any) between sessions
-        LayersPanel.SetSnippet(snippet);
+        // Show skill layers (if any and enabled) between sessions
+        if (_settings.ShowSkillLayers)
+            LayersPanel.SetSnippet(snippet);
+        else
+            LayersPanel.Hide();
 
         // Soft session frame — show typical range for this language
         StatsPanel.UpdateSessionFrame(_persistenceService.Load().Longitudinal, language);
@@ -927,6 +930,7 @@ public sealed partial class MainWindow : Window
         _settings.ShowScaffolds = SettingsPanel.ShowScaffolds;
         _settings.ShowDemonstrations = SettingsPanel.ShowDemonstrations;
         _settings.ShowGuidance = SettingsPanel.ShowGuidance;
+        _settings.ShowSkillLayers = SettingsPanel.ShowSkillLayers;
 
         return _settings;
     }

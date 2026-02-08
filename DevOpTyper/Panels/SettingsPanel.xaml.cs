@@ -413,6 +413,13 @@ public sealed partial class SettingsPanel : UserControl
     public bool ShowGuidance => _showGuidance;
 
     /// <summary>
+    /// Whether skill depth layers are shown.
+    /// Wired to toggle in Teaching section (Commit 21).
+    /// </summary>
+    private bool _showSkillLayers = true;
+    public bool ShowSkillLayers => _showSkillLayers;
+
+    /// <summary>
     /// Fired when the user toggles community signals on or off.
     /// </summary>
     public event EventHandler<bool>? CommunitySignalsChanged;
@@ -470,6 +477,7 @@ public sealed partial class SettingsPanel : UserControl
         ShowScaffoldsToggle.IsOn = settings.ShowScaffolds;
         _showDemonstrations = settings.ShowDemonstrations;
         _showGuidance = settings.ShowGuidance;
+        _showSkillLayers = settings.ShowSkillLayers;
 
         // Map DefaultIntent to combo index (0=None, 1=Focus, 2=Challenge, 3=Maintenance, 4=Exploration)
         DefaultIntentCombo.SelectedIndex = settings.DefaultIntent switch

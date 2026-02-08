@@ -268,6 +268,13 @@ public sealed class AppSettings
     /// </summary>
     public bool ShowGuidance { get; set; } = true;
 
+    /// <summary>
+    /// Whether to show skill depth layers on snippets.
+    /// Layers offer different depths ("Essentials", "Deeper", "Advanced").
+    /// Default: true. Disabling hides all layers with zero other impact.
+    /// </summary>
+    public bool ShowSkillLayers { get; set; } = true;
+
     #endregion
 
     #region Community Settings (v0.7.0)
@@ -359,7 +366,8 @@ public sealed class AppSettings
             ShowCommunitySignals = ShowCommunitySignals,
             ShowScaffolds = ShowScaffolds,
             ShowDemonstrations = ShowDemonstrations,
-            ShowGuidance = ShowGuidance
+            ShowGuidance = ShowGuidance,
+            ShowSkillLayers = ShowSkillLayers
         };
     }
 }
