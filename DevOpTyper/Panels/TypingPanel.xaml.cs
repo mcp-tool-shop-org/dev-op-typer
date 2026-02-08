@@ -142,6 +142,38 @@ public sealed partial class TypingPanel : UserControl
     }
 
     /// <summary>
+    /// Shows optional scaffold hints below the snippet title.
+    /// Scaffolds are short learning aids that help users notice patterns.
+    /// They fade (via opacity) as the user demonstrates competence.
+    /// Null or empty hints hides the scaffold area.
+    /// </summary>
+    public void ShowScaffold(string[]? hints, double opacity = 1.0)
+    {
+        if (hints == null || hints.Length == 0 || opacity <= 0)
+        {
+            ScaffoldHints.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var capped = hints.Take(ExtensionBoundary.MaxScaffoldHints)
+            .Select(h => h.Length > ExtensionBoundary.MaxScaffoldHintLength
+                ? h[..ExtensionBoundary.MaxScaffoldHintLength] + "…"
+                : h)
+            .Where(h => !string.IsNullOrWhiteSpace(h));
+
+        var text = string.Join(" · ", capped);
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            ScaffoldHints.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        ScaffoldHints.Text = text;
+        ScaffoldHints.Opacity = Math.Clamp(opacity, 0.0, 1.0);
+        ScaffoldHints.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
     /// Shows a subtle community hint below the snippet title.
     /// Uses collective language — "typically" and "often", never "you should"
     /// or comparative framing. Null or empty signal hides the hint.

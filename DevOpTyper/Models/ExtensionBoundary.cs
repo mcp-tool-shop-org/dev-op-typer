@@ -100,6 +100,18 @@ public static class ExtensionBoundary
     /// </summary>
     public const int MaxExplanationNoteLength = 300;
 
+    /// <summary>
+    /// Maximum number of scaffold hints per snippet.
+    /// Scaffolds are short cues — too many defeats their purpose.
+    /// </summary>
+    public const int MaxScaffoldHints = 5;
+
+    /// <summary>
+    /// Maximum length of a single scaffold hint (chars).
+    /// Hints must be brief enough to scan at a glance.
+    /// </summary>
+    public const int MaxScaffoldHintLength = 200;
+
     // ────────────────────────────────────────────────────────
     //  FROZEN — the system guarantees these remain stable
     //
@@ -129,6 +141,19 @@ public static class ExtensionBoundary
     //  Specifically, no frozen service may read AggregateSignal
     //  data. Signals must never influence difficulty selection,
     //  scoring, XP calculation, or snippet ordering.
+    //
+    //  v0.8.0 additions — these must NEVER reference frozen services:
+    //  - ScaffoldFadeService (scaffold opacity computation)
+    //  - Demonstration (alternative approach model)
+    //  - DemonstrationPanel (alternative approach UI)
+    //  - GuidanceNote / GuidanceCollection (guidance data models)
+    //  - GuidanceService (guidance loading)
+    //  - SkillLayer (skill layer model)
+    //  - LayersPanel (skill layer UI)
+    //
+    //  Scaffolds, demonstrations, guidance, and skill layers are
+    //  display-only teaching features. They must never influence
+    //  difficulty selection, scoring, XP, or snippet ordering.
     //
     //  These are documented in DOCS/AGENCY.md. They exist as comments
     //  (not runtime arrays) because they are design constraints,

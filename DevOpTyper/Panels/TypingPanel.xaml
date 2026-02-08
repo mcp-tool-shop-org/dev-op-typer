@@ -51,6 +51,18 @@
                            AutomationProperties.Name="Community hint about this snippet"
                            Margin="0,-4,0,0"/>
 
+                <!-- Scaffold hints (v0.8.0) — optional learning aids, fade with competence -->
+                <TextBlock x:Name="ScaffoldHints"
+                           FontSize="10"
+                           FontStyle="Italic"
+                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                           TextWrapping="Wrap"
+                           Visibility="Collapsed"
+                           IsTabStop="False"
+                           AutomationProperties.LiveSetting="Off"
+                           AutomationProperties.Name="Scaffold hints for this snippet"
+                           Margin="0,-2,0,0"/>
+
                 <!-- Per-character diff renderer (replaces old plain TargetCode TextBlock) -->
                 <controls:TypingPresenter x:Name="CodeRenderer"/>
             </StackPanel>

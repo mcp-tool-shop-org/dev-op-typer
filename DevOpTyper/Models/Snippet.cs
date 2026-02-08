@@ -43,6 +43,14 @@ public sealed class Snippet
     public string[] Explain { get; set; } = Array.Empty<string>();
 
     /// <summary>
+    /// Optional scaffold hints for this snippet (v0.8.0).
+    /// Short, supportive cues that help the user notice patterns
+    /// in the code ("Watch the bracket alignment", "Semicolons at line ends").
+    /// Scaffolds fade with demonstrated competence — they are aids, not prerequisites.
+    /// </summary>
+    public string[] Scaffolds { get; set; } = Array.Empty<string>();
+
+    /// <summary>
     /// Multiple perspectives on the snippet (v0.7.0).
     /// Each perspective offers a different viewpoint — no hierarchy,
     /// no single "correct" explanation enforced. Labels describe the

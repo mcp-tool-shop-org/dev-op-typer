@@ -220,6 +220,16 @@ public sealed partial class MainWindow : Window
             TypingPanel.ShowCommunityHint(null);
         }
 
+        // Show scaffold hints (if available and enabled)
+        if (_settings.ShowScaffolds)
+        {
+            TypingPanel.ShowScaffold(snippet.Scaffolds);
+        }
+        else
+        {
+            TypingPanel.ShowScaffold(null);
+        }
+
         // Soft session frame — show typical range for this language
         StatsPanel.UpdateSessionFrame(_persistenceService.Load().Longitudinal, language);
     }
@@ -858,6 +868,9 @@ public sealed partial class MainWindow : Window
         _settings.ShowSuggestions = SettingsPanel.ShowSuggestions;
         _settings.SelectedPracticeConfig = SettingsPanel.SelectedPracticeConfigName;
         _settings.ShowCommunitySignals = SettingsPanel.ShowCommunitySignals;
+
+        // Teaching settings
+        _settings.ShowScaffolds = SettingsPanel.ShowScaffolds;
 
         return _settings;
     }

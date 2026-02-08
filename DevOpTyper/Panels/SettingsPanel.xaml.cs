@@ -389,6 +389,14 @@ public sealed partial class SettingsPanel : UserControl
     public bool ShowCommunitySignals => CommunitySignalsToggle.IsOn;
 
     /// <summary>
+    /// Whether scaffold hints are shown on snippets.
+    /// Wired to a toggle in the Teaching section (added in Commit 5).
+    /// Until then, defaults to true.
+    /// </summary>
+    private bool _showScaffolds = true;
+    public bool ShowScaffolds => _showScaffolds;
+
+    /// <summary>
     /// Fired when the user toggles community signals on or off.
     /// </summary>
     public event EventHandler<bool>? CommunitySignalsChanged;
@@ -441,6 +449,9 @@ public sealed partial class SettingsPanel : UserControl
         ShowIntentChipsToggle.IsOn = settings.ShowIntentChips;
         ShowSuggestionsToggle.IsOn = settings.ShowSuggestions;
         CommunitySignalsToggle.IsOn = settings.ShowCommunitySignals;
+
+        // Teaching settings (v0.8.0)
+        _showScaffolds = settings.ShowScaffolds;
 
         // Map DefaultIntent to combo index (0=None, 1=Focus, 2=Challenge, 3=Maintenance, 4=Exploration)
         DefaultIntentCombo.SelectedIndex = settings.DefaultIntent switch

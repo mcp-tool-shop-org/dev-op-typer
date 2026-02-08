@@ -245,6 +245,17 @@ public sealed class AppSettings
 
     #endregion
 
+    #region Teaching Settings (v0.8.0)
+
+    /// <summary>
+    /// Whether to show scaffold hints on snippets.
+    /// Scaffolds are optional learning aids that fade with demonstrated competence.
+    /// Default: true. Disabling hides scaffold hints with zero other impact.
+    /// </summary>
+    public bool ShowScaffolds { get; set; } = true;
+
+    #endregion
+
     #region Community Settings (v0.7.0)
 
     /// <summary>
@@ -331,7 +342,8 @@ public sealed class AppSettings
             FocusArea = FocusArea,
             ShowSuggestions = ShowSuggestions,
             SelectedPracticeConfig = SelectedPracticeConfig,
-            ShowCommunitySignals = ShowCommunitySignals
+            ShowCommunitySignals = ShowCommunitySignals,
+            ShowScaffolds = ShowScaffolds
         };
     }
 }
