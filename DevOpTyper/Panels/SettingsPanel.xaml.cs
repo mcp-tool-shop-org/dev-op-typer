@@ -269,4 +269,60 @@ public sealed partial class SettingsPanel : UserControl
     public bool IsReducedMotion => ReducedMotionToggle.IsOn;
 
     #endregion
+
+    #region Properties — Practice Preferences (v0.4.0)
+
+    /// <summary>
+    /// Gets whether intent chips should be shown in the typing panel.
+    /// </summary>
+    public bool ShowIntentChips => ShowIntentChipsToggle.IsOn;
+
+    /// <summary>
+    /// Gets the user's default declared intent, or null for none.
+    /// </summary>
+    public UserIntent? DefaultIntent
+    {
+        get
+        {
+            var item = DefaultIntentCombo.SelectedItem as ComboBoxItem;
+            var tag = item?.Tag?.ToString();
+            return tag switch
+            {
+                "Focus" => UserIntent.Focus,
+                "Challenge" => UserIntent.Challenge,
+                "Maintenance" => UserIntent.Maintenance,
+                "Exploration" => UserIntent.Exploration,
+                _ => null
+            };
+        }
+    }
+
+    /// <summary>
+    /// Gets the practice note text.
+    /// </summary>
+    public string? PracticeNote => string.IsNullOrWhiteSpace(PracticeNoteBox.Text)
+        ? null
+        : PracticeNoteBox.Text.Trim();
+
+    /// <summary>
+    /// Loads practice preferences from saved settings.
+    /// </summary>
+    public void LoadPracticePreferences(AppSettings settings)
+    {
+        ShowIntentChipsToggle.IsOn = settings.ShowIntentChips;
+
+        // Map DefaultIntent to combo index (0=None, 1=Focus, 2=Challenge, 3=Maintenance, 4=Exploration)
+        DefaultIntentCombo.SelectedIndex = settings.DefaultIntent switch
+        {
+            UserIntent.Focus => 1,
+            UserIntent.Challenge => 2,
+            UserIntent.Maintenance => 3,
+            UserIntent.Exploration => 4,
+            _ => 0
+        };
+
+        PracticeNoteBox.Text = settings.PracticeNote ?? "";
+    }
+
+    #endregion
 }

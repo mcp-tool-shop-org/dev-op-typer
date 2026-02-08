@@ -199,6 +199,29 @@ public sealed class AppSettings
 
     #endregion
 
+    #region Practice Preferences (v0.4.0)
+
+    /// <summary>
+    /// Whether to show intent chips above the Start button.
+    /// Users can hide them if they don't find them useful.
+    /// </summary>
+    public bool ShowIntentChips { get; set; } = true;
+
+    /// <summary>
+    /// The user's default declared intent, auto-selected on app launch.
+    /// Null = no default (user starts with no intent selected).
+    /// </summary>
+    public UserIntent? DefaultIntent { get; set; }
+
+    /// <summary>
+    /// Free-text practice note — a place for the user to write
+    /// what they're working on today or this week. Purely reflective,
+    /// never read by the system. Max 200 chars.
+    /// </summary>
+    public string? PracticeNote { get; set; }
+
+    #endregion
+
     #region Statistics Display
 
     /// <summary>
@@ -267,7 +290,10 @@ public sealed class AppSettings
             ShowWpm = ShowWpm,
             ShowAccuracy = ShowAccuracy,
             ShowErrorCount = ShowErrorCount,
-            ShowElapsedTime = ShowElapsedTime
+            ShowElapsedTime = ShowElapsedTime,
+            ShowIntentChips = ShowIntentChips,
+            DefaultIntent = DefaultIntent,
+            PracticeNote = PracticeNote
         };
     }
 }

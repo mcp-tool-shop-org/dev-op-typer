@@ -111,6 +111,45 @@
                               OnContent="On"
                               IsOn="True"/>
 
+                <!-- Practice (v0.4.0) -->
+                <TextBlock Text="Practice"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Margin="0,8,0,0"/>
+
+                <ToggleSwitch x:Name="ShowIntentChipsToggle"
+                              Header="Show Intent Chips"
+                              OffContent="Hidden"
+                              OnContent="Visible"
+                              IsOn="True"/>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Default Intent"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <ComboBox x:Name="DefaultIntentCombo"
+                              HorizontalAlignment="Stretch"
+                              SelectedIndex="0">
+                        <ComboBoxItem Content="None" Tag=""/>
+                        <ComboBoxItem Content="Focus" Tag="Focus"/>
+                        <ComboBoxItem Content="Challenge" Tag="Challenge"/>
+                        <ComboBoxItem Content="Maintenance" Tag="Maintenance"/>
+                        <ComboBoxItem Content="Exploration" Tag="Exploration"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Practice Note"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <TextBox x:Name="PracticeNoteBox"
+                             PlaceholderText="What are you working on?"
+                             MaxLength="200"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="False"
+                             FontSize="12"/>
+                </StackPanel>
+
                 <!-- Typing Rules -->
                 <TextBlock Text="Typing Rules"
                            FontSize="14"

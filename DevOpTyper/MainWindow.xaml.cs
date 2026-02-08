@@ -94,6 +94,10 @@ public sealed partial class MainWindow : Window
         // Restore typing rules UI from saved settings
         SettingsPanel.LoadTypingRules(_settings.TypingRules);
 
+        // Restore practice preferences (v0.4.0)
+        SettingsPanel.LoadPracticePreferences(_settings);
+        ApplyPracticePreferences();
+
         // Session pacing (Phase 3)
         _sessionPacer.OnAppLaunched();
 
@@ -669,6 +673,28 @@ public sealed partial class MainWindow : Window
         _settings.HighContrast = SettingsPanel.IsHighContrast;
         _settings.ReducedMotion = SettingsPanel.IsReducedMotion;
         _settings.TypingRules = SettingsPanel.GetTypingRules();
+
+        // Practice preferences (v0.4.0)
+        _settings.ShowIntentChips = SettingsPanel.ShowIntentChips;
+        _settings.DefaultIntent = SettingsPanel.DefaultIntent;
+        _settings.PracticeNote = SettingsPanel.PracticeNote;
+
         return _settings;
+    }
+
+    /// <summary>
+    /// Applies practice preferences to the UI — shows/hides intent chips,
+    /// sets default intent selection.
+    /// </summary>
+    private void ApplyPracticePreferences()
+    {
+        // Show or hide intent chips based on user preference
+        TypingPanel.SetIntentChipsVisible(_settings.ShowIntentChips);
+
+        // Pre-select the user's default intent, if any
+        if (_settings.DefaultIntent.HasValue)
+        {
+            TypingPanel.SetDefaultIntent(_settings.DefaultIntent.Value);
+        }
     }
 }

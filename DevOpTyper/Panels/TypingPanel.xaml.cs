@@ -63,7 +63,7 @@ public sealed partial class TypingPanel : UserControl
     {
         foreach (var (chip, _) in _intentChips)
         {
-            if (chip != sender)
+            if (!ReferenceEquals(chip, sender))
                 chip.IsChecked = false;
         }
     }
@@ -91,6 +91,27 @@ public sealed partial class TypingPanel : UserControl
     {
         foreach (var (chip, _) in _intentChips)
             chip.IsChecked = false;
+    }
+
+    /// <summary>
+    /// Shows or hides the intent chip bar.
+    /// </summary>
+    public void SetIntentChipsVisible(bool visible)
+    {
+        IntentChipBar.Visibility = visible
+            ? Microsoft.UI.Xaml.Visibility.Visible
+            : Microsoft.UI.Xaml.Visibility.Collapsed;
+    }
+
+    /// <summary>
+    /// Pre-selects a default intent chip.
+    /// </summary>
+    public void SetDefaultIntent(UserIntent intent)
+    {
+        foreach (var (chip, chipIntent) in _intentChips)
+        {
+            chip.IsChecked = chipIntent == intent;
+        }
     }
 
     /// <summary>
