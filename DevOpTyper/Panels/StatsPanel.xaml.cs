@@ -68,6 +68,30 @@ public sealed partial class StatsPanel : UserControl
     }
 
     /// <summary>
+    /// Shows a soft session frame — subtle context about what's typical
+    /// for this language. No labels, no modes, everything remains skippable.
+    /// </summary>
+    public void UpdateSessionFrame(LongitudinalData longitudinal, string language)
+    {
+        var lang = language?.ToLowerInvariant() ?? "";
+        if (!longitudinal.TrendsByLanguage.TryGetValue(lang, out var trend) ||
+            trend.TotalSessions < 5)
+        {
+            OrientationCue.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var avgWpm = trend.AverageWpm(10);
+        var avgAcc = trend.AverageAccuracy(10);
+        if (!avgWpm.HasValue) return;
+
+        // Soft context: "Python · ~45 WPM · ~92%" — no instruction, just orientation
+        string frame = $"{language} \u2022 ~{avgWpm.Value:F0} WPM \u2022 ~{avgAcc?.ToString("F0") ?? "?"}%";
+        OrientationCue.Text = frame;
+        OrientationCue.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
     /// Updates the Weak Spots section from the heatmap, with optional trajectory context.
     /// </summary>
     public void UpdateWeakSpots(MistakeHeatmap heatmap, WeaknessReport? report = null)

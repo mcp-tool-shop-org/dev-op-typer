@@ -146,6 +146,9 @@ public sealed partial class MainWindow : Window
 
         TypingPanel.ClearTyping();
         StatsPanel.Reset();
+
+        // Soft session frame (v0.5.0) — show typical range for this language
+        StatsPanel.UpdateSessionFrame(_persistenceService.Load().Longitudinal, language);
     }
 
     private void LoadSnippetForWeakChars()
