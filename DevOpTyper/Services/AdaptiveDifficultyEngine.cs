@@ -141,7 +141,7 @@ public sealed class AdaptiveDifficultyEngine
 public sealed class DifficultyProfile
 {
     /// <summary>Ideal difficulty level (1-5).</summary>
-    public int TargetDifficulty { get; init; }
+    public int TargetDifficulty { get; set; }
 
     /// <summary>Lowest acceptable difficulty.</summary>
     public int MinDifficulty { get; init; }

@@ -236,6 +236,13 @@ public sealed class AppSettings
     /// </summary>
     public bool ShowSuggestions { get; set; } = true;
 
+    /// <summary>
+    /// Selected practice configuration name.
+    /// "Default" uses standard adaptive behavior.
+    /// User-authored configs override specific session parameters.
+    /// </summary>
+    public string SelectedPracticeConfig { get; set; } = "Default";
+
     #endregion
 
     #region Statistics Display
@@ -311,7 +318,8 @@ public sealed class AppSettings
             DefaultIntent = DefaultIntent,
             PracticeNote = PracticeNote,
             FocusArea = FocusArea,
-            ShowSuggestions = ShowSuggestions
+            ShowSuggestions = ShowSuggestions,
+            SelectedPracticeConfig = SelectedPracticeConfig
         };
     }
 }

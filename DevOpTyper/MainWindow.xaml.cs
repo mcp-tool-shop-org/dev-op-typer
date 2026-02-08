@@ -23,6 +23,7 @@ public sealed partial class MainWindow : Window
     private readonly AdaptiveDifficultyEngine _adaptiveDifficulty = new();
     private readonly SessionPacer _sessionPacer = new();
     private readonly WeaknessTracker _weaknessTracker = new();
+    private readonly PracticeConfigService _practiceConfigService = new();
     private Profile _profile = new();
     private AppSettings _settings = new();
     private bool _settingsPanelOpen = false;
@@ -105,6 +106,14 @@ public sealed partial class MainWindow : Window
         SettingsPanel.UpdateUserSnippetStatus(_snippetService.UserContent);
         SettingsPanel.OpenUserSnippetsFolderRequested += OnOpenUserSnippetsFolder;
 
+        // Practice configs
+        _practiceConfigService.Initialize();
+        SettingsPanel.PopulateConfigs(
+            _practiceConfigService.GetConfigNames(),
+            _settings.SelectedPracticeConfig);
+        UpdateConfigDescription();
+        SettingsPanel.PracticeConfigChanged += OnPracticeConfigChanged;
+
         // Session pacing
         _sessionPacer.OnAppLaunched();
 
@@ -125,6 +134,11 @@ public sealed partial class MainWindow : Window
     private void LoadNewSnippet()
     {
         var language = SettingsPanel.SelectedLanguage;
+        var config = GetActivePracticeConfig();
+
+        // Config can override language
+        if (!string.IsNullOrEmpty(config.Language))
+            language = config.Language;
 
         Snippet snippet;
         if (SettingsPanel.IsAdaptiveDifficulty)
@@ -133,6 +147,14 @@ public sealed partial class MainWindow : Window
             var blob = _persistenceService.Load();
             var difficultyProfile = _adaptiveDifficulty.ComputeDifficulty(
                 language, _profile, blob.Longitudinal);
+
+            // Apply config difficulty bias
+            if (config.HasDifficultyBias)
+            {
+                difficultyProfile.TargetDifficulty = Math.Clamp(
+                    difficultyProfile.TargetDifficulty + config.DifficultyOffset, 1, 5);
+            }
+
             var weaknessReport = _weaknessTracker.GetReport(
                 language, _profile.Heatmap, blob.Longitudinal);
 
@@ -183,6 +205,10 @@ public sealed partial class MainWindow : Window
         {
             bool hardcore = SettingsPanel.IsHardcoreMode;
             var rules = SettingsPanel.GetTypingRules();
+
+            // Apply practice config overrides to typing rules
+            var config = GetActivePracticeConfig();
+            rules = config.ApplyTo(rules);
 
             // Compute repeat count for diminishing XP returns
             int repeats = _persistenceService.Load().History.Records
@@ -779,6 +805,7 @@ public sealed partial class MainWindow : Window
         _settings.PracticeNote = SettingsPanel.PracticeNote;
         _settings.FocusArea = SettingsPanel.FocusArea;
         _settings.ShowSuggestions = SettingsPanel.ShowSuggestions;
+        _settings.SelectedPracticeConfig = SettingsPanel.SelectedPracticeConfigName;
 
         return _settings;
     }
@@ -817,5 +844,33 @@ public sealed partial class MainWindow : Window
         {
             // Silently fail — folder access might be restricted
         }
+    }
+
+    /// <summary>
+    /// Handles practice config selection changes.
+    /// </summary>
+    private void OnPracticeConfigChanged(object? sender, string configName)
+    {
+        _settings.SelectedPracticeConfig = configName;
+        UpdateConfigDescription();
+    }
+
+    /// <summary>
+    /// Updates the config description text in the settings panel.
+    /// </summary>
+    private void UpdateConfigDescription()
+    {
+        var config = _practiceConfigService.GetConfig(_settings.SelectedPracticeConfig);
+        SettingsPanel.UpdateConfigDescription(config.Description);
+    }
+
+    /// <summary>
+    /// Gets the currently active practice config.
+    /// Used by session start to apply config overrides.
+    /// </summary>
+    private PracticeConfig GetActivePracticeConfig()
+    {
+        return _practiceConfigService.GetConfig(
+            SettingsPanel.SelectedPracticeConfigName);
     }
 }

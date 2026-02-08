@@ -113,12 +113,28 @@
                               OnContent="On"
                               IsOn="True"/>
 
-                <!-- Practice (v0.4.0) -->
+                <!-- Practice -->
                 <TextBlock Text="Practice"
                            FontSize="14"
                            FontWeight="SemiBold"
                            Margin="0,8,0,0"
                            AutomationProperties.HeadingLevel="Level2"/>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Practice Config"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <ComboBox x:Name="PracticeConfigCombo"
+                              HorizontalAlignment="Stretch"
+                              AutomationProperties.Name="Practice configuration"/>
+                </StackPanel>
+
+                <TextBlock x:Name="PracticeConfigDescription"
+                           FontSize="10"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           TextWrapping="Wrap"
+                           Visibility="Collapsed"
+                           IsTabStop="False"/>
 
                 <ToggleSwitch x:Name="ShowIntentChipsToggle"
                               Header="Show Intent Chips"

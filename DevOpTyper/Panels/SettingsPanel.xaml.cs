@@ -12,10 +12,12 @@ public sealed partial class SettingsPanel : UserControl
     public event EventHandler<double>? UiVolumeChanged;
     public event EventHandler<string>? KeyboardThemeChanged;
     public event EventHandler<string>? SoundscapeChanged;
+    public event EventHandler<string>? PracticeConfigChanged;
 
     // Guards to prevent false events during programmatic population
     private bool _suppressThemeEvent;
     private bool _suppressSoundscapeEvent;
+    private bool _suppressConfigEvent;
 
     public SettingsPanel()
     {
@@ -39,6 +41,15 @@ public sealed partial class SettingsPanel : UserControl
         {
             if (!_suppressSoundscapeEvent)
                 SoundscapeChanged?.Invoke(this, SelectedSoundscape);
+        };
+
+        PracticeConfigCombo.SelectionChanged += (s, e) =>
+        {
+            if (!_suppressConfigEvent)
+            {
+                PracticeConfigChanged?.Invoke(this, SelectedPracticeConfigName);
+                UpdateConfigDescription();
+            }
         };
 
         // Accuracy floor slider label update
@@ -247,6 +258,64 @@ public sealed partial class SettingsPanel : UserControl
                     return;
                 }
             }
+        }
+    }
+
+    #endregion
+
+    #region Properties — Practice Config
+
+    /// <summary>
+    /// Gets the selected practice config name.
+    /// </summary>
+    public string SelectedPracticeConfigName
+    {
+        get => PracticeConfigCombo.SelectedItem as string ?? "Default";
+        set
+        {
+            for (int i = 0; i < PracticeConfigCombo.Items.Count; i++)
+            {
+                if (PracticeConfigCombo.Items[i] is string name &&
+                    string.Equals(name, value, StringComparison.OrdinalIgnoreCase))
+                {
+                    PracticeConfigCombo.SelectedIndex = i;
+                    return;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Populates the practice config dropdown from discovered configs.
+    /// </summary>
+    public void PopulateConfigs(IReadOnlyList<string> configNames, string selected)
+    {
+        _suppressConfigEvent = true;
+        PracticeConfigCombo.Items.Clear();
+        int selectedIndex = 0;
+        for (int i = 0; i < configNames.Count; i++)
+        {
+            PracticeConfigCombo.Items.Add(configNames[i]);
+            if (string.Equals(configNames[i], selected, StringComparison.OrdinalIgnoreCase))
+                selectedIndex = i;
+        }
+        PracticeConfigCombo.SelectedIndex = configNames.Count > 0 ? selectedIndex : -1;
+        _suppressConfigEvent = false;
+    }
+
+    /// <summary>
+    /// Updates the config description text below the dropdown.
+    /// </summary>
+    public void UpdateConfigDescription(string? description = null)
+    {
+        if (!string.IsNullOrEmpty(description))
+        {
+            PracticeConfigDescription.Text = description;
+            PracticeConfigDescription.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+        }
+        else
+        {
+            PracticeConfigDescription.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
         }
     }
 
