@@ -343,6 +343,8 @@ public sealed partial class StatsPanel : UserControl
                 TextWrapping = TextWrapping.Wrap,
                 IsTextSelectionEnabled = true
             };
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+                block, $"Identity: {line}");
             IdentityContainer.Children.Add(block);
         }
     }

@@ -162,6 +162,13 @@ v0.4.0 follows the same pattern:
 - **No schema version bump required.** All new fields are nullable or have defaults.
 - **No behavior change.** v0.3.0 workflows execute identically. Intent markers add data but never alter control flow.
 
+v0.4.0 Phase 4 (Identity) additions:
+
+- **TypistIdentity** is computed on-demand and never persisted. It reads from existing longitudinal data.
+- **ShowSuggestions** defaults to `true`. Setting it to `false` hides all suggestions with no side effects.
+- **Stale data handling**: When last session is 30+ days old, identity shows a neutral "Last active X ago" label and suppresses consistency metrics.
+- **No new persisted fields** in Phase 4. Identity is derived from existing data structures.
+
 ---
 
 ## Philosophy
