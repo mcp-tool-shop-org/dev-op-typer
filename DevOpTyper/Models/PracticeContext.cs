@@ -6,14 +6,25 @@ namespace DevOpTyper.Models;
 /// and the system can attach context without the user's involvement.
 ///
 /// v0.3.0: This is a data-only primitive. No behavior is attached yet.
+/// v0.4.0: Added UserIntent — a user-declared label describing why they're practicing.
+///         UserIntent is descriptive, not evaluative. It has no impact on scoring,
+///         difficulty, or suggestions. It exists solely for the user's own awareness
+///         and for optional retrospective correlation.
 /// </summary>
 public sealed class PracticeContext
 {
     /// <summary>
-    /// Why this session was started.
+    /// Why this session was started (system-assigned).
     /// Null = user pressed Start with no particular intent.
     /// </summary>
     public PracticeIntent? Intent { get; set; }
+
+    /// <summary>
+    /// User-declared practice intent — what the user says they're doing.
+    /// Null = user didn't declare an intent (most sessions).
+    /// This is purely descriptive — it never affects scoring, difficulty, or suggestions.
+    /// </summary>
+    public UserIntent? DeclaredIntent { get; set; }
 
     /// <summary>
     /// What the session focuses on, if anything.
@@ -104,4 +115,37 @@ public enum PracticeIntent
     /// Warmup session (short, easy).
     /// </summary>
     Warmup = 4
+}
+
+/// <summary>
+/// User-declared practice intent — what the user says they're doing.
+/// These labels are descriptive, not evaluative. They have zero impact
+/// on scoring, difficulty, snippet selection, or suggestions.
+/// The user can select one before starting, or leave it blank.
+/// </summary>
+public enum UserIntent
+{
+    /// <summary>
+    /// Concentrated practice on a specific area.
+    /// "I want to work on something specific."
+    /// </summary>
+    Focus = 0,
+
+    /// <summary>
+    /// Pushing beyond current comfort level.
+    /// "I want to stretch myself."
+    /// </summary>
+    Challenge = 1,
+
+    /// <summary>
+    /// Keeping existing skills sharp.
+    /// "I want to stay in shape."
+    /// </summary>
+    Maintenance = 2,
+
+    /// <summary>
+    /// Trying something new or unfamiliar.
+    /// "I want to see what's out there."
+    /// </summary>
+    Exploration = 3
 }

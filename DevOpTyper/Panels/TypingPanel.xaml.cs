@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using DevOpTyper.Models;
 
 namespace DevOpTyper.Panels;
@@ -17,6 +18,11 @@ public sealed partial class TypingPanel : UserControl
     /// </summary>
     public event EventHandler<string>? CompletionActionClicked;
 
+    /// <summary>
+    /// All intent chips mapped to their UserIntent value.
+    /// </summary>
+    private readonly (ToggleButton Chip, UserIntent Intent)[] _intentChips;
+
     public TypingPanel()
     {
         InitializeComponent();
@@ -33,6 +39,58 @@ public sealed partial class TypingPanel : UserControl
             CompletionActionClicked?.Invoke(this, tag);
             DismissCompletionBanner();
         };
+
+        // Wire intent chips — mutual exclusion (at most one selected)
+        _intentChips = new[]
+        {
+            (IntentFocusChip, UserIntent.Focus),
+            (IntentChallengeChip, UserIntent.Challenge),
+            (IntentMaintenanceChip, UserIntent.Maintenance),
+            (IntentExplorationChip, UserIntent.Exploration)
+        };
+
+        foreach (var (chip, _) in _intentChips)
+        {
+            chip.Checked += OnIntentChipChecked;
+            chip.Unchecked += (_, _) => { }; // Allow unchecking freely
+        }
+    }
+
+    /// <summary>
+    /// When a chip is checked, uncheck all others (radio-like behavior).
+    /// </summary>
+    private void OnIntentChipChecked(object sender, RoutedEventArgs e)
+    {
+        foreach (var (chip, _) in _intentChips)
+        {
+            if (chip != sender)
+                chip.IsChecked = false;
+        }
+    }
+
+    /// <summary>
+    /// Gets the user's declared intent, or null if none is selected.
+    /// </summary>
+    public UserIntent? SelectedUserIntent
+    {
+        get
+        {
+            foreach (var (chip, intent) in _intentChips)
+            {
+                if (chip.IsChecked == true)
+                    return intent;
+            }
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Clears the user intent selection (no chip selected).
+    /// </summary>
+    public void ClearUserIntent()
+    {
+        foreach (var (chip, _) in _intentChips)
+            chip.IsChecked = false;
     }
 
     /// <summary>

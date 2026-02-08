@@ -112,14 +112,38 @@
             </Grid>
         </Border>
 
-        <!-- Action Buttons -->
+        <!-- Action Buttons + Optional Intent Chips -->
         <StackPanel Grid.Row="3"
-                    Orientation="Horizontal"
                     HorizontalAlignment="Center"
-                    Spacing="12">
-            <Button x:Name="StartButton" Content="Start Test" Style="{ThemeResource AccentButtonStyle}"/>
-            <Button x:Name="ResetButton" Content="Reset"/>
-            <Button x:Name="SkipButton" Content="Skip"/>
+                    Spacing="6">
+
+            <!-- User Intent Chips (v0.4.0) — descriptive, not evaluative -->
+            <StackPanel x:Name="IntentChipBar"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="4">
+                <TextBlock Text="Intent:"
+                           FontSize="11"
+                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,2,0"/>
+                <ToggleButton x:Name="IntentFocusChip" Content="Focus"
+                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"/>
+                <ToggleButton x:Name="IntentChallengeChip" Content="Challenge"
+                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"/>
+                <ToggleButton x:Name="IntentMaintenanceChip" Content="Maintenance"
+                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"/>
+                <ToggleButton x:Name="IntentExplorationChip" Content="Exploration"
+                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="12">
+                <Button x:Name="StartButton" Content="Start Test" Style="{ThemeResource AccentButtonStyle}"/>
+                <Button x:Name="ResetButton" Content="Reset"/>
+                <Button x:Name="SkipButton" Content="Skip"/>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </UserControl>

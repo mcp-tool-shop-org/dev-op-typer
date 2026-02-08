@@ -82,6 +82,14 @@ public sealed class SessionRecord
     public PracticeContext? Context { get; set; }
 
     /// <summary>
+    /// User-declared intent at session start (v0.4.0+).
+    /// Null = user didn't declare an intent. This is a top-level field
+    /// (not nested in Context) for simpler querying and filtering.
+    /// Has no impact on scoring, difficulty, or suggestions.
+    /// </summary>
+    public UserIntent? DeclaredIntent { get; set; }
+
+    /// <summary>
     /// Creates a session record from a completed session.
     /// </summary>
     public static SessionRecord FromSession(

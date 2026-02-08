@@ -183,6 +183,9 @@ public sealed partial class MainWindow : Window
             if (repeats > 0 && context.Intent == PracticeIntent.Freeform)
                 context.Intent = PracticeIntent.Repeat;
 
+            // Capture user-declared intent (v0.4.0) — purely descriptive, no scoring impact
+            context.DeclaredIntent = TypingPanel.SelectedUserIntent;
+
             _typingEngine.PracticeContext = context;
             _typingEngine.StartSession(_currentSnippet, hardcore, rules);
             _sessionPacer.OnSessionStarted();
@@ -509,6 +512,10 @@ public sealed partial class MainWindow : Window
                     hardcoreMode: SettingsPanel.IsHardcoreMode,
                     context: e.Context
                 );
+
+                // Propagate user-declared intent to the session record (v0.4.0)
+                record.DeclaredIntent = e.Context?.DeclaredIntent;
+
                 blob.History.AddRecord(record);
 
                 // Feed longitudinal data (trend tracking, weakness snapshots)
