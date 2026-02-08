@@ -72,7 +72,7 @@
             </Grid>
         </Border>
 
-        <!-- Session Completion Summary (Phase 4) -->
+        <!-- Session Completion Summary (Phase 4) + Retrospective (v0.4.0) -->
         <Border x:Name="CompletionBanner"
                 Grid.Row="2"
                 Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
@@ -80,36 +80,51 @@
                 Padding="12"
                 Margin="0,0,0,8"
                 Visibility="Collapsed">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+            <StackPanel Spacing="6">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <StackPanel Spacing="2">
-                    <TextBlock x:Name="CompletionTitle"
-                               Text="Session Complete!"
-                               FontSize="14"
-                               FontWeight="SemiBold"/>
-                    <TextBlock x:Name="CompletionStats"
+                    <StackPanel Spacing="2">
+                        <TextBlock x:Name="CompletionTitle"
+                                   Text="Session Complete!"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"/>
+                        <TextBlock x:Name="CompletionStats"
+                                   FontSize="11"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="6"
+                                VerticalAlignment="Center">
+                        <Button x:Name="CompletionActionButton"
+                                FontSize="11"
+                                Padding="8,4"
+                                Visibility="Collapsed"/>
+                        <Button x:Name="CompletionDismissButton"
+                                Content="Dismiss"
+                                FontSize="11"
+                                Padding="8,4"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Session Retrospective (v0.4.0) — optional, dismissible -->
+                <StackPanel x:Name="RetrospectiveSection"
+                            Spacing="2"
+                            Visibility="Collapsed">
+                    <Border Height="1"
+                            Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                            Margin="0,2,0,2"/>
+                    <TextBlock x:Name="RetrospectiveText"
                                FontSize="11"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                               Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                               TextWrapping="Wrap"/>
                 </StackPanel>
-
-                <StackPanel Grid.Column="1"
-                            Orientation="Horizontal"
-                            Spacing="6"
-                            VerticalAlignment="Center">
-                    <Button x:Name="CompletionActionButton"
-                            FontSize="11"
-                            Padding="8,4"
-                            Visibility="Collapsed"/>
-                    <Button x:Name="CompletionDismissButton"
-                            Content="Dismiss"
-                            FontSize="11"
-                            Padding="8,4"/>
-                </StackPanel>
-            </Grid>
+            </StackPanel>
         </Border>
 
         <!-- Action Buttons + Optional Intent Chips -->

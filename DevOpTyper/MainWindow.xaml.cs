@@ -546,6 +546,10 @@ public sealed partial class MainWindow : Window
                 e.FinalWpm, e.FinalAccuracy, e.XpEarned, isPerfect,
                 actionLabel, actionTag);
 
+            // Session retrospective (v0.4.0) — factual observations, no judgment
+            var retroLines = BuildRetrospective(e, blob);
+            TypingPanel.ShowRetrospective(retroLines);
+
             // Load next snippet
             LoadNewSnippet();
         });
@@ -567,6 +571,59 @@ public sealed partial class MainWindow : Window
         }
 
         return (null, null);
+    }
+
+    /// <summary>
+    /// Builds factual retrospective lines for the completed session.
+    /// Observations only — no judgment, no "good" or "bad" framing.
+    /// Returns an empty list if there's nothing meaningful to show.
+    /// </summary>
+    private List<string> BuildRetrospective(TypingResultEventArgs e, PersistedBlob blob)
+    {
+        var lines = new List<string>();
+        var language = _currentSnippet?.Language ?? SettingsPanel.SelectedLanguage;
+
+        // Show declared intent if user set one
+        var declaredIntent = e.Context?.DeclaredIntent;
+        if (declaredIntent.HasValue)
+        {
+            lines.Add($"Intent: {declaredIntent.Value}");
+        }
+
+        // Compare to recent average (last 10 sessions in this language)
+        if (blob.Longitudinal.TrendsByLanguage.TryGetValue(
+                language.ToLowerInvariant(), out var trend))
+        {
+            var avgWpm = trend.AverageWpm(10);
+            var avgAcc = trend.AverageAccuracy(10);
+
+            if (avgWpm.HasValue && trend.TotalSessions >= 3)
+            {
+                double wpmDelta = e.FinalWpm - avgWpm.Value;
+                string wpmSign = wpmDelta >= 0 ? "+" : "";
+                lines.Add($"WPM: {e.FinalWpm:F0} ({wpmSign}{wpmDelta:F0} vs recent avg)");
+            }
+
+            if (avgAcc.HasValue && trend.TotalSessions >= 3)
+            {
+                double accDelta = e.FinalAccuracy - avgAcc.Value;
+                string accSign = accDelta >= 0 ? "+" : "";
+                lines.Add($"Accuracy: {e.FinalAccuracy:F0}% ({accSign}{accDelta:F1}% vs recent avg)");
+            }
+        }
+
+        // Show difficulty context
+        if (_currentSnippet != null)
+        {
+            int rating = _profile.GetRating(language);
+            int diff = _currentSnippet.Difficulty;
+            if (diff > 0 && rating > 0)
+            {
+                lines.Add($"Difficulty {diff} \u00b7 Rating {rating}");
+            }
+        }
+
+        return lines;
     }
 
     /// <summary>

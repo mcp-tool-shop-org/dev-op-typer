@@ -196,7 +196,28 @@ public sealed partial class TypingPanel : UserControl
             CompletionActionButton.Visibility = Visibility.Collapsed;
         }
 
+        // Clear any previous retrospective
+        RetrospectiveSection.Visibility = Visibility.Collapsed;
+        RetrospectiveText.Text = "";
+
         CompletionBanner.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
+    /// Shows a brief retrospective beneath the completion banner.
+    /// Contains factual observations only — no judgment or evaluation.
+    /// </summary>
+    /// <param name="lines">Lines of retrospective text to display.</param>
+    public void ShowRetrospective(IReadOnlyList<string> lines)
+    {
+        if (lines.Count == 0)
+        {
+            RetrospectiveSection.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        RetrospectiveText.Text = string.Join("\n", lines);
+        RetrospectiveSection.Visibility = Visibility.Visible;
     }
 
     /// <summary>
@@ -205,5 +226,6 @@ public sealed partial class TypingPanel : UserControl
     public void DismissCompletionBanner()
     {
         CompletionBanner.Visibility = Visibility.Collapsed;
+        RetrospectiveSection.Visibility = Visibility.Collapsed;
     }
 }
