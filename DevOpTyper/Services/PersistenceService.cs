@@ -170,6 +170,16 @@ public sealed class PersistenceService
         blob.Longitudinal.SessionTimestamps ??= new();
         blob.Longitudinal.WeaknessSnapshots ??= new();
 
+        // Per-language trend safety (v0.5.0) — ensure no NaN/Inf in rolling data
+        foreach (var (_, trend) in blob.Longitudinal.TrendsByLanguage)
+        {
+            trend.RecentWpm ??= new();
+            trend.RecentAccuracy ??= new();
+            trend.RecentWpm.RemoveAll(v => double.IsNaN(v) || double.IsInfinity(v) || v < 0);
+            trend.RecentAccuracy.RemoveAll(v => double.IsNaN(v) || double.IsInfinity(v) || v < 0 || v > 100);
+            if (trend.TotalSessions < 0) trend.TotalSessions = trend.RecentWpm.Count;
+        }
+
         // Collections
         blob.FavoriteSnippetIds ??= new();
         blob.LastPracticedByLanguage ??= new();
