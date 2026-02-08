@@ -3,7 +3,6 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinRT.Interop;
-using DevOpTyper.ViewModels;
 using DevOpTyper.Services;
 using DevOpTyper.Models;
 
@@ -11,7 +10,6 @@ namespace DevOpTyper;
 
 public sealed partial class MainWindow : Window
 {
-    private readonly MainViewModel _viewModel = new();
     private readonly TypingEngine _typingEngine = new();
     private readonly SnippetService _snippetService = new();
     private readonly SmartSnippetSelector _smartSelector;
@@ -44,8 +42,8 @@ public sealed partial class MainWindow : Window
             SettingsPanel.UiVolume
         );
 
-        // Start ambient audio
-        _audioService.PlayRandomAmbient();
+        // Start ambient audio (deferred to avoid blocking UI thread — MCI play takes ~1s)
+        DispatcherQueue.TryEnqueue(() => _audioService.PlayRandomAmbient());
 
         // Load persisted profile
         var persisted = _persistenceService.Load();
@@ -151,13 +149,14 @@ public sealed partial class MainWindow : Window
 
     private void TypingBox_TextChanged(object sender, TextChangedEventArgs e)
     {
+        var typed = TypingPanel.TypedText;
+
+        // Always play keyboard sound on any text change
+        _keyboardSound.OnTextChanged(typed);
+
         if (_typingEngine.IsRunning)
         {
-            var typed = TypingPanel.TypedText;
             _typingEngine.UpdateTypedText(typed, SettingsPanel.IsHardcoreMode);
-
-            // Play keyboard sound
-            _keyboardSound.OnTextChanged(typed);
         }
     }
 
@@ -242,6 +241,7 @@ public sealed partial class MainWindow : Window
 
     private void AmbientRandomButton_Click(object sender, RoutedEventArgs e)
     {
+        _uiFeedback.OnButtonClick();
         _audioService.PlayRandomAmbient();
         UpdateAmbientMuteButton(false);
     }
@@ -250,6 +250,7 @@ public sealed partial class MainWindow : Window
 
     private void AmbientMuteButton_Click(object sender, RoutedEventArgs e)
     {
+        _uiFeedback.OnButtonClick();
         _ambientMuted = !_ambientMuted;
         if (_ambientMuted)
         {
