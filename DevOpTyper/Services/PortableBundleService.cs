@@ -68,6 +68,13 @@ public sealed class PortableBundleService
                 {
                     communityConfigCount = ExportDirectory(zip, communityConfigsDir, "configs");
                 }
+
+                // Export signals.json if present
+                var signalsPath = Path.Combine(communityContent.CommunityContentPath, "signals.json");
+                if (File.Exists(signalsPath))
+                {
+                    zip.CreateEntryFromFile(signalsPath, "signals.json");
+                }
             }
 
             // Write manifest
@@ -194,6 +201,7 @@ public sealed class PortableBundleService
     /// <summary>
     /// Imports a ZIP bundle into community content directories.
     /// Convenience method that routes to CommunityContent/ instead of UserSnippets/.
+    /// Also extracts signals.json to the community content root if present.
     /// </summary>
     public BundleImportResult ImportToCommunity(string zipPath, string communitySnippetsDir, string communityConfigsDir)
     {
@@ -203,7 +211,37 @@ public sealed class PortableBundleService
         if (!Directory.Exists(communityConfigsDir))
             Directory.CreateDirectory(communityConfigsDir);
 
-        return Import(zipPath, communitySnippetsDir, communityConfigsDir);
+        var result = Import(zipPath, communitySnippetsDir, communityConfigsDir);
+
+        // Extract signals.json to the community content root (parent of snippets/)
+        if (result.Success)
+        {
+            try
+            {
+                using var zip = ZipFile.OpenRead(zipPath);
+                var signalsEntry = zip.Entries.FirstOrDefault(e =>
+                    e.FullName.Equals("signals.json", StringComparison.OrdinalIgnoreCase));
+
+                if (signalsEntry != null)
+                {
+                    var communityRoot = Path.GetDirectoryName(communitySnippetsDir);
+                    if (communityRoot != null)
+                    {
+                        var targetPath = Path.Combine(communityRoot, "signals.json");
+                        // Overwrite signals — newer bundle data replaces older
+                        if (File.Exists(targetPath))
+                            File.Delete(targetPath);
+                        signalsEntry.ExtractToFile(targetPath);
+                    }
+                }
+            }
+            catch
+            {
+                // Signals extraction is non-critical — don't fail the import
+            }
+        }
+
+        return result;
     }
 
     /// <summary>
