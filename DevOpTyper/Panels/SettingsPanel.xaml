@@ -126,7 +126,8 @@
                                FontSize="12"/>
                     <ComboBox x:Name="PracticeConfigCombo"
                               HorizontalAlignment="Stretch"
-                              AutomationProperties.Name="Practice configuration"/>
+                              AutomationProperties.Name="Practice configuration preset"
+                              ToolTipService.ToolTip="Choose a practice config to adjust difficulty, warmup, and typing rules"/>
                 </StackPanel>
 
                 <TextBlock x:Name="PracticeConfigDescription"
@@ -134,7 +135,8 @@
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            TextWrapping="Wrap"
                            Visibility="Collapsed"
-                           IsTabStop="False"/>
+                           IsTabStop="False"
+                           AutomationProperties.LiveSetting="Polite"/>
 
                 <ToggleSwitch x:Name="ShowIntentChipsToggle"
                               Header="Show Intent Chips"

@@ -305,6 +305,7 @@ public sealed partial class SettingsPanel : UserControl
 
     /// <summary>
     /// Updates the config description text below the dropdown.
+    /// Screen readers announce the description politely when it changes.
     /// </summary>
     public void UpdateConfigDescription(string? description = null)
     {
@@ -312,6 +313,9 @@ public sealed partial class SettingsPanel : UserControl
         {
             PracticeConfigDescription.Text = description;
             PracticeConfigDescription.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+                PracticeConfigDescription,
+                $"Config description: {description}");
         }
         else
         {
