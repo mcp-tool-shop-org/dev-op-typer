@@ -914,8 +914,9 @@ public sealed partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Imports a portable ZIP bundle into user content directories.
-    /// Uses a file picker to select the ZIP file.
+    /// Imports a portable ZIP bundle. Asks the user whether to import
+    /// as personal content or community content, then routes to the
+    /// appropriate directory.
     /// </summary>
     private async void OnImportBundle(object? sender, EventArgs e)
     {
@@ -931,11 +932,38 @@ public sealed partial class MainWindow : Window
             var file = await picker.PickSingleFileAsync();
             if (file == null) return; // User cancelled
 
-            var snippetsDir = _snippetService.UserContent.EnsureUserSnippetsDirectory();
-            var configsDir = _practiceConfigService.EnsureUserConfigsDirectory();
+            // Ask whether to import as personal or community content
+            var dialog = new ContentDialog
+            {
+                Title = "Import Bundle",
+                Content = "Where should this content be imported?",
+                PrimaryButtonText = "My Content",
+                SecondaryButtonText = "Community Content",
+                CloseButtonText = "Cancel",
+                XamlRoot = Content.XamlRoot
+            };
+
+            var choice = await dialog.ShowAsync();
+            if (choice == ContentDialogResult.None) return; // Cancelled
 
             var bundleService = new PortableBundleService();
-            var result = bundleService.Import(file.Path, snippetsDir, configsDir);
+            BundleImportResult result;
+
+            if (choice == ContentDialogResult.Primary)
+            {
+                // Import as personal content (existing v0.6.0 behavior)
+                var snippetsDir = _snippetService.UserContent.EnsureUserSnippetsDirectory();
+                var configsDir = _practiceConfigService.EnsureUserConfigsDirectory();
+                result = bundleService.Import(file.Path, snippetsDir, configsDir);
+            }
+            else
+            {
+                // Import as community content
+                var communityDir = _snippetService.CommunityContent.EnsureCommunityContentDirectory();
+                var communitySnippetsDir = Path.Combine(communityDir, "snippets");
+                var communityConfigsDir = Path.Combine(communityDir, "configs");
+                result = bundleService.ImportToCommunity(file.Path, communitySnippetsDir, communityConfigsDir);
+            }
 
             SettingsPanel.ShowBundleStatus(result.Summary);
         }

@@ -167,6 +167,21 @@ public sealed class PortableBundleService
     }
 
     /// <summary>
+    /// Imports a ZIP bundle into community content directories.
+    /// Convenience method that routes to CommunityContent/ instead of UserSnippets/.
+    /// </summary>
+    public BundleImportResult ImportToCommunity(string zipPath, string communitySnippetsDir, string communityConfigsDir)
+    {
+        // Ensure community subdirectories exist
+        if (!Directory.Exists(communitySnippetsDir))
+            Directory.CreateDirectory(communitySnippetsDir);
+        if (!Directory.Exists(communityConfigsDir))
+            Directory.CreateDirectory(communityConfigsDir);
+
+        return Import(zipPath, communitySnippetsDir, communityConfigsDir);
+    }
+
+    /// <summary>
     /// Exports all files from a directory into a ZIP prefix.
     /// Returns the number of files exported.
     /// </summary>
