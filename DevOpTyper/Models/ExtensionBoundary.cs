@@ -112,6 +112,22 @@ public static class ExtensionBoundary
     /// </summary>
     public const int MaxScaffoldHintLength = 200;
 
+    /// <summary>
+    /// Maximum number of alternative demonstrations per snippet.
+    /// Keeps the demonstration panel focused and scannable.
+    /// </summary>
+    public const int MaxDemonstrationsPerSnippet = 3;
+
+    /// <summary>
+    /// Maximum code length for a single demonstration (chars).
+    /// </summary>
+    public const int MaxDemonstrationCodeLength = 3000;
+
+    /// <summary>
+    /// Maximum description length for a demonstration (chars).
+    /// </summary>
+    public const int MaxDemonstrationDescriptionLength = 200;
+
     // ────────────────────────────────────────────────────────
     //  FROZEN — the system guarantees these remain stable
     //

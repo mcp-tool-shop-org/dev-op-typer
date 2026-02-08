@@ -51,6 +51,13 @@ public sealed class Snippet
     public string[] Scaffolds { get; set; } = Array.Empty<string>();
 
     /// <summary>
+    /// Alternative approaches to the same problem (v0.8.0).
+    /// Multiple demonstrations coexist without ranking or recommending.
+    /// No authorship metadata. Labels describe the approach, never the author.
+    /// </summary>
+    public Demonstration[] Demonstrations { get; set; } = Array.Empty<Demonstration>();
+
+    /// <summary>
     /// Multiple perspectives on the snippet (v0.7.0).
     /// Each perspective offers a different viewpoint — no hierarchy,
     /// no single "correct" explanation enforced. Labels describe the

@@ -63,15 +63,17 @@
                 <ColumnDefinition x:Name="SettingsColumn" Width="0"/>
             </Grid.ColumnDefinitions>
             
-            <!-- Typing Panel + Explanation Panel -->
+            <!-- Typing Panel + Between-Session Panels -->
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <panels:TypingPanel x:Name="TypingPanel" Grid.Row="0"/>
                 <panels:ExplanationPanel x:Name="ExplanationPanel" Grid.Row="1" Margin="16,0,16,8"/>
+                <panels:DemonstrationPanel x:Name="DemonstrationPanel" Grid.Row="2" Margin="16,0,16,8"/>
             </Grid>
             
             <!-- Stats Panel -->

@@ -228,6 +228,9 @@ public sealed partial class MainWindow : Window
         // Show explanatory perspectives (if any) between sessions
         ExplanationPanel.SetSnippet(snippet);
 
+        // Show alternative approaches (if any) between sessions
+        DemonstrationPanel.SetSnippet(snippet);
+
         // Show community signal hint (if available and enabled)
         if (_settings.ShowCommunitySignals)
         {
@@ -315,8 +318,9 @@ public sealed partial class MainWindow : Window
             _lastHeatmapIndex = 0;
             _keyboardSound.Reset();
 
-            // Hide explanations during active typing
+            // Hide between-session panels during active typing
             ExplanationPanel.Hide();
+            DemonstrationPanel.Hide();
 
             TypingPanel.FocusTypingBox();
         }
