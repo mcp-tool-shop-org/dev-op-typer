@@ -106,6 +106,13 @@ public static class TypistIdentityService
         // Total sessions
         identity.TotalSessions = history.TotalSessions;
 
+        // Staleness — days since last session of any kind
+        if (longitudinal.SessionTimestamps.Count > 0)
+        {
+            var lastSession = longitudinal.SessionTimestamps[0]; // Newest first
+            identity.DaysSinceLastSession = (int)(DateTime.UtcNow - lastSession).TotalDays;
+        }
+
         // WPM steadiness — coefficient of variation of recent WPM
         // Low CV = consistent; high CV = variable. No judgment on either.
         if (allRecentWpm.Count >= 10)
@@ -215,6 +222,18 @@ public sealed class TypistIdentity
     public int TotalSessions { get; set; }
 
     /// <summary>
+    /// How many days since the last session (any language).
+    /// Null if no sessions recorded. Used for staleness labeling.
+    /// </summary>
+    public int? DaysSinceLastSession { get; set; }
+
+    /// <summary>
+    /// Whether the identity data is considered stale (30+ days since last session).
+    /// Stale data gets a "last active X ago" label. No judgment — just context.
+    /// </summary>
+    public bool IsStale => DaysSinceLastSession.HasValue && DaysSinceLastSession.Value >= 30;
+
+    /// <summary>
     /// Average WPM from the user's earliest sessions in their primary language.
     /// Used for "then vs now" factual comparison. Null if not enough data.
     /// </summary>
@@ -261,6 +280,18 @@ public sealed class TypistIdentity
     public List<string> ToDisplayLines()
     {
         var lines = new List<string>();
+
+        // Staleness notice — neutral, no guilt
+        if (IsStale && DaysSinceLastSession.HasValue)
+        {
+            string agoLabel = DaysSinceLastSession.Value switch
+            {
+                < 60 => $"{DaysSinceLastSession.Value} days ago",
+                < 365 => $"{DaysSinceLastSession.Value / 30} months ago",
+                _ => $"{DaysSinceLastSession.Value / 365}+ years ago"
+            };
+            lines.Add($"Last active {agoLabel} \u2014 data below reflects that period");
+        }
 
         if (!string.IsNullOrEmpty(PrimaryLanguage))
         {
@@ -318,7 +349,8 @@ public sealed class TypistIdentity
         }
 
         // Consistency metrics — factual, never gamified
-        if (WpmVariability.HasValue)
+        // Skip these when data is stale — variability of old sessions isn't meaningful
+        if (WpmVariability.HasValue && !IsStale)
         {
             // Describe variability in neutral terms
             string label = WpmVariability.Value switch
@@ -331,7 +363,7 @@ public sealed class TypistIdentity
             lines.Add($"WPM consistency: {label} (CV {WpmVariability.Value:F2})");
         }
 
-        if (AccuracyStdDev.HasValue)
+        if (AccuracyStdDev.HasValue && !IsStale)
         {
             string label = AccuracyStdDev.Value switch
             {
