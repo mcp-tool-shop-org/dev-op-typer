@@ -341,9 +341,10 @@ public sealed partial class MainWindow : Window
             _lastHeatmapIndex = 0;
             _keyboardSound.Reset();
 
-            // Hide between-session panels during active typing
+            // Hide between-session panels and hints during active typing
             ExplanationPanel.Hide();
             DemonstrationPanel.Hide();
+            TypingPanel.HideGuidance();
 
             TypingPanel.FocusTypingBox();
         }
