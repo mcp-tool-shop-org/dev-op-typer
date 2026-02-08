@@ -76,6 +76,48 @@ Snapshots are observations, not evaluations.
 
 ---
 
+## Reflection (v0.4.0)
+
+v0.4.0 adds optional reflective capabilities. These exist for users who find them helpful. They are never required, never prompted, and never gate any feature.
+
+### Declared Intent
+
+Users can optionally label sessions with a declared intent:
+
+| Intent | What the user is saying |
+|---|---|
+| `Focus` | "I want to work on something specific." |
+| `Challenge` | "I want to stretch myself." |
+| `Maintenance` | "I want to stay in shape." |
+| `Exploration` | "I want to see what's out there." |
+
+Declared intent is stored with the session. The system never acts on it — no scoring changes, no difficulty adjustments, no snippet selection bias. It exists solely for the user's own retrospective awareness.
+
+### Session Retrospective
+
+After a session completes, the completion banner can show a brief retrospective: WPM/accuracy delta vs recent average, declared intent, difficulty context. This section uses only factual language — no "good," "bad," "improvement," or "regression."
+
+### Session Notes
+
+Users can attach a free-text note to any completed session (max 280 chars). Notes are private, local, unstructured, and never read by the system. They appear in session history with a pencil icon.
+
+### Intent Patterns
+
+The StatsPanel shows a "By Intent" section with factual averages grouped by declared intent. This section only appears when the user has 2+ sessions per intent — it requires deliberate engagement and does not appear unsolicited.
+
+### What reflection does NOT include
+
+- No prompts asking the user to reflect
+- No "reflection score" or "consistency tracker"
+- No notifications about missed reflections
+- No auto-generated insights or interpretations
+- No "streak" of consecutive notes or intents
+- No comparison of "intent performance" as good or bad
+
+Use if helpful. Ignore if not.
+
+---
+
 ## What the System Deliberately Does Not Do
 
 - **No daily streaks.** The system records when you practice. It does not reward consistency or punish gaps.
@@ -83,6 +125,7 @@ Snapshots are observations, not evaluations.
 - **No scoring of trends.** The system stores data points. It does not compute "improvement scores" or "regression alerts."
 - **No social comparisons.** All data is local. There are no leaderboards, rankings, or peer comparisons.
 - **No cloud sync.** All data lives on the user's machine. Nothing leaves the device.
+- **No forced reflection.** Retrospectives, notes, and intents are optional. They never interrupt, gate, or pressure.
 
 ---
 
@@ -95,6 +138,8 @@ Snapshots are observations, not evaluations.
 | Language trend points | Indefinite | 50 per language |
 | Weakness snapshots | Indefinite | 90 most recent |
 | Practice context | Per-session | Stored with record |
+| Declared intent | Per-session | Stored with record |
+| Session notes | Per-session | Stored with record (max 280 chars) |
 
 All data can be exported as JSON. All data can be reset.
 
@@ -110,6 +155,13 @@ v0.3.0 data additions are designed to coexist with v0.2.0 persisted state:
 - **SanitizeBlob** null-checks all new fields on load, ensuring corrupt or partial data never crashes the app.
 - **No behavior change.** Existing workflows (start, type, complete, next snippet) execute identically with or without v0.3.0 data.
 
+v0.4.0 follows the same pattern:
+
+- **DeclaredIntent** and **Note** on SessionRecord are nullable. Pre-v0.4.0 sessions have both as `null`.
+- **Practice preferences** (ShowIntentChips, DefaultIntent, PracticeNote) default to sensible values.
+- **No schema version bump required.** All new fields are nullable or have defaults.
+- **No behavior change.** v0.3.0 workflows execute identically. Intent markers add data but never alter control flow.
+
 ---
 
 ## Philosophy
@@ -118,4 +170,4 @@ The system exists to **support** deliberate practice, not to **manage** it.
 
 A developer who opens the app, types one snippet, and closes it had a valid session. A developer who practices for two hours with structured focus had a valid session. The system treats both equally.
 
-Randomness remains valid. Structure exists for those who want it.
+Randomness remains valid. Structure exists for those who want it. Reflection exists for those who find it useful.
