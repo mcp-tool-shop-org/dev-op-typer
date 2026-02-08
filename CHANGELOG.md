@@ -5,6 +5,48 @@ All notable changes to Dev-Op-Typer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-02-08
+
+### Theme: Extensible Practice Instrument
+
+v0.6.0 lets advanced users shape how they practice — authoring their own snippets, defining practice configurations, and exporting their work as portable bundles. Creation is personal, not performative. No accounts, no platforms, no gamification of authorship.
+
+### Added
+- **User-authored snippets** — Create JSON snippet files in `%LOCALAPPDATA%/DevOpTyper/UserSnippets/`. Loaded on startup, merged into the normal rotation. Same scoring, same XP, same session records as built-in content.
+- **Subdirectory organization** — Organize snippets in one level of subdirectories within UserSnippets/. Language derived from filename or declared per-snippet in JSON.
+- **Mixed-language collections** — Snippets that declare their own `language` in JSON are grouped by that language, not the filename. Enables collections like "my-favorites.json" spanning multiple languages.
+- **Extension boundaries** — `ExtensionBoundary` class declares what users may extend (snippets, configs) and what's frozen (typing engine, XP, persistence, identity). Validates snippet files against limits (50 files, 200 snippets/file, 5000 chars/snippet).
+- **Practice configurations** — `PracticeConfig` lets users create named session presets: difficulty bias (easier/harder/match), language override, and typing rule overrides (whitespace, backspace, accuracy floor).
+- **Config service** — `PracticeConfigService` discovers configs from `UserConfigs/` directory. Config dropdown in Settings panel with description text.
+- **Portable bundles** — Export all user content as a standard ZIP (snippets/ + configs/ + manifest.json). Import bundles via file picker — never overwrites existing files.
+- **Data isolation guards** — User content directories validated against app install path. Import sanitizes paths and rejects directory traversal attempts. Built-in assets are read-only.
+- **Your Snippets section** — Settings panel shows snippet count, load errors, and Open Folder / Export / Import buttons with access keys.
+
+### Changed
+- **"User Snippets" → "Your Snippets"** — Section heading uses personal language, not technical.
+- **DifficultyProfile.TargetDifficulty** — Changed from `init` to `set` so practice configs can apply difficulty bias.
+- **LanguageTrack.HasUserContent** — Display-only flag for tracks containing user-authored snippets.
+- **Snippet.IsUserAuthored** — JsonIgnore flag set during loading; never affects scoring or selection.
+
+### Accessibility
+- Snippet status text uses `LiveSetting="Polite"`, errors use `LiveSetting="Assertive"`.
+- Status and error TextBlocks are not tab stops — keyboard flows to action buttons.
+- Config dropdown has accessible name, tooltip, and description with polite live setting.
+- Export/Import/Open Folder buttons have access keys (E/I/O) and descriptive tooltip text.
+- Bundle status announced politely after operations.
+
+### Documentation
+- **AGENCY.md Extensibility Philosophy** — What may be extended, what's frozen, 6 design constraints, extension safety, verification checklist.
+- **Authorship Without Gamification** — No likes, no ratings, no leaderboards. Creation is personal.
+- **Portable Bundle Format** — ZIP structure, snippet JSON schema, config JSON schema, manifest format, design guarantees.
+
+### Technical
+- **Zero coupling maintained** — All 8 frozen services (TypingEngine, SessionState, PersistenceService, TypistIdentityService, SmartSnippetSelector, AdaptiveDifficultyEngine, TrendAnalyzer, WeaknessTracker) have zero references to v0.6.0 extension types.
+- v0.6.0 features live in: UserContentService, PracticeConfigService, PortableBundleService, SnippetService merge logic, and UI wiring.
+- Speculative extension points (Warmup, PreferShorterSnippets, FocusTopic) removed before release — if it wasn't wired, it shouldn't exist.
+- Frozen service/format/behavior guarantees moved from runtime arrays to design comments.
+- No schema version bump — all new features use separate files, not persisted blob changes.
+
 ## [0.5.0] - 2026-02-08
 
 ### Theme: Companion for Lifelong Practice
@@ -213,6 +255,8 @@ v0.4.0 puts the developer in control of how and why they practice. The system ob
 
 ---
 
+[0.6.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.6.0
+[0.5.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.5.0
 [0.4.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.4.0
 [0.3.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.3.0
 [0.2.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.2.0
