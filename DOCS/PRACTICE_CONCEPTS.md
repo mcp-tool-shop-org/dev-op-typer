@@ -100,6 +100,18 @@ All data can be exported as JSON. All data can be reset.
 
 ---
 
+## Backward Compatibility
+
+v0.3.0 data additions are designed to coexist with v0.2.0 persisted state:
+
+- **PracticeContext** is nullable on SessionRecord. v0.2.0 sessions have `Context = null`.
+- **LongitudinalData** defaults to empty collections. Missing fields deserialize safely via `System.Text.Json` defaults.
+- **No schema version bump required.** All new fields use default initializers (`new()`, `null`).
+- **SanitizeBlob** null-checks all new fields on load, ensuring corrupt or partial data never crashes the app.
+- **No behavior change.** Existing workflows (start, type, complete, next snippet) execute identically with or without v0.3.0 data.
+
+---
+
 ## Philosophy
 
 The system exists to **support** deliberate practice, not to **manage** it.
