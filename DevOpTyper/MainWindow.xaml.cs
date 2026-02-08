@@ -221,9 +221,12 @@ public sealed partial class MainWindow : Window
         }
 
         // Show scaffold hints (if available and enabled)
+        // Scaffolds fade as the user demonstrates competence with this snippet
         if (_settings.ShowScaffolds)
         {
-            TypingPanel.ShowScaffold(snippet.Scaffolds);
+            var scaffoldBlob = _persistenceService.Load();
+            var opacity = ScaffoldFadeService.ComputeOpacity(snippet.Id, scaffoldBlob.History);
+            TypingPanel.ShowScaffold(snippet.Scaffolds, opacity);
         }
         else
         {
