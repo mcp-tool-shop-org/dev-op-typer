@@ -75,6 +75,13 @@ public sealed class PortableBundleService
                 {
                     zip.CreateEntryFromFile(signalsPath, "signals.json");
                 }
+
+                // Export guidance.json if present
+                var guidancePath = Path.Combine(communityContent.CommunityContentPath, "guidance.json");
+                if (File.Exists(guidancePath))
+                {
+                    zip.CreateEntryFromFile(guidancePath, "guidance.json");
+                }
             }
 
             // Write manifest
@@ -232,6 +239,23 @@ public sealed class PortableBundleService
                         if (File.Exists(targetPath))
                             File.Delete(targetPath);
                         signalsEntry.ExtractToFile(targetPath);
+                    }
+                }
+
+                // Extract guidance.json to community root if present
+                var guidanceEntry = zip.Entries.FirstOrDefault(e =>
+                    e.FullName.Equals("guidance.json", StringComparison.OrdinalIgnoreCase));
+
+                if (guidanceEntry != null)
+                {
+                    var communityRoot = Path.GetDirectoryName(communitySnippetsDir);
+                    if (communityRoot != null)
+                    {
+                        var targetPath = Path.Combine(communityRoot, "guidance.json");
+                        // Overwrite guidance — newer bundle data replaces older
+                        if (File.Exists(targetPath))
+                            File.Delete(targetPath);
+                        guidanceEntry.ExtractToFile(targetPath);
                     }
                 }
             }

@@ -114,7 +114,7 @@ public sealed partial class MainWindow : Window
         SettingsPanel.ImportBundleRequested += OnImportBundle;
         SettingsPanel.OpenCommunityFolderRequested += OnOpenCommunityFolder;
 
-        // Community content status
+        // Community content status (updated again after guidance init — see below)
         SettingsPanel.UpdateCommunityContentStatus(_snippetService.CommunityContent);
 
         // Community signals toggle
@@ -160,6 +160,10 @@ public sealed partial class MainWindow : Window
 
         // Guidance notes (display-only — never affects frozen services)
         _guidanceService.Initialize();
+
+        // Refresh community status now that guidance is loaded
+        SettingsPanel.UpdateCommunityContentStatus(
+            _snippetService.CommunityContent, _guidanceService.GuidanceCount);
 
         // Practice configs
         _practiceConfigService.Initialize();

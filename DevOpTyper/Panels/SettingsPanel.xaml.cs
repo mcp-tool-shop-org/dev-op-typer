@@ -618,14 +618,27 @@ public sealed partial class SettingsPanel : UserControl
     /// Updates the community content status display.
     /// Follows the same pattern as UpdateUserSnippetStatus.
     /// </summary>
-    public void UpdateCommunityContentStatus(Services.CommunityContentService communityContent)
+    public void UpdateCommunityContentStatus(Services.CommunityContentService communityContent,
+        int guidanceNoteCount = 0)
     {
         if (CommunityContentStatus == null) return;
 
-        if (communityContent.HasCommunityContent)
+        if (communityContent.HasCommunityContent || guidanceNoteCount > 0)
         {
             // Use the enhanced summary that includes age info
-            var statusText = communityContent.GetContentSummary();
+            var statusText = communityContent.HasCommunityContent
+                ? communityContent.GetContentSummary()
+                : "";
+
+            // Append guidance note count if available
+            if (guidanceNoteCount > 0)
+            {
+                var guidanceSuffix = $"{guidanceNoteCount} guidance note(s)";
+                statusText = string.IsNullOrEmpty(statusText)
+                    ? guidanceSuffix
+                    : $"{statusText} · {guidanceSuffix}";
+            }
+
             CommunityContentStatus.Text = statusText;
             Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
                 CommunityContentStatus, $"Community content: {statusText}");
