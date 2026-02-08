@@ -168,7 +168,8 @@
                            AutomationProperties.HeadingLevel="Level2"/>
 
                 <StackPanel x:Name="IdentityContainer" Spacing="4" Visibility="Collapsed"
-                            AutomationProperties.Name="Longitudinal typing identity"/>
+                            AutomationProperties.Name="Longitudinal typing identity"
+                            AutomationProperties.LiveSetting="Off"/>
 
                 <!-- Divider -->
                 <Border x:Name="TrendDivider" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4" Visibility="Collapsed"/>
@@ -209,7 +210,8 @@
                            AutomationProperties.HeadingLevel="Level2"/>
 
                 <StackPanel x:Name="PatternContainer" Spacing="4" Visibility="Collapsed"
-                            AutomationProperties.Name="Practice pattern observations"/>
+                            AutomationProperties.Name="Practice pattern observations"
+                            AutomationProperties.LiveSetting="Off"/>
 
                 <!-- Divider -->
                 <Border x:Name="SuggestionDivider" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4" Visibility="Collapsed"/>

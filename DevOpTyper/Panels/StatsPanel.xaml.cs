@@ -426,7 +426,8 @@ public sealed partial class StatsPanel : UserControl
                 FontSize = 11,
                 Foreground = (Brush)Application.Current.Resources["DotTextMutedBrush"],
                 TextWrapping = TextWrapping.Wrap,
-                IsTextSelectionEnabled = true
+                IsTextSelectionEnabled = true,
+                IsTabStop = false
             };
             Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
                 block, $"Identity: {line}");
@@ -462,10 +463,11 @@ public sealed partial class StatsPanel : UserControl
                 FontSize = 11,
                 Foreground = (Brush)Application.Current.Resources["DotTextMutedBrush"],
                 TextWrapping = TextWrapping.Wrap,
-                IsTextSelectionEnabled = true
+                IsTextSelectionEnabled = true,
+                IsTabStop = false
             };
             Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
-                block, $"Pattern observation: {obs}");
+                block, $"Practice rhythm: {obs}");
             PatternContainer.Children.Add(block);
         }
     }
