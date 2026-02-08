@@ -75,6 +75,12 @@
                                Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
                 </StackPanel>
 
+                <!-- Pacing indicator (Phase 3) -->
+                <TextBlock x:Name="PacingLabel"
+                           FontSize="11"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Visibility="Collapsed"/>
+
                 <!-- Divider -->
                 <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4"/>
 
@@ -82,6 +88,12 @@
                 <TextBlock Text="Weak Spots"
                            FontSize="14"
                            FontWeight="SemiBold"/>
+
+                <!-- Weakness summary with trajectory (Phase 3) -->
+                <TextBlock x:Name="WeaknessSummaryText"
+                           FontSize="10"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Visibility="Collapsed"/>
 
                 <TextBlock x:Name="WeakSpotsEmpty"
                            Text="Complete a few sessions to see your weaknesses."

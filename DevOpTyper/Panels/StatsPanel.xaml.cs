@@ -44,12 +44,22 @@ public sealed partial class StatsPanel : UserControl
     }
 
     /// <summary>
-    /// Updates the Weak Spots section from the heatmap.
-    /// Call after each session completes to show current weaknesses.
+    /// Updates the Weak Spots section from the heatmap, with optional trajectory context.
     /// </summary>
-    public void UpdateWeakSpots(MistakeHeatmap heatmap)
+    public void UpdateWeakSpots(MistakeHeatmap heatmap, WeaknessReport? report = null)
     {
         WeakSpotsContainer.Children.Clear();
+
+        // Show weakness summary if report has trajectory data (Phase 3)
+        if (report != null && report.HasData && !string.IsNullOrEmpty(report.Summary))
+        {
+            WeaknessSummaryText.Text = report.Summary;
+            WeaknessSummaryText.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            WeaknessSummaryText.Visibility = Visibility.Collapsed;
+        }
 
         var weakest = heatmap.GetWeakest(count: 5, minAttempts: 3);
 
@@ -63,10 +73,45 @@ public sealed partial class StatsPanel : UserControl
         WeakSpotsEmpty.Visibility = Visibility.Collapsed;
         WeakSpotsContainer.Visibility = Visibility.Visible;
 
+        // Build a trajectory lookup from the report
+        var trajectoryMap = new Dictionary<char, WeaknessTrajectory>();
+        if (report?.Items != null)
+        {
+            foreach (var item in report.Items)
+                trajectoryMap[item.Character] = item.Trajectory;
+        }
+
         foreach (var w in weakest)
         {
-            var row = CreateWeakSpotRow(w);
+            trajectoryMap.TryGetValue(w.Character, out var trajectory);
+            var row = CreateWeakSpotRow(w, trajectory);
             WeakSpotsContainer.Children.Add(row);
+        }
+
+        // Show resolved weaknesses if any (Phase 3)
+        if (report?.ResolvedWeaknesses.Count > 0)
+        {
+            var resolvedHeader = new TextBlock
+            {
+                Text = "Resolved",
+                FontSize = 11,
+                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 80, 200, 120)),
+                Margin = new Thickness(0, 4, 0, 0)
+            };
+            WeakSpotsContainer.Children.Add(resolvedHeader);
+
+            foreach (var resolved in report.ResolvedWeaknesses.Take(3))
+            {
+                string charDisp = resolved.Character == ' ' ? "SP" : resolved.Character.ToString();
+                var resolvedRow = new TextBlock
+                {
+                    Text = $"\u2713 {charDisp} ({resolved.OldErrorRate:P0} \u2192 {resolved.CurrentErrorRate:P0})",
+                    FontSize = 10,
+                    Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(180, 80, 200, 120))
+                };
+                WeakSpotsContainer.Children.Add(resolvedRow);
+            }
         }
 
         // Also show group weaknesses if any
@@ -89,6 +134,21 @@ public sealed partial class StatsPanel : UserControl
                 WeakSpotsContainer.Children.Add(groupRow);
             }
         }
+    }
+
+    /// <summary>
+    /// Updates the pacing indicator from SessionPacer snapshot.
+    /// </summary>
+    public void UpdatePacing(PacingSnapshot pacing)
+    {
+        if (pacing.SessionsThisLaunch == 0 && pacing.SessionsToday == 0)
+        {
+            PacingLabel.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        PacingLabel.Visibility = Visibility.Visible;
+        PacingLabel.Text = $"{pacing.PaceLabel} \u2022 {pacing.SessionsToday} today \u2022 {pacing.TimeSinceLastSession}";
     }
 
     /// <summary>
@@ -191,14 +251,14 @@ public sealed partial class StatsPanel : UserControl
 
     #region UI Row Builders
 
-    private static Grid CreateWeakSpotRow(CharWeakness w)
+    private static Grid CreateWeakSpotRow(CharWeakness w, WeaknessTrajectory trajectory = WeaknessTrajectory.New)
     {
         var grid = new Grid();
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-        // Character display
+        // Character display with trajectory indicator
         string charDisplay = w.Character switch
         {
             ' ' => "SP",
@@ -208,13 +268,28 @@ public sealed partial class StatsPanel : UserControl
             _ => w.Character.ToString()
         };
 
+        // Trajectory arrow prefix
+        string trajectoryMark = trajectory switch
+        {
+            WeaknessTrajectory.Improving => "\u2193", // Down arrow (error rate decreasing)
+            WeaknessTrajectory.Worsening => "\u2191", // Up arrow (error rate increasing)
+            WeaknessTrajectory.Steady => "\u2022",    // Bullet (stable)
+            _ => ""                                    // New — no mark
+        };
+
         var charBlock = new TextBlock
         {
-            Text = charDisplay,
+            Text = trajectoryMark.Length > 0 ? $"{trajectoryMark}{charDisplay}" : charDisplay,
             FontFamily = new FontFamily("Consolas"),
             FontSize = 14,
             FontWeight = Microsoft.UI.Text.FontWeights.Bold,
-            VerticalAlignment = VerticalAlignment.Center
+            VerticalAlignment = VerticalAlignment.Center,
+            Foreground = trajectory switch
+            {
+                WeaknessTrajectory.Improving => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 80, 200, 120)),
+                WeaknessTrajectory.Worsening => (Brush)Application.Current.Resources["DotErrorBrush"],
+                _ => (Brush)Application.Current.Resources["DotTextBrush"]
+            }
         };
         Grid.SetColumn(charBlock, 0);
 

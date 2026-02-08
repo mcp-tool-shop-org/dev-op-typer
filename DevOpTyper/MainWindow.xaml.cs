@@ -20,6 +20,9 @@ public sealed partial class MainWindow : Window
     private readonly TrendAnalyzer _trendAnalyzer = new();
     private readonly FatigueDetector _fatigueDetector = new();
     private readonly PracticeRecommender _recommender = new();
+    private readonly AdaptiveDifficultyEngine _adaptiveDifficulty = new();
+    private readonly SessionPacer _sessionPacer = new();
+    private readonly WeaknessTracker _weaknessTracker = new();
     private Profile _profile = new();
     private AppSettings _settings = new();
     private bool _settingsPanelOpen = false;
@@ -85,6 +88,9 @@ public sealed partial class MainWindow : Window
         // Restore typing rules UI from saved settings
         SettingsPanel.LoadTypingRules(_settings.TypingRules);
 
+        // Session pacing (Phase 3)
+        _sessionPacer.OnAppLaunched();
+
         // Initial state
         UpdateLevelBadge();
         RefreshAnalytics(persisted);
@@ -102,9 +108,17 @@ public sealed partial class MainWindow : Window
     private void LoadNewSnippet()
     {
         var language = SettingsPanel.SelectedLanguage;
+        var blob = _persistenceService.Load();
 
-        // Use smart selection for better learning experience
-        var snippet = _smartSelector.SelectNext(language, _profile);
+        // Compute adaptive difficulty and weakness report (Phase 3)
+        var difficultyProfile = _adaptiveDifficulty.ComputeDifficulty(
+            language, _profile, blob.Longitudinal);
+        var weaknessReport = _weaknessTracker.GetReport(
+            language, _profile.Heatmap, blob.Longitudinal);
+
+        // Use adaptive selection with trend-aware difficulty and trajectory scoring
+        var snippet = _smartSelector.SelectAdaptive(
+            language, _profile, difficultyProfile, weaknessReport);
 
         TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
         _currentSnippet = snippet;
@@ -154,6 +168,7 @@ public sealed partial class MainWindow : Window
 
             _typingEngine.PracticeContext = context;
             _typingEngine.StartSession(_currentSnippet, hardcore, rules);
+            _sessionPacer.OnSessionStarted();
             _lastHeatmapIndex = 0;
             _keyboardSound.Reset();
             TypingPanel.FocusTypingBox();
@@ -270,6 +285,7 @@ public sealed partial class MainWindow : Window
         {
             // Play completion sound
             _keyboardSound.OnSessionComplete();
+            _sessionPacer.OnSessionCompleted();
 
             // Update profile with results
             _profile.AddXp(e.XpEarned);
@@ -331,15 +347,24 @@ public sealed partial class MainWindow : Window
     /// </summary>
     private void RefreshAnalytics(PersistedBlob blob)
     {
-        StatsPanel.UpdateWeakSpots(blob.Profile.Heatmap);
+        var language = SettingsPanel.SelectedLanguage;
+
+        // Weakness report with trajectory context (Phase 3)
+        var weaknessReport = _weaknessTracker.GetReport(
+            language, blob.Profile.Heatmap, blob.Longitudinal);
+        StatsPanel.UpdateWeakSpots(blob.Profile.Heatmap, weaknessReport);
+
         StatsPanel.UpdateHistory(blob.History);
 
         // Trend analysis (Phase 2)
         var trends = _trendAnalyzer.AnalyzeAll(blob.Longitudinal);
         StatsPanel.UpdateTrends(trends);
 
+        // Pacing snapshot (Phase 3)
+        var pacing = _sessionPacer.GetSnapshot(blob.Longitudinal);
+        StatsPanel.UpdatePacing(pacing);
+
         // Practice suggestions (Phase 2)
-        var language = SettingsPanel.SelectedLanguage;
         var suggestions = _recommender.Suggest(blob, language);
         StatsPanel.UpdateSuggestions(suggestions);
     }
