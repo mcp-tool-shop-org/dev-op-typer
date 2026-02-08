@@ -835,3 +835,20 @@ Any teaching feature must satisfy:
 32. No v0.8.0 feature gates content by user level, rating, or session count.
 33. LayersPanel.SetSnippet() has no parameters or branches for user level/history.
 34. ScaffoldFadeService fades by per-snippet completions, never by user level.
+
+### Frozen Service Audit Matrix (v0.8.0)
+
+All 8 frozen services must have zero references to any v0.8.0 type. This matrix confirms the isolation.
+
+| Frozen Service | ScaffoldFadeService | Demonstration | DemonstrationPanel | GuidanceNote | GuidanceService | SkillLayer | LayersPanel |
+|---|---|---|---|---|---|---|---|
+| TypingEngine | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| SessionState | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| PersistenceService | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| SmartSnippetSelector | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| AdaptiveDifficultyEngine | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| TrendAnalyzer | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| WeaknessTracker | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| TypistIdentityService | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+
+✗ = zero references confirmed. All v0.8.0 types are display-only and isolated from frozen core.

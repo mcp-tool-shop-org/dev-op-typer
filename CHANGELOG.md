@@ -5,6 +5,59 @@ All notable changes to Dev-Op-Typer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-02-08
+
+### Theme: Quiet Teaching & Mentorship
+
+v0.8.0 lets developers learn from quiet demonstrations without turning practice into a course. Pedagogy without hierarchy — optional scaffolds, alternative approaches, contextual guidance, and layered depth. No curricula, no teachers, no progress gates. Just material that speaks to the learner at whatever level they choose.
+
+### Added
+- **Scaffold hints** — Optional `Scaffolds` field on snippets: short cues that help users notice patterns ("Watch the bracket alignment", "Semicolons at line ends"). Displayed below community hints during practice.
+- **Scaffold fading** — `ScaffoldFadeService` computes opacity from per-snippet completion history. 0 completions → full opacity; 1 good → dimmed; 2+ good → faint; 3+ → hidden. Stateless — no persisted fade state, recomputed each load.
+- **Demonstrations** — `Demonstration` model (Label + Code + Description) for alternative approaches to the same problem. Multiple approaches coexist without ranking. No author attribution. Labels describe the approach, never the author.
+- **DemonstrationPanel** — Collapsible panel showing alternative approaches between sessions. Each demonstration in its own bordered card. Hidden during active typing. Code blocks are text-selectable.
+- **Guidance notes** — `GuidanceNote` model and `GuidanceService` load contextual observations from `guidance.json` in CommunityContent/. Collective language, display-only. Dismissible per-session with no dismissal tracking.
+- **Guidance in UI** — Subtle guidance area below scaffold hints using collective language ("Many find the nesting tricky here"). Dismiss button hides for current snippet only. Next snippet re-shows.
+- **Skill layers** — `SkillLayer` model (Label + Content[]) for depth tiers on snippets. Labels describe depth ("Essentials", "Deeper", "Advanced"), not the user. All layers accessible to all users at all times.
+- **LayersPanel** — Collapsible panel with individually-expandable layers. All layer labels visible, content starts collapsed. First layer uses primary foreground; deeper layers use secondary. No "recommended" or "start here" labeling.
+- **Four teaching toggles** — `ShowScaffolds`, `ShowDemonstrations`, `ShowGuidance`, `ShowSkillLayers` in AppSettings. Each independently toggleable, defaults to true, zero impact on scoring when disabled. Real-time UI response.
+- **Teaching section in Settings** — Dedicated section with all four toggles, descriptive headers, and immediate visual feedback.
+- **Guidance in portable bundles** — `guidance.json` included in bundle export/import alongside `signals.json`.
+
+### Boundaries
+- **MaxScaffoldHints = 5** — Scaffolds are short cues; too many defeats their purpose
+- **MaxScaffoldHintLength = 200** — Hints must be brief enough to scan at a glance
+- **MaxDemonstrationsPerSnippet = 3** — Keeps the demonstration panel focused and scannable
+- **MaxDemonstrationCodeLength = 3000** — Reasonable limit for alternative code approaches
+- **MaxDemonstrationDescriptionLength = 200** — Descriptions stay concise
+- **MaxGuidanceNotesPerSnippet = 5** — Guidance notes are short collective observations
+- **MaxGuidanceNoteLength = 200** — Notes must be brief observations, not instruction
+- **MaxLayersPerSnippet = 4** — Layers offer depth, not breadth
+- **MaxContentPerLayer = 8** — Keeps individual layers scannable
+- **MaxLayerContentLength = 300** — Short content stays descriptive
+
+### Accessibility
+- ScaffoldHints: `IsTabStop="False"`, `LiveSetting="Off"`, non-interrupting during typing.
+- DemonstrationPanel: `LiveSetting="Off"` on content area. ToggleButton `TabIndex="201"` with tooltip. Code blocks `IsTextSelectionEnabled="True"`, `IsTabStop="False"`. Labels have HeadingLevel.Level3.
+- GuidanceArea: `IsTabStop="False"`, `LiveSetting="Off"`. Dismiss button has `AutomationProperties.Name="Dismiss guidance"`. Hidden during active typing.
+- LayersPanel: ToggleButton `TabIndex="202"`. Each layer expandable via keyboard. Labels have HeadingLevel.Level3. `LiveSetting="Off"` on content.
+- Teaching section in Settings: Heading Level 2, descriptive `AutomationProperties.Name` on all toggles.
+
+### Documentation
+- **Teaching Philosophy** — Pedagogy without hierarchy, scaffolds as optional supports, demonstrations over explanations, mentorship without mentors, learning without levels
+- **Demonstrations as Alternatives, Not Corrections** — Multiple valid approaches, no ranking, no "the answer", display-only between sessions
+- **Mentorship Without Mentors** — Guidance from collective experience, no attribution, always dismissible, collective language rules, optional enhancement never dependency
+- **Inclusive Learning Without Levels** — Labels describe depth not users, no content gating, no beginner/expert modes, no curricula, no completion certificates
+- **Frozen Service Audit Matrix** — 8 frozen services × 7 v0.8.0 types = zero references confirmed
+
+### Technical
+- **Zero coupling maintained** — All 8 frozen services (TypingEngine, SessionState, PersistenceService, SmartSnippetSelector, AdaptiveDifficultyEngine, TrendAnalyzer, WeaknessTracker, TypistIdentityService) have zero references to any v0.8.0 type (verified by grep at release).
+- v0.8.0 features live in: ScaffoldFadeService, DemonstrationPanel, GuidanceService, LayersPanel, Snippet model extensions, and UI wiring.
+- New persisted fields: `AppSettings.ShowScaffolds/ShowDemonstrations/ShowGuidance/ShowSkillLayers` (all default safely to true). Guidance data lives on filesystem, not in PersistedBlob.
+- No network calls — all teaching content is local: inline on snippets (scaffolds, demonstrations, layers) or in community files (guidance.json).
+- No identity — no teacher/student roles, no author attribution, no progress gating.
+- Backward compatible — removing teaching data from snippets and deleting guidance.json returns app to exact v0.7.0 behavior. All new Snippet fields are arrays defaulting to empty.
+
 ## [0.7.0] - 2026-02-08
 
 ### Theme: Community Without Platforms
@@ -302,6 +355,7 @@ v0.4.0 puts the developer in control of how and why they practice. The system ob
 
 ---
 
+[0.8.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.8.0
 [0.7.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.7.0
 [0.6.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.6.0
 [0.5.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.5.0
