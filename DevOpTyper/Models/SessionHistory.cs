@@ -56,6 +56,16 @@ public sealed class SessionRecord
     public double DurationSeconds { get; set; }
 
     /// <summary>
+    /// Difficulty level of the snippet (1-5).
+    /// </summary>
+    public int Difficulty { get; set; } = 1;
+
+    /// <summary>
+    /// XP earned from this session.
+    /// </summary>
+    public int XpEarned { get; set; }
+
+    /// <summary>
     /// Whether hardcore mode was enabled.
     /// </summary>
     public bool HardcoreMode { get; set; }
@@ -77,6 +87,8 @@ public sealed class SessionRecord
         int errorCount,
         int totalChars,
         TimeSpan duration,
+        int difficulty,
+        int xpEarned,
         bool hardcoreMode)
     {
         return new SessionRecord
@@ -89,6 +101,8 @@ public sealed class SessionRecord
             ErrorCount = errorCount,
             TotalChars = totalChars,
             DurationSeconds = Math.Round(duration.TotalSeconds, 1),
+            Difficulty = difficulty,
+            XpEarned = xpEarned,
             HardcoreMode = hardcoreMode
         };
     }

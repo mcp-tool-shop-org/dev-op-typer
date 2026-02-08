@@ -95,6 +95,11 @@ public sealed class AppSettings
     /// </summary>
     public bool ShowCompletionOverlay { get; set; } = true;
 
+    /// <summary>
+    /// Typing comparison rules (whitespace, line endings, backspace, accuracy floor).
+    /// </summary>
+    public TypingRules TypingRules { get; set; } = new();
+
     #endregion
 
     #region Display Settings
@@ -241,6 +246,7 @@ public sealed class AppSettings
             AutoAdvance = AutoAdvance,
             AutoAdvanceDelay = AutoAdvanceDelay,
             ShowCompletionOverlay = ShowCompletionOverlay,
+            TypingRules = TypingRules.Clone(),
             HighContrast = HighContrast,
             CodeFontSize = CodeFontSize,
             SidebarOpen = SidebarOpen,

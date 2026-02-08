@@ -14,6 +14,8 @@ public sealed class TypingEngine
     private Snippet? _currentSnippet;
     private string _lastTyped = "";
     private CharDiff[] _currentDiff = Array.Empty<CharDiff>();
+    private TypingRules _rules = new();
+    private string _normalizedTarget = "";
 
     public event EventHandler<TypingResultEventArgs>? SessionCompleted;
     public event EventHandler? SessionStarted;
@@ -57,6 +59,22 @@ public sealed class TypingEngine
     public int XpEarned => _session.XpEarned;
 
     /// <summary>
+    /// Gets the elapsed time of the current/last session.
+    /// </summary>
+    public TimeSpan Elapsed => _session.Elapsed;
+
+    /// <summary>
+    /// Sets the repeat count for diminishing XP returns.
+    /// Call before StartSession with the number of times this snippet
+    /// has been typed recently.
+    /// </summary>
+    public int RepeatCount
+    {
+        get => _session.RepeatCount;
+        set => _session.RepeatCount = value;
+    }
+
+    /// <summary>
     /// Gets the current character diff array.
     /// </summary>
     public CharDiff[] CurrentDiff => _currentDiff;
@@ -74,13 +92,23 @@ public sealed class TypingEngine
     /// <summary>
     /// Starts a new typing session with the given snippet.
     /// </summary>
-    public void StartSession(Snippet snippet, bool hardcoreMode = false)
+    public void StartSession(Snippet snippet, bool hardcoreMode = false, TypingRules? rules = null)
     {
         _currentSnippet = snippet ?? throw new ArgumentNullException(nameof(snippet));
+        _rules = rules ?? new TypingRules();
         _lastTyped = "";
-        _currentDiff = _diffAnalyzer.ComputeDiff(snippet.Code ?? "", "");
-        _hardcoreEnforcer.Initialize(snippet.Code ?? "", hardcoreMode);
-        _session.Start(snippet.Code ?? "");
+
+        // Normalize target text using active typing rules (applied once at session start)
+        _normalizedTarget = _rules.NormalizeText(snippet.Code ?? "");
+
+        _currentDiff = _diffAnalyzer.ComputeDiff(_normalizedTarget, "");
+        _hardcoreEnforcer.Initialize(_normalizedTarget, hardcoreMode);
+
+        // Pass difficulty and accuracy floor to session for XP calculation
+        _session.Difficulty = snippet.Difficulty;
+        _session.AccuracyFloor = _rules.AccuracyFloorForXp;
+
+        _session.Start(_normalizedTarget);
         SessionStarted?.Invoke(this, EventArgs.Empty);
         DiffUpdated?.Invoke(this, _currentDiff);
     }
@@ -97,31 +125,33 @@ public sealed class TypingEngine
 
         typed ??= "";
 
+        // Normalize typed text using the same rules applied to the target
+        var normalizedTyped = _rules.NormalizeText(typed);
+
         // Apply hardcore mode enforcement
-        var correctedText = _hardcoreEnforcer.ValidateAndCorrect(typed);
-        bool wasCorrected = correctedText != typed;
-        
+        var correctedText = _hardcoreEnforcer.ValidateAndCorrect(normalizedTyped);
+        bool wasCorrected = correctedText != normalizedTyped;
+
         if (wasCorrected)
         {
             TextCorrected?.Invoke(this, correctedText);
-            typed = correctedText;
+            normalizedTyped = correctedText;
         }
 
-        _lastTyped = typed;
+        _lastTyped = normalizedTyped;
 
-        // Compute diff
-        var target = _currentSnippet?.Code ?? "";
-        _currentDiff = _diffAnalyzer.ComputeDiff(target, typed);
+        // Compute diff against normalized target
+        _currentDiff = _diffAnalyzer.ComputeDiff(_normalizedTarget, normalizedTyped);
         
-        _session.Update(typed, hardcoreMode);
+        _session.Update(normalizedTyped, hardcoreMode);
 
         var progress = new TypingProgressEventArgs
         {
             Wpm = LiveWpm,
             Accuracy = LiveAccuracy,
             ErrorCount = ErrorCount,
-            TypedLength = typed.Length,
-            TargetLength = target.Length,
+            TypedLength = normalizedTyped.Length,
+            TargetLength = _normalizedTarget.Length,
             FirstErrorIndex = _diffAnalyzer.FirstErrorIndex(_currentDiff),
             Diff = _currentDiff,
             HardcoreMessage = _hardcoreEnforcer.GetStatusMessage()
@@ -135,7 +165,7 @@ public sealed class TypingEngine
             OnSessionCompleted();
         }
 
-        return typed;
+        return typed; // Return original (not normalized) so TextBox content stays natural
     }
 
     /// <summary>

@@ -130,11 +130,29 @@ public sealed class SmartSnippetSelector
         int diffGap = Math.Abs(snippet.Difficulty - targetDifficulty);
         score -= diffGap * 20; // -20 per difficulty level off
 
-        // Bonus for weak character coverage
-        var weakChars = profile.WeakChars;
+        // Heatmap-weighted weak character bonus (v0.2.0)
+        // Characters with higher error rates get proportionally more weight
         var snippetSpecials = snippet.SpecialChars;
-        int weakOverlap = weakChars.Count(wc => snippetSpecials.Contains(wc));
-        score += weakOverlap * 10; // +10 per weak char present
+        if (profile.Heatmap.Records.Count > 0)
+        {
+            foreach (var c in snippetSpecials)
+            {
+                double errorRate = profile.Heatmap.GetErrorRate(c);
+                if (errorRate > 0.05) // Only count chars with meaningful error rate
+                {
+                    // Higher error rate = more bonus for this snippet
+                    // errorRate of 0.5 (50% miss) = +20 points per char
+                    score += errorRate * 40;
+                }
+            }
+        }
+        else
+        {
+            // Legacy fallback: binary WeakChars for profiles without heatmap data
+            var weakChars = profile.WeakChars;
+            int weakOverlap = weakChars.Count(wc => snippetSpecials.Contains(wc));
+            score += weakOverlap * 10;
+        }
 
         // Slight preference for shorter snippets when learning (reduces overwhelm)
         if (profile.Level < 5 && snippet.CharCount > 200)

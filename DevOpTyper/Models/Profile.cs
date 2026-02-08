@@ -12,11 +12,17 @@ public sealed class Profile
         ["java"] = 1200
     };
 
-    // Characters the user struggles with most
+    // Characters the user struggles with most (legacy — kept for migration compat)
     public HashSet<char> WeakChars { get; set; } = new();
 
     // Topics the user needs more practice on
     public HashSet<string> WeakTopics { get; set; } = new();
+
+    /// <summary>
+    /// Per-character mistake frequency tracking (v0.2.0+).
+    /// Replaces WeakChars with frequency-weighted data.
+    /// </summary>
+    public MistakeHeatmap Heatmap { get; set; } = new();
 
     public void AddXp(int amount)
     {
@@ -64,19 +70,50 @@ public sealed class Profile
     }
 
     /// <summary>
-    /// Records characters that were typed incorrectly to track weak points.
+    /// Records a character that was typed incorrectly.
+    /// Updates both legacy WeakChars and the new Heatmap.
     /// </summary>
-    public void RecordWeakChar(char c)
+    public void RecordMiss(char expected, char? actual = null)
     {
-        if (!char.IsLetterOrDigit(c) && !char.IsWhiteSpace(c))
+        // Legacy: keep WeakChars populated for SmartSnippetSelector compat
+        if (!char.IsLetterOrDigit(expected) && !char.IsWhiteSpace(expected))
         {
-            WeakChars.Add(c);
+            WeakChars.Add(expected);
+        }
+
+        // New: frequency-weighted tracking
+        Heatmap.RecordMiss(expected, actual);
+    }
+
+    /// <summary>
+    /// Records a character that was typed correctly.
+    /// </summary>
+    public void RecordHit(char expected)
+    {
+        Heatmap.RecordHit(expected);
+
+        // Legacy: clear from WeakChars if error rate drops below threshold
+        if (Heatmap.GetErrorRate(expected) < 0.10)
+        {
+            WeakChars.Remove(expected);
         }
     }
 
     /// <summary>
-    /// Removes a character from weak chars if user types it correctly multiple times.
+    /// Records characters that were typed incorrectly to track weak points.
+    /// Legacy method — prefer RecordMiss for new code.
     /// </summary>
+    [Obsolete("Use RecordMiss(expected, actual) instead")]
+    public void RecordWeakChar(char c)
+    {
+        RecordMiss(c);
+    }
+
+    /// <summary>
+    /// Removes a character from weak chars if user types it correctly multiple times.
+    /// Legacy method — prefer RecordHit for new code.
+    /// </summary>
+    [Obsolete("Use RecordHit(expected) instead")]
     public void ClearWeakChar(char c)
     {
         WeakChars.Remove(c);

@@ -17,7 +17,28 @@ public sealed class SessionState
 
     public int XpEarned { get; private set; }
 
+    /// <summary>
+    /// Snippet difficulty (1-5), used for XP multiplier.
+    /// </summary>
+    public int Difficulty { get; set; } = 1;
+
+    /// <summary>
+    /// Minimum accuracy to earn XP (0-100). Below this, XP = 0.
+    /// </summary>
+    public double AccuracyFloor { get; set; } = 70.0;
+
+    /// <summary>
+    /// Number of times the same snippet has been typed recently.
+    /// Used for diminishing returns. 0 = first time, 1 = second, etc.
+    /// </summary>
+    public int RepeatCount { get; set; } = 0;
+
     private string _target = "";
+
+    /// <summary>
+    /// Gets the elapsed time of the current/last session.
+    /// </summary>
+    public TimeSpan Elapsed => _sw.Elapsed;
 
     public void Start(string target)
     {
@@ -62,12 +83,57 @@ public sealed class SessionState
         double minutes = Math.Max(1e-6, _sw.Elapsed.TotalMinutes);
         LiveWpm = (typed.Length / 5.0) / minutes;
 
-        // XP: reward speed + accuracy + completion bonus
-        XpEarned = (int)Math.Round((LiveWpm * (LiveAccuracy / 100.0)) * 0.8);
+        // XP formula (v0.2.0): accuracy floor + difficulty mult + speed curve + diminishing returns
+        //
+        // 1. Accuracy floor: below threshold → 0 XP
+        // 2. Base XP = WPM * accuracy factor (with soft cap above 80 WPM)
+        // 3. Difficulty multiplier: D1=0.6x, D2=0.8x, D3=1.0x, D4=1.3x, D5=1.6x
+        // 4. Diminishing returns: -50% 2nd time, -75% 3rd+
+        // 5. Completion bonus: +25 XP for finishing
+        //
+        if (LiveAccuracy < AccuracyFloor)
+        {
+            XpEarned = 0; // Below accuracy floor — no XP
+        }
+        else
+        {
+            // Speed curve: linear up to 80 WPM, then diminishing returns
+            double speedFactor = LiveWpm <= 80
+                ? LiveWpm
+                : 80 + (LiveWpm - 80) * 0.3; // Soft cap above 80
+
+            // Base XP
+            double baseXp = speedFactor * (LiveAccuracy / 100.0) * 0.8;
+
+            // Difficulty multiplier
+            double diffMult = Difficulty switch
+            {
+                1 => 0.6,
+                2 => 0.8,
+                3 => 1.0,
+                4 => 1.3,
+                5 => 1.6,
+                _ => 1.0
+            };
+
+            // Diminishing returns for repeats
+            double repeatMult = RepeatCount switch
+            {
+                0 => 1.0,   // First time: full XP
+                1 => 0.5,   // Second time: half
+                _ => 0.25   // Third+: quarter
+            };
+
+            XpEarned = (int)Math.Round(baseXp * diffMult * repeatMult);
+        }
+
         if (typed.Length >= _target.Length && errors == 0 && typed == _target)
         {
             IsComplete = true;
-            XpEarned += 25;
+            if (LiveAccuracy >= AccuracyFloor)
+            {
+                XpEarned += 25; // Completion bonus (only if above accuracy floor)
+            }
             IsRunning = false;
             _sw.Stop();
         }

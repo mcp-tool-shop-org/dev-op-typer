@@ -130,7 +130,14 @@ public sealed partial class MainWindow : Window
         if (_currentSnippet != null)
         {
             bool hardcore = SettingsPanel.IsHardcoreMode;
-            _typingEngine.StartSession(_currentSnippet, hardcore);
+            var rules = _settings.TypingRules;
+
+            // Compute repeat count for diminishing XP returns
+            int repeats = _persistenceService.Load().History.Records
+                .Count(r => r.SnippetId == _currentSnippet.Id);
+            _typingEngine.RepeatCount = repeats;
+
+            _typingEngine.StartSession(_currentSnippet, hardcore, rules);
             _keyboardSound.Reset();
             TypingPanel.FocusTypingBox();
         }
@@ -147,7 +154,8 @@ public sealed partial class MainWindow : Window
         if (_currentSnippet != null)
         {
             bool hardcore = SettingsPanel.IsHardcoreMode;
-            _typingEngine.StartSession(_currentSnippet, hardcore);
+            var rules = _settings.TypingRules;
+            _typingEngine.StartSession(_currentSnippet, hardcore, rules);
         }
         TypingPanel.FocusTypingBox();
     }
@@ -195,14 +203,18 @@ public sealed partial class MainWindow : Window
                 _typingEngine.XpEarned
             );
 
-            // Track weak chars from errors
-            if (e.HasErrors && e.Diff.Length > 0)
+            // Feed per-character results into the mistake heatmap
+            if (e.Diff.Length > 0)
             {
                 foreach (var diff in e.Diff)
                 {
                     if (diff.State == CharState.Error)
                     {
-                        _profile.RecordWeakChar(diff.Expected);
+                        _profile.RecordMiss(diff.Expected, diff.Actual);
+                    }
+                    else if (diff.State == CharState.Correct)
+                    {
+                        _profile.RecordHit(diff.Expected);
                     }
                 }
             }
@@ -224,12 +236,33 @@ public sealed partial class MainWindow : Window
                 _profile.UpdateRating(_currentSnippet.Language, e.FinalAccuracy, e.FinalWpm);
             }
 
-            // Save profile + current audio settings
-            _persistenceService.Save(new PersistedBlob
+            // Create and save session record
+            var blob = _persistenceService.Load();
+            if (_currentSnippet != null)
             {
-                Profile = _profile,
-                Settings = GetCurrentSettings()
-            });
+                var record = SessionRecord.FromSession(
+                    snippetId: _currentSnippet.Id,
+                    language: _currentSnippet.Language,
+                    snippetTitle: _currentSnippet.Title ?? "Unknown",
+                    wpm: e.FinalWpm,
+                    accuracy: e.FinalAccuracy,
+                    errorCount: e.ErrorCount,
+                    totalChars: _currentSnippet.Code?.Length ?? 0,
+                    duration: _typingEngine.Elapsed,
+                    difficulty: _currentSnippet.Difficulty,
+                    xpEarned: e.XpEarned,
+                    hardcoreMode: SettingsPanel.IsHardcoreMode
+                );
+                blob.History.AddRecord(record);
+
+                // Track last practiced language
+                blob.LastPracticedByLanguage[_currentSnippet.Language] = DateTime.UtcNow;
+            }
+
+            // Save profile + history + settings
+            blob.Profile = _profile;
+            blob.Settings = GetCurrentSettings();
+            _persistenceService.Save(blob);
 
             // Update XP display
             UpdateLevelBadge();

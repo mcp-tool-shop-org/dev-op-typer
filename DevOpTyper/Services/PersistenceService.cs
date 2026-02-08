@@ -13,7 +13,7 @@ public sealed class PersistenceService
     private const string Key = "DevOpTyper.PersistedBlob.v1";
     private const string BackupKey = "DevOpTyper.PersistedBlob.backup";
     private const string VersionKey = "DevOpTyper.SchemaVersion";
-    private const int CurrentSchemaVersion = 2;
+    private const int CurrentSchemaVersion = 3;
 
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
@@ -232,8 +232,42 @@ public sealed class PersistenceService
 
     private void MigrateSchema(ApplicationDataContainer settings, int fromVersion)
     {
-        // Future migrations go here
-        // For now, just update the version
+        // v2 → v3: Added MistakeHeatmap to Profile, TypingRules to AppSettings,
+        //          XpEarned + Difficulty to SessionRecord.
+        //          All new fields have defaults, so existing JSON deserializes cleanly.
+        //          WeakChars is preserved for backward compat.
+        //
+        // No data transformation needed — System.Text.Json handles missing properties
+        // by using default values from the class definitions.
+
+        if (fromVersion < 3)
+        {
+            // Seed heatmap from legacy WeakChars if they exist
+            try
+            {
+                if (settings.Values.TryGetValue(Key, out var obj) && obj is string json)
+                {
+                    var blob = JsonSerializer.Deserialize<PersistedBlob>(json, SerializerOptions);
+                    if (blob?.Profile?.WeakChars?.Count > 0 && blob.Profile.Heatmap.Records.Count == 0)
+                    {
+                        // Seed each legacy weak char with a synthetic miss record
+                        foreach (var c in blob.Profile.WeakChars)
+                        {
+                            blob.Profile.Heatmap.RecordMiss(c, null);
+                        }
+
+                        // Save migrated data
+                        var migratedJson = JsonSerializer.Serialize(blob, SerializerOptions);
+                        settings.Values[Key] = migratedJson;
+                    }
+                }
+            }
+            catch
+            {
+                // Migration is best-effort — don't crash on corrupt data
+            }
+        }
+
         settings.Values[VersionKey] = CurrentSchemaVersion;
     }
 }
