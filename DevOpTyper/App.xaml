@@ -1,15 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <Application
     x:Class="DevOpTyper.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:DevOpTyper">
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:DevOpTyper"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <ResourceDictionary Source="Themes/Colors.xaml"/>
-                <ResourceDictionary Source="Themes/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Dev-Op-Typer brand palette -->
+            <Color x:Key="DotBgColor">#FF0C0E14</Color>
+            <Color x:Key="DotSurfaceColor">#FF121622</Color>
+            <Color x:Key="DotSurface2Color">#FF171C2A</Color>
+            <Color x:Key="DotTextColor">#FFE6EBF5</Color>
+            <Color x:Key="DotTextMutedColor">#FFB7C0D6</Color>
+            <Color x:Key="DotAccent1Color">#FF4ADEC8</Color>
+            <Color x:Key="DotAccent2Color">#FF7DA8FF</Color>
+            <Color x:Key="DotAccentWarnColor">#FFFFD45A</Color>
+            <Color x:Key="DotErrorColor">#FFFF6B6B</Color>
+
+            <SolidColorBrush x:Key="DotBgBrush" Color="{StaticResource DotBgColor}"/>
+            <SolidColorBrush x:Key="DotSurfaceBrush" Color="{StaticResource DotSurfaceColor}"/>
+            <SolidColorBrush x:Key="DotSurface2Brush" Color="{StaticResource DotSurface2Color}"/>
+            <SolidColorBrush x:Key="DotTextBrush" Color="{StaticResource DotTextColor}"/>
+            <SolidColorBrush x:Key="DotTextMutedBrush" Color="{StaticResource DotTextMutedColor}"/>
+            <SolidColorBrush x:Key="DotAccent1Brush" Color="{StaticResource DotAccent1Color}"/>
+            <SolidColorBrush x:Key="DotAccent2Brush" Color="{StaticResource DotAccent2Color}"/>
+            <SolidColorBrush x:Key="DotAccentWarnBrush" Color="{StaticResource DotAccentWarnColor}"/>
+            <SolidColorBrush x:Key="DotErrorBrush" Color="{StaticResource DotErrorColor}"/>
+
+            <!-- Styles -->
+            <Style x:Key="MutedText" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{StaticResource DotTextMutedBrush}"/>
+            </Style>
+
+            <Style x:Key="DotCard" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource DotSurfaceBrush}"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="Padding" Value="14"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
