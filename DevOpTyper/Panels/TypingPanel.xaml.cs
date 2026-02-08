@@ -19,6 +19,12 @@ public sealed partial class TypingPanel : UserControl
     public event EventHandler<string>? CompletionActionClicked;
 
     /// <summary>
+    /// Fired when the user submits a session note (v0.4.0).
+    /// The payload is the note text. Fired on banner dismiss if a note was entered.
+    /// </summary>
+    public event EventHandler<string>? SessionNoteSubmitted;
+
+    /// <summary>
     /// All intent chips mapped to their UserIntent value.
     /// </summary>
     private readonly (ToggleButton Chip, UserIntent Intent)[] _intentChips;
@@ -38,6 +44,14 @@ public sealed partial class TypingPanel : UserControl
             var tag = CompletionActionButton.Tag as string ?? "";
             CompletionActionClicked?.Invoke(this, tag);
             DismissCompletionBanner();
+        };
+
+        // "Add a note" link — reveals the note input field
+        AddNoteLink.Click += (_, _) =>
+        {
+            AddNoteLink.Visibility = Visibility.Collapsed;
+            NoteInput.Visibility = Visibility.Visible;
+            NoteInput.Focus(FocusState.Programmatic);
         };
 
         // Wire intent chips — mutual exclusion (at most one selected)
@@ -221,10 +235,23 @@ public sealed partial class TypingPanel : UserControl
     }
 
     /// <summary>
-    /// Hides the completion banner.
+    /// Hides the completion banner. If the user entered a note,
+    /// fires SessionNoteSubmitted before hiding.
     /// </summary>
     public void DismissCompletionBanner()
     {
+        // Capture and submit any note the user typed
+        var note = NoteInput.Text?.Trim();
+        if (!string.IsNullOrEmpty(note))
+        {
+            SessionNoteSubmitted?.Invoke(this, note);
+        }
+
+        // Reset note section for next session
+        NoteInput.Text = "";
+        NoteInput.Visibility = Visibility.Collapsed;
+        AddNoteLink.Visibility = Visibility.Visible;
+
         CompletionBanner.Visibility = Visibility.Collapsed;
         RetrospectiveSection.Visibility = Visibility.Collapsed;
     }

@@ -90,6 +90,13 @@ public sealed class SessionRecord
     public UserIntent? DeclaredIntent { get; set; }
 
     /// <summary>
+    /// Optional user-written note about this session (v0.4.0+).
+    /// Private, local, unstructured. The system never reads or interprets it.
+    /// Null = user didn't write a note (most sessions).
+    /// </summary>
+    public string? Note { get; set; }
+
+    /// <summary>
     /// Creates a session record from a completed session.
     /// </summary>
     public static SessionRecord FromSession(

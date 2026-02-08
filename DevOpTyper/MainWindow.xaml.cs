@@ -91,6 +91,9 @@ public sealed partial class MainWindow : Window
         StatsPanel.WeaknessPracticeRequested += OnWeaknessPracticeRequested;
         TypingPanel.CompletionActionClicked += OnCompletionActionClicked;
 
+        // Wire up reflection events (v0.4.0)
+        TypingPanel.SessionNoteSubmitted += OnSessionNoteSubmitted;
+
         // Restore typing rules UI from saved settings
         SettingsPanel.LoadTypingRules(_settings.TypingRules);
 
@@ -638,6 +641,20 @@ public sealed partial class MainWindow : Window
             var payload = actionTag["weakness:".Length..];
             _typingEngine.CancelSession();
             LoadSnippetForWeakCharsFromPayload(payload);
+        }
+    }
+
+    /// <summary>
+    /// Handles a session note submitted by the user.
+    /// Attaches the note to the most recent session record.
+    /// </summary>
+    private void OnSessionNoteSubmitted(object? sender, string note)
+    {
+        var blob = _persistenceService.Load();
+        if (blob.History.Records.Count > 0)
+        {
+            blob.History.Records[0].Note = note.Length > 280 ? note[..280] : note;
+            _persistenceService.Save(blob);
         }
     }
 

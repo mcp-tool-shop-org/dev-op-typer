@@ -453,6 +453,21 @@ public sealed partial class StatsPanel : UserControl
         stack.Children.Add(titleGrid);
         stack.Children.Add(statsBlock);
 
+        // Show note if present (v0.4.0)
+        if (!string.IsNullOrEmpty(session.Note))
+        {
+            var noteBlock = new TextBlock
+            {
+                Text = $"\u270E {session.Note}",
+                FontSize = 10,
+                FontStyle = Windows.UI.Text.FontStyle.Italic,
+                Foreground = (Brush)Application.Current.Resources["DotTextMutedBrush"],
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                MaxLines = 1
+            };
+            stack.Children.Add(noteBlock);
+        }
+
         border.Child = stack;
         return border;
     }

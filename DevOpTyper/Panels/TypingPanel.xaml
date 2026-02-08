@@ -124,6 +124,21 @@
                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                                TextWrapping="Wrap"/>
                 </StackPanel>
+
+                <!-- Session Note (v0.4.0) — optional, never prompted -->
+                <StackPanel x:Name="NoteSection" Spacing="2">
+                    <HyperlinkButton x:Name="AddNoteLink"
+                                     Content="Add a note"
+                                     FontSize="11"
+                                     Padding="0"/>
+                    <TextBox x:Name="NoteInput"
+                             PlaceholderText="What's on your mind?"
+                             MaxLength="280"
+                             FontSize="11"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="False"
+                             Visibility="Collapsed"/>
+                </StackPanel>
             </StackPanel>
         </Border>
 
