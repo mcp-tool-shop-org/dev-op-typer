@@ -261,6 +261,13 @@ public sealed class AppSettings
     /// </summary>
     public bool ShowDemonstrations { get; set; } = true;
 
+    /// <summary>
+    /// Whether to show guidance notes from collective experience.
+    /// Guidance notes are contextual observations — always dismissible.
+    /// Default: true. Disabling hides all guidance with zero other impact.
+    /// </summary>
+    public bool ShowGuidance { get; set; } = true;
+
     #endregion
 
     #region Community Settings (v0.7.0)
@@ -351,7 +358,8 @@ public sealed class AppSettings
             SelectedPracticeConfig = SelectedPracticeConfig,
             ShowCommunitySignals = ShowCommunitySignals,
             ShowScaffolds = ShowScaffolds,
-            ShowDemonstrations = ShowDemonstrations
+            ShowDemonstrations = ShowDemonstrations,
+            ShowGuidance = ShowGuidance
         };
     }
 }

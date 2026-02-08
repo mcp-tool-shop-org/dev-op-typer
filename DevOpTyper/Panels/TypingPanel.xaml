@@ -63,6 +63,32 @@
                            AutomationProperties.Name="Scaffold hints for this snippet"
                            Margin="0,-2,0,0"/>
 
+                <!-- Guidance notes (v0.8.0) — collective experience, always dismissible -->
+                <StackPanel x:Name="GuidanceArea"
+                            Spacing="2"
+                            Visibility="Collapsed"
+                            Margin="0,-2,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ItemsControl x:Name="GuidanceItems"
+                                      IsTabStop="False"
+                                      AutomationProperties.LiveSetting="Off"
+                                      AutomationProperties.Name="Guidance notes for this snippet"/>
+                        <Button x:Name="DismissGuidanceButton"
+                                Content="✕"
+                                Grid.Column="1"
+                                FontSize="9"
+                                Padding="4,1"
+                                VerticalAlignment="Top"
+                                MinWidth="0"
+                                MinHeight="0"
+                                AutomationProperties.Name="Dismiss guidance"/>
+                    </Grid>
+                </StackPanel>
+
                 <!-- Per-character diff renderer (replaces old plain TargetCode TextBlock) -->
                 <controls:TypingPresenter x:Name="CodeRenderer"/>
             </StackPanel>

@@ -54,6 +54,12 @@ public sealed partial class TypingPanel : UserControl
             NoteInput.Focus(FocusState.Programmatic);
         };
 
+        // Dismiss guidance button — session-scoped only, no tracking
+        DismissGuidanceButton.Click += (_, _) =>
+        {
+            GuidanceArea.Visibility = Visibility.Collapsed;
+        };
+
         // Wire intent chips — mutual exclusion (at most one selected)
         _intentChips = new[]
         {
@@ -171,6 +177,49 @@ public sealed partial class TypingPanel : UserControl
         ScaffoldHints.Text = text;
         ScaffoldHints.Opacity = Math.Clamp(opacity, 0.0, 1.0);
         ScaffoldHints.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
+    /// Shows contextual guidance notes from collective experience.
+    /// Guidance notes use collective language ("often", "typically"),
+    /// never directive ("you should"). Null hides the guidance area.
+    /// Each snippet load re-shows guidance — dismissal is session-scoped.
+    /// </summary>
+    public void ShowGuidance(GuidanceNote? guidance)
+    {
+        if (guidance == null || guidance.Notes.Length == 0)
+        {
+            GuidanceArea.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        GuidanceItems.Items.Clear();
+
+        var notes = guidance.Notes
+            .Take(ExtensionBoundary.MaxGuidanceNotesPerSnippet)
+            .Select(n => n.Length > ExtensionBoundary.MaxGuidanceNoteLength
+                ? n[..ExtensionBoundary.MaxGuidanceNoteLength] + "…"
+                : n)
+            .Where(n => !string.IsNullOrWhiteSpace(n));
+
+        foreach (var note in notes)
+        {
+            var tb = new TextBlock
+            {
+                Text = $"💡 {note}",
+                FontSize = 10,
+                TextWrapping = Microsoft.UI.Xaml.TextWrapping.Wrap,
+                IsTextSelectionEnabled = true,
+                IsTabStop = false
+            };
+            tb.Foreground = (Microsoft.UI.Xaml.Media.Brush)
+                Microsoft.UI.Xaml.Application.Current.Resources["TextFillColorTertiaryBrush"];
+            GuidanceItems.Items.Add(tb);
+        }
+
+        GuidanceArea.Visibility = GuidanceItems.Items.Count > 0
+            ? Visibility.Visible
+            : Visibility.Collapsed;
     }
 
     /// <summary>

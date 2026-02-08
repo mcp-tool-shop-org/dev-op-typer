@@ -25,6 +25,7 @@ public sealed partial class MainWindow : Window
     private readonly WeaknessTracker _weaknessTracker = new();
     private readonly PracticeConfigService _practiceConfigService = new();
     private readonly CommunitySignalService _communitySignals = new();
+    private readonly GuidanceService _guidanceService = new();
     private Profile _profile = new();
     private AppSettings _settings = new();
     private bool _settingsPanelOpen = false;
@@ -157,6 +158,9 @@ public sealed partial class MainWindow : Window
         // Community signals (display-only — never affects frozen services)
         _communitySignals.Initialize();
 
+        // Guidance notes (display-only — never affects frozen services)
+        _guidanceService.Initialize();
+
         // Practice configs
         _practiceConfigService.Initialize();
         SettingsPanel.PopulateConfigs(
@@ -256,6 +260,18 @@ public sealed partial class MainWindow : Window
         else
         {
             TypingPanel.ShowScaffold(null);
+        }
+
+        // Show guidance notes (if available and enabled)
+        // Guidance emerges from collective experience — always dismissible
+        if (_settings.ShowGuidance)
+        {
+            var guidance = _guidanceService.GetGuidance(snippet.Id);
+            TypingPanel.ShowGuidance(guidance);
+        }
+        else
+        {
+            TypingPanel.ShowGuidance(null);
         }
 
         // Soft session frame — show typical range for this language
@@ -901,6 +917,7 @@ public sealed partial class MainWindow : Window
         // Teaching settings
         _settings.ShowScaffolds = SettingsPanel.ShowScaffolds;
         _settings.ShowDemonstrations = SettingsPanel.ShowDemonstrations;
+        _settings.ShowGuidance = SettingsPanel.ShowGuidance;
 
         return _settings;
     }

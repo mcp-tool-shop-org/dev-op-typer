@@ -128,6 +128,18 @@ public static class ExtensionBoundary
     /// </summary>
     public const int MaxDemonstrationDescriptionLength = 200;
 
+    /// <summary>
+    /// Maximum number of guidance notes per snippet.
+    /// Guidance notes are short collective observations — too many overwhelms.
+    /// </summary>
+    public const int MaxGuidanceNotesPerSnippet = 5;
+
+    /// <summary>
+    /// Maximum length of a single guidance note (chars).
+    /// Notes must be brief observations, not instruction.
+    /// </summary>
+    public const int MaxGuidanceNoteLength = 200;
+
     // ────────────────────────────────────────────────────────
     //  FROZEN — the system guarantees these remain stable
     //

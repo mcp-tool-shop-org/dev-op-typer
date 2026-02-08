@@ -406,6 +406,13 @@ public sealed partial class SettingsPanel : UserControl
     public bool ShowDemonstrations => _showDemonstrations;
 
     /// <summary>
+    /// Whether guidance notes are shown.
+    /// Wired to toggle in Teaching section (Commit 21).
+    /// </summary>
+    private bool _showGuidance = true;
+    public bool ShowGuidance => _showGuidance;
+
+    /// <summary>
     /// Fired when the user toggles community signals on or off.
     /// </summary>
     public event EventHandler<bool>? CommunitySignalsChanged;
@@ -462,6 +469,7 @@ public sealed partial class SettingsPanel : UserControl
         // Teaching settings (v0.8.0)
         ShowScaffoldsToggle.IsOn = settings.ShowScaffolds;
         _showDemonstrations = settings.ShowDemonstrations;
+        _showGuidance = settings.ShowGuidance;
 
         // Map DefaultIntent to combo index (0=None, 1=Focus, 2=Challenge, 3=Maintenance, 4=Exploration)
         DefaultIntentCombo.SelectedIndex = settings.DefaultIntent switch
