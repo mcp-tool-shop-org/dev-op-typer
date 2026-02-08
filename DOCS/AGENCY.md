@@ -427,3 +427,56 @@ The manifest is informational only. Bundles without a manifest are still importa
 - **Non-destructive import**: Existing files are never overwritten.
 - **Path safety**: Import sanitizes paths and rejects directory traversal attempts.
 - **No network**: Export and import are local operations. No upload, no download, no accounts.
+
+---
+
+## Community Philosophy (v0.7.0)
+
+v0.7.0 explores what community means for a practice tool that rejects social mechanics.
+
+### Core Principle
+
+> Community is shared craft, not shared identity.
+
+Developers can benefit from each other's practice material, explanations, and collective observations without knowing who created them, without profiles, and without any pressure to participate.
+
+### What Community Means
+
+| Aspect | How it works |
+|---|---|
+| Shared artifacts | Snippets, configs, and explanations can be exchanged as portable bundles |
+| Multiple perspectives | Explanations may offer different viewpoints on the same snippet |
+| Collective signals | Anonymized aggregate observations about snippet difficulty or common errors |
+| Optional participation | Every community feature is opt-in and reversible |
+
+### What Community Does NOT Mean
+
+These are permanent constraints, not temporary omissions.
+
+| The system does not... | Because... |
+|---|---|
+| Create accounts or profiles | Identity has no place in personal practice |
+| Track who authored what | Attribution creates hierarchy |
+| Display download counts or ratings | Popularity metrics distort value |
+| Rank community content against built-in | There is no hierarchy of material |
+| Show feeds, timelines, or notifications | Social mechanics create obligation |
+| Enable followers, likes, or comments | Approval-seeking undermines practice |
+| Encourage sharing as a goal | Sharing is utilitarian, not expressive |
+| Compare users to each other | All practice is personal |
+| Phone home or collect usage data | The app is local-first, always |
+
+### Community Content Location
+
+Community content lives at `%LOCALAPPDATA%/DevOpTyper/CommunityContent/`, separate from user-authored content in `UserSnippets/` and `UserConfigs/`. The filesystem separation is organizational only — at runtime, community content behaves identically to user-authored and built-in content.
+
+### Verification
+
+Any community feature must satisfy:
+
+1. **Removing all community content leaves the app functionally identical to v0.6.0.**
+2. **No community content alters scoring, XP, accuracy, or difficulty.**
+3. **No origin tracking persists at runtime.** Content source is indistinguishable during practice.
+4. **All community artifacts are human-readable JSON.**
+5. **No community feature introduces network calls, telemetry, or external dependencies.**
+6. **Solo practice remains complete and satisfying without any community content.**
+7. **Nothing pressures users to participate, share, or engage socially.**
