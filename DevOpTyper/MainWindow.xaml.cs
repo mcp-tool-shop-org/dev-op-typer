@@ -68,6 +68,7 @@ public sealed partial class MainWindow : Window
 
         // Wire up typing engine events
         _typingEngine.ProgressUpdated += OnTypingProgress;
+        _typingEngine.DiffUpdated += OnDiffUpdated;
         _typingEngine.SessionCompleted += OnSessionCompleted;
         _typingEngine.TextCorrected += OnTextCorrected;
 
@@ -77,8 +78,12 @@ public sealed partial class MainWindow : Window
         TypingPanel.SkipClicked += SkipTest_Click;
         TypingPanel.TypingTextChanged += TypingBox_TextChanged;
 
+        // Restore typing rules UI from saved settings
+        SettingsPanel.LoadTypingRules(_settings.TypingRules);
+
         // Initial state
         UpdateLevelBadge();
+        RefreshAnalytics(persisted);
         LoadNewSnippet();
     }
 
@@ -130,7 +135,7 @@ public sealed partial class MainWindow : Window
         if (_currentSnippet != null)
         {
             bool hardcore = SettingsPanel.IsHardcoreMode;
-            var rules = _settings.TypingRules;
+            var rules = SettingsPanel.GetTypingRules();
 
             // Compute repeat count for diminishing XP returns
             int repeats = _persistenceService.Load().History.Records
@@ -154,7 +159,7 @@ public sealed partial class MainWindow : Window
         if (_currentSnippet != null)
         {
             bool hardcore = SettingsPanel.IsHardcoreMode;
-            var rules = _settings.TypingRules;
+            var rules = SettingsPanel.GetTypingRules();
             _typingEngine.StartSession(_currentSnippet, hardcore, rules);
         }
         TypingPanel.FocusTypingBox();
@@ -180,13 +185,32 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    private void OnTextCorrected(object? sender, string correctedText)
+    private void OnDiffUpdated(object? sender, CharDiff[] diff)
     {
-        // Hardcore mode corrected the text - update the textbox
+        // Forward diff updates to the per-character renderer on the UI thread
         DispatcherQueue.TryEnqueue(() =>
         {
-            // This would need the TypingPanel to expose a SetTypedText method
-            // For now, we'll skip this UI update
+            // Cursor = first pending character (i.e., where the user should type next)
+            int cursorPos = -1;
+            for (int i = 0; i < diff.Length; i++)
+            {
+                if (diff[i].State == CharState.Pending)
+                {
+                    cursorPos = i;
+                    break;
+                }
+            }
+
+            TypingPanel.UpdateDiff(diff, cursorPos);
+        });
+    }
+
+    private void OnTextCorrected(object? sender, string correctedText)
+    {
+        // Hardcore mode corrected the text — update the textbox
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            TypingPanel.SetTypedText(correctedText);
         });
     }
 
@@ -264,8 +288,9 @@ public sealed partial class MainWindow : Window
             blob.Settings = GetCurrentSettings();
             _persistenceService.Save(blob);
 
-            // Update XP display
+            // Update XP display and analytics
             UpdateLevelBadge();
+            RefreshAnalytics(blob);
 
             // Load next snippet
             LoadNewSnippet();
@@ -275,6 +300,15 @@ public sealed partial class MainWindow : Window
     private void UpdateLevelBadge()
     {
         LevelBadge.Text = $"Lv {_profile.Level} • {_profile.Xp} XP";
+    }
+
+    /// <summary>
+    /// Updates the StatsPanel weakness and history sections from persisted data.
+    /// </summary>
+    private void RefreshAnalytics(PersistedBlob blob)
+    {
+        StatsPanel.UpdateWeakSpots(blob.Profile.Heatmap);
+        StatsPanel.UpdateHistory(blob.History);
     }
 
     private void SettingsToggleButton_Click(object sender, RoutedEventArgs e)
@@ -333,6 +367,7 @@ public sealed partial class MainWindow : Window
         _settings.HardcoreMode = SettingsPanel.IsHardcoreMode;
         _settings.HighContrast = SettingsPanel.IsHighContrast;
         _settings.ReducedMotion = SettingsPanel.IsReducedMotion;
+        _settings.TypingRules = SettingsPanel.GetTypingRules();
         return _settings;
     }
 }

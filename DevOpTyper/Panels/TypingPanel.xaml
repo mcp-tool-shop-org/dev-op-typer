@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:DevOpTyper.Controls"
     mc:Ignorable="d">
 
     <Grid Padding="16">
@@ -14,33 +15,35 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Prompt/Target Display -->
-        <Border Grid.Row="0" 
+        <!-- Live Per-Character Typing Display -->
+        <Border Grid.Row="0"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="8"
                 Padding="16"
                 Margin="0,0,0,12">
             <StackPanel Spacing="8">
-                <TextBlock x:Name="SnippetTitle" 
-                           Text="Sample Snippet" 
-                           FontSize="16" 
-                           FontWeight="SemiBold"/>
-                <TextBlock x:Name="SnippetLanguage" 
-                           Text="python" 
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           FontSize="12"/>
-                <ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto">
-                    <TextBlock x:Name="TargetCode" 
-                               Text="def hello_world():&#x0A;    print('Hello, World!')" 
-                               FontFamily="Consolas"
-                               FontSize="14"
-                               TextWrapping="Wrap"
-                               IsTextSelectionEnabled="True"/>
-                </ScrollViewer>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="SnippetTitle"
+                               Text="Sample Snippet"
+                               FontSize="16"
+                               FontWeight="SemiBold"/>
+                    <TextBlock x:Name="SnippetLanguage"
+                               Grid.Column="1"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"
+                               VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- Per-character diff renderer (replaces old plain TargetCode TextBlock) -->
+                <controls:TypingPresenter x:Name="CodeRenderer"/>
             </StackPanel>
         </Border>
 
-        <!-- Typing Area -->
+        <!-- Typing Input Area -->
         <Border Grid.Row="1"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="8"
@@ -69,8 +72,8 @@
         </Border>
 
         <!-- Action Buttons -->
-        <StackPanel Grid.Row="2" 
-                    Orientation="Horizontal" 
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
                     HorizontalAlignment="Center"
                     Spacing="12">
             <Button x:Name="StartButton" Content="Start Test" Style="{ThemeResource AccentButtonStyle}"/>

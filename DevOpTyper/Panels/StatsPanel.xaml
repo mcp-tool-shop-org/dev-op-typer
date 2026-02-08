@@ -10,69 +10,120 @@
     <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="8"
             Padding="16">
-        <StackPanel Spacing="16">
-            <TextBlock Text="Live Statistics" 
-                       FontSize="16" 
-                       FontWeight="SemiBold"/>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="16">
+                <TextBlock Text="Live Statistics"
+                           FontSize="16"
+                           FontWeight="SemiBold"/>
 
-            <!-- WPM -->
-            <StackPanel>
-                <TextBlock Text="Words Per Minute" 
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           FontSize="12"/>
-                <TextBlock x:Name="WpmText" 
-                           Text="0" 
-                           FontSize="32" 
-                           FontWeight="Bold"/>
-            </StackPanel>
+                <!-- WPM -->
+                <StackPanel>
+                    <TextBlock Text="Words Per Minute"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <TextBlock x:Name="WpmText"
+                               Text="0"
+                               FontSize="32"
+                               FontWeight="Bold"/>
+                </StackPanel>
 
-            <!-- Accuracy -->
-            <StackPanel>
-                <TextBlock Text="Accuracy" 
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           FontSize="12"/>
-                <TextBlock x:Name="AccuracyText" 
-                           Text="100%" 
-                           FontSize="24" 
-                           FontWeight="SemiBold"
-                           Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
-            </StackPanel>
+                <!-- Accuracy -->
+                <StackPanel>
+                    <TextBlock Text="Accuracy"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <TextBlock x:Name="AccuracyText"
+                               Text="100%"
+                               FontSize="24"
+                               FontWeight="SemiBold"
+                               Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                </StackPanel>
 
-            <!-- Errors -->
-            <StackPanel>
-                <TextBlock Text="Errors" 
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           FontSize="12"/>
-                <TextBlock x:Name="ErrorsText" 
-                           Text="0" 
-                           FontSize="20"/>
-            </StackPanel>
+                <!-- Errors -->
+                <StackPanel>
+                    <TextBlock Text="Errors"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <TextBlock x:Name="ErrorsText"
+                               Text="0"
+                               FontSize="20"/>
+                </StackPanel>
 
-            <!-- Progress -->
-            <StackPanel>
-                <TextBlock Text="Progress" 
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           FontSize="12"/>
-                <ProgressBar x:Name="ProgressBar" 
-                             Value="0" 
-                             Maximum="100"
-                             Margin="0,4,0,0"/>
-                <TextBlock x:Name="ProgressText" 
-                           Text="0 / 0 chars" 
-                           FontSize="12"
-                           Margin="0,4,0,0"/>
-            </StackPanel>
+                <!-- Progress -->
+                <StackPanel>
+                    <TextBlock Text="Progress"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <ProgressBar x:Name="ProgressBar"
+                                 Value="0"
+                                 Maximum="100"
+                                 Margin="0,4,0,0"/>
+                    <TextBlock x:Name="ProgressText"
+                               Text="0 / 0 chars"
+                               FontSize="12"
+                               Margin="0,4,0,0"/>
+                </StackPanel>
 
-            <!-- XP -->
-            <StackPanel>
-                <TextBlock Text="XP Earned" 
+                <!-- XP -->
+                <StackPanel>
+                    <TextBlock Text="XP Earned"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <TextBlock x:Name="XpText"
+                               Text="+0 XP"
+                               FontSize="18"
+                               Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                </StackPanel>
+
+                <!-- Divider -->
+                <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4"/>
+
+                <!-- Weak Spots Section -->
+                <TextBlock Text="Weak Spots"
+                           FontSize="14"
+                           FontWeight="SemiBold"/>
+
+                <TextBlock x:Name="WeakSpotsEmpty"
+                           Text="Complete a few sessions to see your weaknesses."
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           FontSize="12"/>
-                <TextBlock x:Name="XpText" 
-                           Text="+0 XP" 
-                           FontSize="18"
-                           Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                           FontSize="11"
+                           TextWrapping="Wrap"/>
+
+                <StackPanel x:Name="WeakSpotsContainer" Spacing="6" Visibility="Collapsed"/>
+
+                <!-- Divider -->
+                <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4"/>
+
+                <!-- Recent Sessions Section -->
+                <TextBlock Text="Recent Sessions"
+                           FontSize="14"
+                           FontWeight="SemiBold"/>
+
+                <TextBlock x:Name="HistoryEmpty"
+                           Text="No sessions recorded yet."
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           FontSize="11"/>
+
+                <StackPanel x:Name="HistoryContainer" Spacing="6" Visibility="Collapsed"/>
+
+                <!-- Lifetime Stats Summary -->
+                <Border x:Name="LifetimeStatsPanel"
+                        Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                        CornerRadius="6"
+                        Padding="10"
+                        Visibility="Collapsed">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Lifetime"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock x:Name="LifetimeText"
+                                   FontSize="11"
+                                   TextWrapping="Wrap"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
             </StackPanel>
-        </StackPanel>
+        </ScrollViewer>
     </Border>
 </UserControl>

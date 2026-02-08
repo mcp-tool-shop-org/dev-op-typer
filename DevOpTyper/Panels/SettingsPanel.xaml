@@ -12,16 +12,16 @@
             Padding="16">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="16">
-                <TextBlock Text="Settings" 
-                           FontSize="18" 
+                <TextBlock Text="Settings"
+                           FontSize="18"
                            FontWeight="SemiBold"/>
 
                 <!-- Language Selection -->
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Language" 
+                    <TextBlock Text="Language"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                FontSize="12"/>
-                    <ComboBox x:Name="LanguageCombo" 
+                    <ComboBox x:Name="LanguageCombo"
                               HorizontalAlignment="Stretch"
                               SelectedIndex="0">
                         <ComboBoxItem Content="Python"/>
@@ -35,10 +35,10 @@
 
                 <!-- Difficulty -->
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Difficulty" 
+                    <TextBlock Text="Difficulty"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                FontSize="12"/>
-                    <ComboBox x:Name="DifficultyCombo" 
+                    <ComboBox x:Name="DifficultyCombo"
                               HorizontalAlignment="Stretch"
                               SelectedIndex="1">
                         <ComboBoxItem Content="Beginner"/>
@@ -49,24 +49,24 @@
                 </StackPanel>
 
                 <!-- Audio Settings -->
-                <TextBlock Text="Audio" 
-                           FontSize="14" 
+                <TextBlock Text="Audio"
+                           FontSize="14"
                            FontWeight="SemiBold"
                            Margin="0,8,0,0"/>
 
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Ambient Volume" 
+                    <TextBlock Text="Ambient Volume"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                FontSize="12"/>
-                    <Slider x:Name="AmbientVolumeSlider" 
+                    <Slider x:Name="AmbientVolumeSlider"
                             Minimum="0" Maximum="100" Value="50"/>
                 </StackPanel>
 
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Keyboard Sound Volume" 
+                    <TextBlock Text="Keyboard Sound Volume"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                FontSize="12"/>
-                    <Slider x:Name="KeyboardVolumeSlider" 
+                    <Slider x:Name="KeyboardVolumeSlider"
                             Minimum="0" Maximum="100" Value="70"/>
                 </StackPanel>
 
@@ -105,6 +105,90 @@
                               OffContent="Off"
                               OnContent="On"/>
 
+                <ToggleSwitch x:Name="AdaptiveDifficultyToggle"
+                              Header="Adaptive Difficulty"
+                              OffContent="Off"
+                              OnContent="On"
+                              IsOn="True"/>
+
+                <!-- Typing Rules -->
+                <TextBlock Text="Typing Rules"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Margin="0,8,0,0"/>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Whitespace"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <ComboBox x:Name="WhitespaceCombo"
+                              HorizontalAlignment="Stretch"
+                              SelectedIndex="1">
+                        <ComboBoxItem Content="Strict" Tag="Strict"/>
+                        <ComboBoxItem Content="Lenient" Tag="Lenient"/>
+                        <ComboBoxItem Content="Normalize" Tag="Normalize"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Line Endings"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <ComboBox x:Name="LineEndingCombo"
+                              HorizontalAlignment="Stretch"
+                              SelectedIndex="0">
+                        <ComboBoxItem Content="Normalize" Tag="Normalize"/>
+                        <ComboBoxItem Content="Exact" Tag="Exact"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Trailing Spaces"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <ComboBox x:Name="TrailingSpaceCombo"
+                              HorizontalAlignment="Stretch"
+                              SelectedIndex="1">
+                        <ComboBoxItem Content="Strict" Tag="Strict"/>
+                        <ComboBoxItem Content="Ignore" Tag="Ignore"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Backspace"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <ComboBox x:Name="BackspaceCombo"
+                              HorizontalAlignment="Stretch"
+                              SelectedIndex="0">
+                        <ComboBoxItem Content="Always" Tag="Always"/>
+                        <ComboBoxItem Content="Limited" Tag="Limited"/>
+                        <ComboBoxItem Content="Never" Tag="Never"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Accuracy Floor for XP"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Slider x:Name="AccuracyFloorSlider"
+                                Minimum="0" Maximum="100" Value="70"
+                                StepFrequency="5"/>
+                        <TextBlock x:Name="AccuracyFloorLabel"
+                                   Grid.Column="1"
+                                   Text="70%"
+                                   FontSize="12"
+                                   VerticalAlignment="Center"
+                                   Margin="8,0,0,0"
+                                   MinWidth="32"/>
+                    </Grid>
+                </StackPanel>
+
                 <!-- Accessibility -->
                 <TextBlock Text="Accessibility"
                            FontSize="14"
@@ -122,7 +206,7 @@
                               OnContent="On"/>
 
                 <!-- Save Button -->
-                <Button x:Name="SaveSettingsButton" 
+                <Button x:Name="SaveSettingsButton"
                         Content="Save Settings"
                         HorizontalAlignment="Stretch"
                         Style="{ThemeResource AccentButtonStyle}"

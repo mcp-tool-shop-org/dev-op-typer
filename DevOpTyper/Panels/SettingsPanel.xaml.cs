@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using DevOpTyper.Models;
 
 namespace DevOpTyper.Panels;
 
@@ -38,6 +39,12 @@ public sealed partial class SettingsPanel : UserControl
         {
             if (!_suppressSoundscapeEvent)
                 SoundscapeChanged?.Invoke(this, SelectedSoundscape);
+        };
+
+        // Accuracy floor slider label update
+        AccuracyFloorSlider.ValueChanged += (s, e) =>
+        {
+            AccuracyFloorLabel.Text = $"{(int)e.NewValue}%";
         };
     }
 
@@ -78,6 +85,90 @@ public sealed partial class SettingsPanel : UserControl
     }
 
     /// <summary>
+    /// Loads typing rules values into the UI controls.
+    /// Call during initialization to restore saved settings.
+    /// </summary>
+    public void LoadTypingRules(TypingRules rules)
+    {
+
+        WhitespaceCombo.SelectedIndex = rules.WhitespaceStrictness switch
+        {
+            WhitespaceMode.Strict => 0,
+            WhitespaceMode.Lenient => 1,
+            WhitespaceMode.Normalize => 2,
+            _ => 1
+        };
+
+        LineEndingCombo.SelectedIndex = rules.LineEndings switch
+        {
+            LineEndingMode.Normalize => 0,
+            LineEndingMode.Exact => 1,
+            _ => 0
+        };
+
+        TrailingSpaceCombo.SelectedIndex = rules.TrailingSpaces switch
+        {
+            TrailingSpaceMode.Strict => 0,
+            TrailingSpaceMode.Ignore => 1,
+            _ => 1
+        };
+
+        BackspaceCombo.SelectedIndex = rules.Backspace switch
+        {
+            BackspaceMode.Always => 0,
+            BackspaceMode.Limited => 1,
+            BackspaceMode.Never => 2,
+            _ => 0
+        };
+
+        AccuracyFloorSlider.Value = rules.AccuracyFloorForXp;
+        AccuracyFloorLabel.Text = $"{(int)rules.AccuracyFloorForXp}%";
+
+        AdaptiveDifficultyToggle.IsOn = rules.AdaptiveDifficulty;
+
+    }
+
+    /// <summary>
+    /// Reads the current typing rules from the UI controls.
+    /// </summary>
+    public TypingRules GetTypingRules()
+    {
+        return new TypingRules
+        {
+            WhitespaceStrictness = WhitespaceCombo.SelectedIndex switch
+            {
+                0 => WhitespaceMode.Strict,
+                1 => WhitespaceMode.Lenient,
+                2 => WhitespaceMode.Normalize,
+                _ => WhitespaceMode.Lenient
+            },
+            LineEndings = LineEndingCombo.SelectedIndex switch
+            {
+                0 => LineEndingMode.Normalize,
+                1 => LineEndingMode.Exact,
+                _ => LineEndingMode.Normalize
+            },
+            TrailingSpaces = TrailingSpaceCombo.SelectedIndex switch
+            {
+                0 => TrailingSpaceMode.Strict,
+                1 => TrailingSpaceMode.Ignore,
+                _ => TrailingSpaceMode.Ignore
+            },
+            Backspace = BackspaceCombo.SelectedIndex switch
+            {
+                0 => BackspaceMode.Always,
+                1 => BackspaceMode.Limited,
+                2 => BackspaceMode.Never,
+                _ => BackspaceMode.Always
+            },
+            AccuracyFloorForXp = AccuracyFloorSlider.Value,
+            AdaptiveDifficulty = AdaptiveDifficultyToggle.IsOn
+        };
+    }
+
+    #region Properties — Core
+
+    /// <summary>
     /// Gets the selected language.
     /// </summary>
     public string SelectedLanguage
@@ -93,6 +184,10 @@ public sealed partial class SettingsPanel : UserControl
     /// Gets the selected difficulty level (0-3).
     /// </summary>
     public int DifficultyLevel => DifficultyCombo.SelectedIndex;
+
+    #endregion
+
+    #region Properties — Audio
 
     /// <summary>
     /// Gets the ambient volume (0-1).
@@ -110,22 +205,7 @@ public sealed partial class SettingsPanel : UserControl
     public double UiVolume => UiVolumeSlider.Value / 100.0;
 
     /// <summary>
-    /// Gets whether hardcore mode is enabled.
-    /// </summary>
-    public bool IsHardcoreMode => HardcoreModeToggle.IsOn;
-
-    /// <summary>
-    /// Gets whether high contrast mode is enabled.
-    /// </summary>
-    public bool IsHighContrast => HighContrastToggle.IsOn;
-
-    /// <summary>
-    /// Gets whether reduced motion is enabled.
-    /// </summary>
-    public bool IsReducedMotion => ReducedMotionToggle.IsOn;
-
-    /// <summary>
-    /// Gets or sets the selected keyboard theme (now string items, not ComboBoxItem).
+    /// Gets or sets the selected keyboard theme.
     /// </summary>
     public string SelectedKeyboardTheme
     {
@@ -163,4 +243,30 @@ public sealed partial class SettingsPanel : UserControl
             }
         }
     }
+
+    #endregion
+
+    #region Properties — Gameplay & Rules
+
+    /// <summary>
+    /// Gets whether hardcore mode is enabled.
+    /// </summary>
+    public bool IsHardcoreMode => HardcoreModeToggle.IsOn;
+
+    /// <summary>
+    /// Gets whether adaptive difficulty is enabled.
+    /// </summary>
+    public bool IsAdaptiveDifficulty => AdaptiveDifficultyToggle.IsOn;
+
+    /// <summary>
+    /// Gets whether high contrast mode is enabled.
+    /// </summary>
+    public bool IsHighContrast => HighContrastToggle.IsOn;
+
+    /// <summary>
+    /// Gets whether reduced motion is enabled.
+    /// </summary>
+    public bool IsReducedMotion => ReducedMotionToggle.IsOn;
+
+    #endregion
 }
