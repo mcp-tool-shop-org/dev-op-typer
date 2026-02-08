@@ -79,7 +79,9 @@
                 <TextBlock x:Name="PacingLabel"
                            FontSize="11"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           Visibility="Collapsed"/>
+                           Visibility="Collapsed"
+                           AutomationProperties.Name="Session pacing"
+                           IsTextSelectionEnabled="True"/>
 
                 <!-- Divider -->
                 <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4"/>
@@ -93,7 +95,9 @@
                 <TextBlock x:Name="WeaknessSummaryText"
                            FontSize="10"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           Visibility="Collapsed"/>
+                           Visibility="Collapsed"
+                           AutomationProperties.Name="Weakness summary"
+                           IsTextSelectionEnabled="True"/>
 
                 <TextBlock x:Name="WeakSpotsEmpty"
                            Text="Complete a few sessions to see your weaknesses."
@@ -156,9 +160,11 @@
                            Text="By Intent"
                            FontSize="14"
                            FontWeight="SemiBold"
-                           Visibility="Collapsed"/>
+                           Visibility="Collapsed"
+                           AutomationProperties.HeadingLevel="Level2"/>
 
-                <StackPanel x:Name="IntentPatternContainer" Spacing="6" Visibility="Collapsed"/>
+                <StackPanel x:Name="IntentPatternContainer" Spacing="6" Visibility="Collapsed"
+                            AutomationProperties.Name="Intent pattern averages"/>
 
                 <!-- Divider -->
                 <Border x:Name="PatternDivider" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4" Visibility="Collapsed"/>
@@ -168,9 +174,11 @@
                            Text="Patterns"
                            FontSize="14"
                            FontWeight="SemiBold"
-                           Visibility="Collapsed"/>
+                           Visibility="Collapsed"
+                           AutomationProperties.HeadingLevel="Level2"/>
 
-                <StackPanel x:Name="PatternContainer" Spacing="4" Visibility="Collapsed"/>
+                <StackPanel x:Name="PatternContainer" Spacing="4" Visibility="Collapsed"
+                            AutomationProperties.Name="Practice pattern observations"/>
 
                 <!-- Divider -->
                 <Border x:Name="SuggestionDivider" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4" Visibility="Collapsed"/>
@@ -180,9 +188,11 @@
                            Text="Suggestions"
                            FontSize="14"
                            FontWeight="SemiBold"
-                           Visibility="Collapsed"/>
+                           Visibility="Collapsed"
+                           AutomationProperties.HeadingLevel="Level2"/>
 
-                <StackPanel x:Name="SuggestionContainer" Spacing="6" Visibility="Collapsed"/>
+                <StackPanel x:Name="SuggestionContainer" Spacing="6" Visibility="Collapsed"
+                            AutomationProperties.Name="Practice suggestions"/>
             </StackPanel>
         </ScrollViewer>
     </Border>

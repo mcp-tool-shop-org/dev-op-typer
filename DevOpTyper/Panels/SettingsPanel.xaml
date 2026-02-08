@@ -127,7 +127,8 @@
                               Header="Show Suggestions"
                               OffContent="Hidden"
                               OnContent="Visible"
-                              IsOn="True"/>
+                              IsOn="True"
+                              AutomationProperties.Name="Show or hide practice suggestions"/>
 
                 <StackPanel Spacing="4">
                     <TextBlock Text="Default Intent"
@@ -135,7 +136,8 @@
                                FontSize="12"/>
                     <ComboBox x:Name="DefaultIntentCombo"
                               HorizontalAlignment="Stretch"
-                              SelectedIndex="0">
+                              SelectedIndex="0"
+                              AutomationProperties.Name="Default practice intent">
                         <ComboBoxItem Content="None" Tag=""/>
                         <ComboBoxItem Content="Focus" Tag="Focus"/>
                         <ComboBoxItem Content="Challenge" Tag="Challenge"/>
@@ -155,7 +157,8 @@
                         </Grid.ColumnDefinitions>
                         <ComboBox x:Name="FocusAreaCombo"
                                   HorizontalAlignment="Stretch"
-                                  SelectedIndex="0">
+                                  SelectedIndex="0"
+                                  AutomationProperties.Name="Focus area for snippet selection">
                             <ComboBoxItem Content="None" Tag=""/>
                             <ComboBoxItem Content="Brackets &amp; Braces" Tag="brackets"/>
                             <ComboBoxItem Content="Operators" Tag="operators"/>
@@ -170,7 +173,8 @@
                                 FontSize="11"
                                 Padding="6,3"
                                 Margin="4,0,0,0"
-                                VerticalAlignment="Center"/>
+                                VerticalAlignment="Center"
+                                AutomationProperties.Name="Clear focus area"/>
                     </Grid>
                 </StackPanel>
 
@@ -183,7 +187,8 @@
                              MaxLength="200"
                              TextWrapping="Wrap"
                              AcceptsReturn="False"
-                             FontSize="12"/>
+                             FontSize="12"
+                             AutomationProperties.Name="Practice note"/>
                 </StackPanel>
 
                 <!-- Typing Rules -->

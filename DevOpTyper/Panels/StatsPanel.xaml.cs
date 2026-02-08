@@ -331,8 +331,11 @@ public sealed partial class StatsPanel : UserControl
                 Text = obs,
                 FontSize = 11,
                 Foreground = (Brush)Application.Current.Resources["DotTextMutedBrush"],
-                TextWrapping = TextWrapping.Wrap
+                TextWrapping = TextWrapping.Wrap,
+                IsTextSelectionEnabled = true
             };
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+                block, $"Pattern observation: {obs}");
             PatternContainer.Children.Add(block);
         }
     }
@@ -391,6 +394,8 @@ public sealed partial class StatsPanel : UserControl
             CornerRadius = new CornerRadius(4),
             Padding = new Thickness(8, 6, 8, 6)
         };
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+            border, $"{intent}: {avgWpm:F0} WPM, {avgAcc:F0}% accuracy, {sessionCount} sessions");
 
         var grid = new Grid();
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
