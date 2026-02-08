@@ -558,6 +558,7 @@ public sealed partial class SettingsPanel : UserControl
         ExportBundleButton.Click += (_, _) => ExportBundleRequested?.Invoke(this, EventArgs.Empty);
         ImportBundleButton.Click += (_, _) => ImportBundleRequested?.Invoke(this, EventArgs.Empty);
         OpenCommunityFolderButton.Click += (_, _) => OpenCommunityFolderRequested?.Invoke(this, EventArgs.Empty);
+        ImportCommunityBundleButton.Click += (_, _) => ImportBundleRequested?.Invoke(this, EventArgs.Empty);
         CommunitySignalsToggle.Toggled += (_, _) => CommunitySignalsChanged?.Invoke(this, CommunitySignalsToggle.IsOn);
     }
 

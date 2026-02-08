@@ -398,6 +398,12 @@
                             AutomationProperties.Name="Open community content folder in file explorer"
                             ToolTipService.ToolTip="Opens the folder where community content lives"
                             AccessKey="C"/>
+                    <Button x:Name="ImportCommunityBundleButton"
+                            Content="Import Bundle"
+                            FontSize="11"
+                            Padding="8,4"
+                            AutomationProperties.Name="Import a community bundle from a ZIP file"
+                            ToolTipService.ToolTip="Import snippets and configs from a shared bundle"/>
                 </StackPanel>
 
                 <ToggleSwitch x:Name="CommunitySignalsToggle"
