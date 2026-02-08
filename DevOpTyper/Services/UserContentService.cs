@@ -71,11 +71,19 @@ public sealed class UserContentService
 
         UserSnippetsPath = userDir;
 
-        var files = Directory.GetFiles(userDir, $"*{ExtensionBoundary.SnippetFileExtension}")
-            .Take(ExtensionBoundary.MaxUserSnippetFiles)
-            .ToArray();
+        // Scan top-level files
+        var files = new List<string>();
+        files.AddRange(Directory.GetFiles(userDir, $"*{ExtensionBoundary.SnippetFileExtension}"));
 
-        foreach (var file in files)
+        // Scan one level of subdirectories — users can organize by folder.
+        // Subdirectory name is ignored; language comes from filename or JSON content.
+        // No deeper nesting to keep things predictable.
+        foreach (var subDir in Directory.GetDirectories(userDir))
+        {
+            files.AddRange(Directory.GetFiles(subDir, $"*{ExtensionBoundary.SnippetFileExtension}"));
+        }
+
+        foreach (var file in files.Take(ExtensionBoundary.MaxUserSnippetFiles))
         {
             LoadUserFile(file);
         }
@@ -147,24 +155,30 @@ public sealed class UserContentService
                 return;
             }
 
-            // Derive language from filename (same convention as built-in)
-            var language = Path.GetFileNameWithoutExtension(filePath).ToLowerInvariant();
+            // Derive default language from filename (same convention as built-in).
+            // But if a snippet declares its own language in JSON, that takes precedence.
+            // This lets users create mixed-language collections like "my-favorites.json".
+            var defaultLanguage = Path.GetFileNameWithoutExtension(filePath).ToLowerInvariant();
 
             // Mark all snippets as user-authored and ensure language is set
             foreach (var s in snippets)
             {
                 if (string.IsNullOrEmpty(s.Language))
-                    s.Language = language;
+                    s.Language = defaultLanguage;
                 s.IsUserAuthored = true;
             }
 
-            // Merge into the user snippets dictionary
-            if (!_userSnippets.TryGetValue(language, out var existing))
+            // Group by actual language (which may differ from filename)
+            var byLanguage = snippets.GroupBy(s => s.Language.ToLowerInvariant());
+            foreach (var group in byLanguage)
             {
-                existing = new List<Snippet>();
-                _userSnippets[language] = existing;
+                if (!_userSnippets.TryGetValue(group.Key, out var existing))
+                {
+                    existing = new List<Snippet>();
+                    _userSnippets[group.Key] = existing;
+                }
+                existing.AddRange(group);
             }
-            existing.AddRange(snippets);
 
             LoadedFileCount++;
         }
