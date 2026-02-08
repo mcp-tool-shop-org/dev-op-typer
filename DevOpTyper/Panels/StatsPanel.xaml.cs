@@ -305,6 +305,49 @@ public sealed partial class StatsPanel : UserControl
     }
 
     /// <summary>
+    /// Updates the typist identity section — longitudinal self-portrait.
+    /// Shows factual descriptors of typing habits over time.
+    /// </summary>
+    public void UpdateIdentity(TypistIdentity? identity)
+    {
+        IdentityContainer.Children.Clear();
+
+        if (identity == null)
+        {
+            IdentityDivider.Visibility = Visibility.Collapsed;
+            IdentityHeader.Visibility = Visibility.Collapsed;
+            IdentityContainer.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var lines = identity.ToDisplayLines();
+        if (lines.Count == 0)
+        {
+            IdentityDivider.Visibility = Visibility.Collapsed;
+            IdentityHeader.Visibility = Visibility.Collapsed;
+            IdentityContainer.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        IdentityDivider.Visibility = Visibility.Visible;
+        IdentityHeader.Visibility = Visibility.Visible;
+        IdentityContainer.Visibility = Visibility.Visible;
+
+        foreach (var line in lines)
+        {
+            var block = new TextBlock
+            {
+                Text = line,
+                FontSize = 11,
+                Foreground = (Brush)Application.Current.Resources["DotTextMutedBrush"],
+                TextWrapping = TextWrapping.Wrap,
+                IsTextSelectionEnabled = true
+            };
+            IdentityContainer.Children.Add(block);
+        }
+    }
+
+    /// <summary>
     /// Updates the patterns section — shows factual observations
     /// about the user's practice data. Purely observational.
     /// </summary>

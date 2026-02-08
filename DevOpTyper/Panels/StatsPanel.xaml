@@ -141,6 +141,20 @@
                 </Border>
 
                 <!-- Divider -->
+                <Border x:Name="IdentityDivider" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4" Visibility="Collapsed"/>
+
+                <!-- Typist Identity Section (v0.4.0 Phase 4) — longitudinal self-portrait -->
+                <TextBlock x:Name="IdentityHeader"
+                           Text="Your Typing"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Visibility="Collapsed"
+                           AutomationProperties.HeadingLevel="Level2"/>
+
+                <StackPanel x:Name="IdentityContainer" Spacing="4" Visibility="Collapsed"
+                            AutomationProperties.Name="Longitudinal typing identity"/>
+
+                <!-- Divider -->
                 <Border x:Name="TrendDivider" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4" Visibility="Collapsed"/>
 
                 <!-- Trend Section -->
