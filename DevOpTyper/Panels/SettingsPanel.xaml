@@ -138,6 +138,14 @@
                            IsTabStop="False"
                            AutomationProperties.LiveSetting="Polite"/>
 
+                <TextBlock x:Name="PracticeConfigErrors"
+                           FontSize="10"
+                           Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                           TextWrapping="Wrap"
+                           Visibility="Collapsed"
+                           IsTabStop="False"
+                           AutomationProperties.LiveSetting="Assertive"/>
+
                 <ToggleSwitch x:Name="ShowIntentChipsToggle"
                               Header="Show Intent Chips"
                               OffContent="Hidden"

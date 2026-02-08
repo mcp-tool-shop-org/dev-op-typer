@@ -136,10 +136,11 @@ public sealed class PracticeConfig
     /// <summary>
     /// Applies this config's typing rule overrides to a base set of rules.
     /// Only overrides fields that are explicitly set in the config.
+    /// Defensive: null baseRules returns a fresh default.
     /// </summary>
-    public TypingRules ApplyTo(TypingRules baseRules)
+    public TypingRules ApplyTo(TypingRules? baseRules)
     {
-        var rules = baseRules.Clone();
+        var rules = (baseRules ?? new TypingRules()).Clone();
 
         if (!string.IsNullOrEmpty(Whitespace))
         {

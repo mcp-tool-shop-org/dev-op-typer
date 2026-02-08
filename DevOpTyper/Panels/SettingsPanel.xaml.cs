@@ -323,6 +323,27 @@ public sealed partial class SettingsPanel : UserControl
         }
     }
 
+    /// <summary>
+    /// Shows config loading errors if any exist.
+    /// Non-blocking — errors are informational only.
+    /// </summary>
+    public void UpdateConfigErrors(IReadOnlyList<string> errors)
+    {
+        if (errors.Count > 0)
+        {
+            var errorText = string.Join("\n", errors.Take(3));
+            PracticeConfigErrors.Text = errorText;
+            PracticeConfigErrors.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+                PracticeConfigErrors,
+                $"Config loading issues: {errorText}");
+        }
+        else
+        {
+            PracticeConfigErrors.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+        }
+    }
+
     #endregion
 
     #region Properties — Gameplay & Rules

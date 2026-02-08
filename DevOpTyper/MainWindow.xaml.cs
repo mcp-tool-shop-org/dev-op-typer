@@ -112,6 +112,7 @@ public sealed partial class MainWindow : Window
             _practiceConfigService.GetConfigNames(),
             _settings.SelectedPracticeConfig);
         UpdateConfigDescription();
+        SettingsPanel.UpdateConfigErrors(_practiceConfigService.LoadErrors);
         SettingsPanel.PracticeConfigChanged += OnPracticeConfigChanged;
 
         // Session pacing
