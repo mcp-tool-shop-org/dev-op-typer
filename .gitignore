@@ -6,3 +6,5 @@ AppPackages/
 *.suo
 *.cache
 *.log
+*.zip
+build_log.txt
