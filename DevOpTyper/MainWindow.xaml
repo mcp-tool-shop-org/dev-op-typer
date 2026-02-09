@@ -11,10 +11,6 @@
     Title="Dev-Op-Typer">
     
     <Grid x:Name="RootGrid">
-        <Grid.KeyboardAccelerators>
-            <!-- Debug inspector toggle (Shift+F12) — debug builds only -->
-            <KeyboardAccelerator Key="F12" Modifiers="Shift" Invoked="DebugInspector_Invoked"/>
-        </Grid.KeyboardAccelerators>
         <Grid.RowDefinitions>
             <RowDefinition Height="48"/>
             <RowDefinition Height="*"/>
