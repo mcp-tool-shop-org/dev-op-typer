@@ -146,34 +146,12 @@
                            IsTabStop="False"
                            AutomationProperties.LiveSetting="Assertive"/>
 
-                <ToggleSwitch x:Name="ShowIntentChipsToggle"
-                              Header="Show Intent Chips"
-                              OffContent="Hidden"
-                              OnContent="Visible"
-                              IsOn="True"/>
-
                 <ToggleSwitch x:Name="ShowSuggestionsToggle"
                               Header="Show Suggestions"
                               OffContent="Hidden"
                               OnContent="Visible"
                               IsOn="True"
                               AutomationProperties.Name="Show or hide practice suggestions"/>
-
-                <StackPanel Spacing="4">
-                    <TextBlock Text="Default Intent"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                               FontSize="12"/>
-                    <ComboBox x:Name="DefaultIntentCombo"
-                              HorizontalAlignment="Stretch"
-                              SelectedIndex="0"
-                              AutomationProperties.Name="Default practice intent">
-                        <ComboBoxItem Content="None" Tag=""/>
-                        <ComboBoxItem Content="Focus" Tag="Focus"/>
-                        <ComboBoxItem Content="Challenge" Tag="Challenge"/>
-                        <ComboBoxItem Content="Maintenance" Tag="Maintenance"/>
-                        <ComboBoxItem Content="Exploration" Tag="Exploration"/>
-                    </ComboBox>
-                </StackPanel>
 
                 <StackPanel Spacing="4">
                     <TextBlock Text="Focus Area"

@@ -8,16 +8,68 @@
     xmlns:controls="using:DevOpTyper.Controls"
     mc:Ignorable="d">
 
-    <Grid Padding="16">
+    <Grid Padding="16,8,16,16">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="3*"/>
             <RowDefinition Height="2*"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Live Per-Character Typing Display -->
-        <Border Grid.Row="0"
+        <!-- Row 0: Action Toolbar — always visible at the top -->
+        <StackPanel Grid.Row="0"
+                    Orientation="Horizontal"
+                    Spacing="10"
+                    Margin="0,0,0,4">
+            <Button x:Name="NewTestButton" Content="New Test"
+                    Style="{ThemeResource AccentButtonStyle}"
+                    AutomationProperties.Name="Load a new typing test"
+                    ToolTipService.ToolTip="Load a new code snippet to practice"/>
+            <Button x:Name="ResetButton" Content="Reset"
+                    AutomationProperties.Name="Reset current session"
+                    ToolTipService.ToolTip="Clear typing input and restart"/>
+            <Button x:Name="SkipButton" Content="Skip"
+                    AutomationProperties.Name="Skip to next snippet"
+                    ToolTipService.ToolTip="Load a different code snippet"/>
+
+            <!-- Session status text -->
+            <TextBlock x:Name="SessionStatusText"
+                       Text=""
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       VerticalAlignment="Center"
+                       FontSize="12"
+                       Margin="12,0,0,0"
+                       AutomationProperties.Name="Session status"/>
+
+            <!-- Difficulty badge -->
+            <Border x:Name="DifficultyBadge"
+                    Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                    CornerRadius="8"
+                    Padding="8,2"
+                    Margin="6,0,0,0"
+                    Visibility="Collapsed">
+                <TextBlock x:Name="DifficultyText"
+                           FontFamily="Consolas"
+                           FontSize="11"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           VerticalAlignment="Center"
+                           AutomationProperties.Name="Current difficulty level"/>
+            </Border>
+
+            <!-- Pick reason (v0.9.0) — why this snippet was selected -->
+            <TextBlock x:Name="PickReasonText"
+                       FontSize="11"
+                       Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                       VerticalAlignment="Center"
+                       Visibility="Collapsed"
+                       IsTabStop="False"
+                       AutomationProperties.LiveSetting="Off"
+                       AutomationProperties.Name="Reason this snippet was selected"
+                       Margin="6,0,0,0"/>
+        </StackPanel>
+
+        <!-- Row 1: Snippet Display Area -->
+        <Border Grid.Row="1"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="8"
                 Padding="16"
@@ -63,17 +115,6 @@
                            AutomationProperties.Name="Scaffold hints for this snippet"
                            Margin="0,-2,0,0"/>
 
-                <!-- Pick reason (v0.9.0) — why this snippet was selected -->
-                <TextBlock x:Name="PickReasonText"
-                           FontSize="10"
-                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                           TextWrapping="Wrap"
-                           Visibility="Collapsed"
-                           IsTabStop="False"
-                           AutomationProperties.LiveSetting="Off"
-                           AutomationProperties.Name="Reason this snippet was selected"
-                           Margin="0,-2,0,0"/>
-
                 <!-- Guidance notes (v0.8.0) — collective experience, always dismissible -->
                 <StackPanel x:Name="GuidanceArea"
                             Spacing="2"
@@ -102,14 +143,14 @@
                     </Grid>
                 </StackPanel>
 
-                <!-- Per-character diff renderer (replaces old plain TargetCode TextBlock) -->
+                <!-- Per-character diff renderer -->
                 <controls:TypingPresenter x:Name="CodeRenderer"
                                           AutomationProperties.Name="Code snippet to type"/>
             </StackPanel>
         </Border>
 
-        <!-- Typing Input Area -->
-        <Border Grid.Row="1"
+        <!-- Row 2: Typing Input Area -->
+        <Border Grid.Row="2"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="8"
                 Padding="16"
@@ -137,9 +178,9 @@
             </Grid>
         </Border>
 
-        <!-- Session Completion Summary (Phase 4) + Retrospective (v0.4.0) -->
+        <!-- Row 3: Session Completion Summary + Retrospective -->
         <Border x:Name="CompletionBanner"
-                Grid.Row="2"
+                Grid.Row="3"
                 Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                 CornerRadius="8"
                 Padding="12"
@@ -219,50 +260,5 @@
                 </StackPanel>
             </StackPanel>
         </Border>
-
-        <!-- Action Buttons + Optional Intent Chips -->
-        <StackPanel Grid.Row="3"
-                    HorizontalAlignment="Center"
-                    Spacing="6">
-
-            <!-- User Intent Chips (v0.4.0) — descriptive, not evaluative -->
-            <StackPanel x:Name="IntentChipBar"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        Spacing="4"
-                        AutomationProperties.Name="Practice intent selection">
-                <TextBlock Text="Intent:"
-                           FontSize="11"
-                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                           VerticalAlignment="Center"
-                           Margin="0,0,2,0"/>
-                <ToggleButton x:Name="IntentFocusChip" Content="Focus"
-                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"
-                              AutomationProperties.Name="Focus intent — concentrated practice"/>
-                <ToggleButton x:Name="IntentChallengeChip" Content="Challenge"
-                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"
-                              AutomationProperties.Name="Challenge intent — push beyond comfort"/>
-                <ToggleButton x:Name="IntentMaintenanceChip" Content="Maintenance"
-                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"
-                              AutomationProperties.Name="Maintenance intent — keeping skills sharp"/>
-                <ToggleButton x:Name="IntentExplorationChip" Content="Exploration"
-                              FontSize="11" Padding="8,3" CornerRadius="12" MinWidth="0"
-                              AutomationProperties.Name="Exploration intent — trying something new"/>
-            </StackPanel>
-
-            <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        Spacing="12">
-                <Button x:Name="StartButton" Content="Start Test" Style="{ThemeResource AccentButtonStyle}"
-                        AutomationProperties.Name="Start typing test"
-                        ToolTipService.ToolTip="Begin a new practice session"/>
-                <Button x:Name="ResetButton" Content="Reset"
-                        AutomationProperties.Name="Reset current session"
-                        ToolTipService.ToolTip="Clear typing input and restart"/>
-                <Button x:Name="SkipButton" Content="Skip"
-                        AutomationProperties.Name="Skip to next snippet"
-                        ToolTipService.ToolTip="Load a different code snippet"/>
-            </StackPanel>
-        </StackPanel>
     </Grid>
 </UserControl>

@@ -204,20 +204,6 @@
                 <StackPanel x:Name="TrendContainer" Spacing="6" Visibility="Collapsed"/>
 
                 <!-- Divider -->
-                <Border x:Name="IntentPatternDivider" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4" Visibility="Collapsed"/>
-
-                <!-- Intent Patterns Section -->
-                <TextBlock x:Name="IntentPatternHeader"
-                           Text="By Intent"
-                           FontSize="14"
-                           FontWeight="SemiBold"
-                           Visibility="Collapsed"
-                           AutomationProperties.HeadingLevel="Level2"/>
-
-                <StackPanel x:Name="IntentPatternContainer" Spacing="6" Visibility="Collapsed"
-                            AutomationProperties.Name="Intent pattern averages"/>
-
-                <!-- Divider -->
                 <Border x:Name="PatternDivider" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4" Visibility="Collapsed"/>
 
                 <!-- Patterns Section — observational, not prescriptive -->

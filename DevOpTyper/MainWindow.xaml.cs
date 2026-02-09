@@ -90,7 +90,7 @@ public sealed partial class MainWindow : Window
         _typingEngine.TextCorrected += OnTextCorrected;
 
         // Wire up UI events
-        TypingPanel.StartClicked += StartTest_Click;
+        TypingPanel.NewTestClicked += NewTest_Click;
         TypingPanel.ResetClicked += ResetTest_Click;
         TypingPanel.SkipClicked += SkipTest_Click;
         TypingPanel.TypingTextChanged += TypingBox_TextChanged;
@@ -302,6 +302,9 @@ public sealed partial class MainWindow : Window
         TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
         _currentSnippet = snippet;
 
+        // Update toolbar difficulty badge
+        TypingPanel.UpdateDifficulty(snippet.Difficulty);
+
         // Show pick reason (v0.9.0) — explains why this snippet was chosen
         TypingPanel.ShowPickReason(plan != null ? ReasonFormatter.Format(plan) : null);
         StatsPanel.UpdatePlanPreview(plan);
@@ -385,10 +388,24 @@ public sealed partial class MainWindow : Window
     private Snippet? _currentSnippet;
     private SessionPlan? _currentPlan;
 
-    private void StartTest_Click(object sender, RoutedEventArgs e)
+    private void NewTest_Click(object sender, RoutedEventArgs e)
     {
         _uiFeedback.OnButtonClick();
         TypingPanel.DismissCompletionBanner();
+        _typingEngine.CancelSession();
+        _pendingContext = null;
+
+        // Load a fresh snippet, then auto-start the session
+        LoadNewSnippet();
+        StartCurrentSession();
+    }
+
+    /// <summary>
+    /// Starts the typing session on the currently loaded snippet.
+    /// Called by NewTest (after loading) and can be called independently.
+    /// </summary>
+    private void StartCurrentSession()
+    {
         if (_currentSnippet != null)
         {
             bool hardcore = SettingsPanel.IsHardcoreMode;
@@ -411,9 +428,6 @@ public sealed partial class MainWindow : Window
             if (repeats > 0 && context.Intent == PracticeIntent.Freeform)
                 context.Intent = PracticeIntent.Repeat;
 
-            // Capture user-declared intent — purely descriptive, no scoring impact
-            context.DeclaredIntent = TypingPanel.SelectedUserIntent;
-
             // Apply focus area from settings if no other focus is set
             if (string.IsNullOrEmpty(context.Focus))
                 context.Focus = SettingsPanel.FocusArea;
@@ -423,6 +437,10 @@ public sealed partial class MainWindow : Window
             _sessionPacer.OnSessionStarted();
             _lastHeatmapIndex = 0;
             _keyboardSound.Reset();
+
+            // Update toolbar status
+            TypingPanel.UpdateSessionStatus("Session running");
+            TypingPanel.UpdateDifficulty(_currentSnippet.Difficulty);
 
             // Hide between-session panels and hints during active typing
             ExplanationPanel.Hide();
@@ -449,6 +467,8 @@ public sealed partial class MainWindow : Window
             bool hardcore = SettingsPanel.IsHardcoreMode;
             var rules = SettingsPanel.GetTypingRules();
             _typingEngine.StartSession(_currentSnippet, hardcore, rules);
+            TypingPanel.UpdateSessionStatus("Session running");
+            TypingPanel.UpdateDifficulty(_currentSnippet.Difficulty);
         }
         TypingPanel.FocusTypingBox();
     }
@@ -460,6 +480,7 @@ public sealed partial class MainWindow : Window
         _typingEngine.CancelSession();
         _pendingContext = null; // Clear any pending intent from suggestion actions
         LoadNewSnippet();
+        TypingPanel.UpdateSessionStatus("Idle");
     }
 
     /// <summary>
@@ -729,6 +750,9 @@ public sealed partial class MainWindow : Window
             _keyboardSound.OnSessionComplete();
             _sessionPacer.OnSessionCompleted();
 
+            // Update toolbar status
+            TypingPanel.UpdateSessionStatus("Complete");
+
             // Update profile with results
             _profile.AddXp(e.XpEarned);
 
@@ -756,9 +780,6 @@ public sealed partial class MainWindow : Window
                     context: e.Context,
                     plan: _currentPlan
                 );
-
-                // Propagate user-declared intent to the session record
-                record.DeclaredIntent = e.Context?.DeclaredIntent;
 
                 blob.History.AddRecord(record);
 
@@ -841,13 +862,6 @@ public sealed partial class MainWindow : Window
     {
         var lines = new List<string>();
         var language = _currentSnippet?.Language ?? SettingsPanel.SelectedLanguage;
-
-        // Show declared intent if user set one
-        var declaredIntent = e.Context?.DeclaredIntent;
-        if (declaredIntent.HasValue)
-        {
-            lines.Add($"Intent: {declaredIntent.Value}");
-        }
 
         // Compare to recent average (last 10 sessions in this language)
         if (blob.Longitudinal.TrendsByLanguage.TryGetValue(
@@ -948,9 +962,6 @@ public sealed partial class MainWindow : Window
         var identity = TypistIdentityService.Build(blob.History, blob.Longitudinal);
         StatsPanel.UpdateIdentity(identity);
 
-        // Intent patterns — factual correlations, no judgment
-        StatsPanel.UpdateIntentPatterns(blob.History);
-
         // Deeper patterns — observational, not prescriptive
         var patterns = PatternDetector.Detect(blob.History, blob.Longitudinal);
         StatsPanel.UpdatePatterns(patterns);
@@ -1041,8 +1052,6 @@ public sealed partial class MainWindow : Window
         _settings.TypingRules = SettingsPanel.GetTypingRules();
 
         // Practice preferences
-        _settings.ShowIntentChips = SettingsPanel.ShowIntentChips;
-        _settings.DefaultIntent = SettingsPanel.DefaultIntent;
         _settings.PracticeNote = SettingsPanel.PracticeNote;
         _settings.FocusArea = SettingsPanel.FocusArea;
         _settings.ShowSuggestions = SettingsPanel.ShowSuggestions;
@@ -1059,20 +1068,10 @@ public sealed partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Applies practice preferences to the UI — shows/hides intent chips,
-    /// sets default intent selection, controls suggestion visibility.
+    /// Applies practice preferences to the UI — controls suggestion visibility.
     /// </summary>
     private void ApplyPracticePreferences()
     {
-        // Show or hide intent chips based on user preference
-        TypingPanel.SetIntentChipsVisible(_settings.ShowIntentChips);
-
-        // Pre-select the user's default intent, if any
-        if (_settings.DefaultIntent.HasValue)
-        {
-            TypingPanel.SetDefaultIntent(_settings.DefaultIntent.Value);
-        }
-
         // Relay suggestion visibility preference to StatsPanel
         StatsPanel.ShowSuggestions = _settings.ShowSuggestions;
     }

@@ -1,13 +1,12 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using DevOpTyper.Models;
 
 namespace DevOpTyper.Panels;
 
 public sealed partial class TypingPanel : UserControl
 {
-    public event RoutedEventHandler? StartClicked;
+    public event RoutedEventHandler? NewTestClicked;
     public event RoutedEventHandler? ResetClicked;
     public event RoutedEventHandler? SkipClicked;
     public event TextChangedEventHandler? TypingTextChanged;
@@ -24,16 +23,11 @@ public sealed partial class TypingPanel : UserControl
     /// </summary>
     public event EventHandler<string>? SessionNoteSubmitted;
 
-    /// <summary>
-    /// All intent chips mapped to their UserIntent value.
-    /// </summary>
-    private readonly (ToggleButton Chip, UserIntent Intent)[] _intentChips;
-
     public TypingPanel()
     {
         InitializeComponent();
 
-        StartButton.Click += (s, e) => StartClicked?.Invoke(s, e);
+        NewTestButton.Click += (s, e) => NewTestClicked?.Invoke(s, e);
         ResetButton.Click += (s, e) => ResetClicked?.Invoke(s, e);
         SkipButton.Click += (s, e) => SkipClicked?.Invoke(s, e);
         TypingBox.TextChanged += (s, e) => TypingTextChanged?.Invoke(s, e);
@@ -59,78 +53,30 @@ public sealed partial class TypingPanel : UserControl
         {
             GuidanceArea.Visibility = Visibility.Collapsed;
         };
+    }
 
-        // Wire intent chips — mutual exclusion (at most one selected)
-        _intentChips = new[]
-        {
-            (IntentFocusChip, UserIntent.Focus),
-            (IntentChallengeChip, UserIntent.Challenge),
-            (IntentMaintenanceChip, UserIntent.Maintenance),
-            (IntentExplorationChip, UserIntent.Exploration)
-        };
+    /// <summary>
+    /// Updates the session status text in the toolbar.
+    /// e.g., "Session running", "Idle", "Complete"
+    /// </summary>
+    public void UpdateSessionStatus(string status)
+    {
+        SessionStatusText.Text = status;
+    }
 
-        foreach (var (chip, _) in _intentChips)
+    /// <summary>
+    /// Shows or hides the difficulty badge in the toolbar.
+    /// </summary>
+    public void UpdateDifficulty(int? difficulty)
+    {
+        if (difficulty.HasValue && difficulty.Value > 0)
         {
-            chip.Checked += OnIntentChipChecked;
-            chip.Unchecked += (_, _) => { }; // Allow unchecking freely
+            DifficultyText.Text = $"Difficulty: {difficulty.Value}";
+            DifficultyBadge.Visibility = Visibility.Visible;
         }
-    }
-
-    /// <summary>
-    /// When a chip is checked, uncheck all others (radio-like behavior).
-    /// </summary>
-    private void OnIntentChipChecked(object sender, RoutedEventArgs e)
-    {
-        foreach (var (chip, _) in _intentChips)
+        else
         {
-            if (!ReferenceEquals(chip, sender))
-                chip.IsChecked = false;
-        }
-    }
-
-    /// <summary>
-    /// Gets the user's declared intent, or null if none is selected.
-    /// </summary>
-    public UserIntent? SelectedUserIntent
-    {
-        get
-        {
-            foreach (var (chip, intent) in _intentChips)
-            {
-                if (chip.IsChecked == true)
-                    return intent;
-            }
-            return null;
-        }
-    }
-
-    /// <summary>
-    /// Clears the user intent selection (no chip selected).
-    /// </summary>
-    public void ClearUserIntent()
-    {
-        foreach (var (chip, _) in _intentChips)
-            chip.IsChecked = false;
-    }
-
-    /// <summary>
-    /// Shows or hides the intent chip bar.
-    /// </summary>
-    public void SetIntentChipsVisible(bool visible)
-    {
-        IntentChipBar.Visibility = visible
-            ? Microsoft.UI.Xaml.Visibility.Visible
-            : Microsoft.UI.Xaml.Visibility.Collapsed;
-    }
-
-    /// <summary>
-    /// Pre-selects a default intent chip.
-    /// </summary>
-    public void SetDefaultIntent(UserIntent intent)
-    {
-        foreach (var (chip, chipIntent) in _intentChips)
-        {
-            chip.IsChecked = chipIntent == intent;
+            DifficultyBadge.Visibility = Visibility.Collapsed;
         }
     }
 
@@ -183,7 +129,7 @@ public sealed partial class TypingPanel : UserControl
     }
 
     /// <summary>
-    /// Shows the pick reason text below the snippet metadata.
+    /// Shows the pick reason text in the toolbar.
     /// Explains why the SessionPlanner chose this snippet (Target/Review/Stretch).
     /// Null or empty hides the text. Display-only — never affects engine behavior.
     /// </summary>

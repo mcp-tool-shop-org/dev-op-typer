@@ -373,11 +373,6 @@ public sealed partial class SettingsPanel : UserControl
     #region Properties — Practice Preferences (v0.4.0)
 
     /// <summary>
-    /// Gets whether intent chips should be shown in the typing panel.
-    /// </summary>
-    public bool ShowIntentChips => ShowIntentChipsToggle.IsOn;
-
-    /// <summary>
     /// Gets whether practice suggestions should be shown in the stats panel.
     /// The user can hide suggestions entirely — no penalty.
     /// </summary>
@@ -445,26 +440,6 @@ public sealed partial class SettingsPanel : UserControl
     public event EventHandler<bool>? CommunitySignalsChanged;
 
     /// <summary>
-    /// Gets the user's default declared intent, or null for none.
-    /// </summary>
-    public UserIntent? DefaultIntent
-    {
-        get
-        {
-            var item = DefaultIntentCombo.SelectedItem as ComboBoxItem;
-            var tag = item?.Tag?.ToString();
-            return tag switch
-            {
-                "Focus" => UserIntent.Focus,
-                "Challenge" => UserIntent.Challenge,
-                "Maintenance" => UserIntent.Maintenance,
-                "Exploration" => UserIntent.Exploration,
-                _ => null
-            };
-        }
-    }
-
-    /// <summary>
     /// Gets the practice note text.
     /// </summary>
     public string? PracticeNote => string.IsNullOrWhiteSpace(PracticeNoteBox.Text)
@@ -489,7 +464,6 @@ public sealed partial class SettingsPanel : UserControl
     /// </summary>
     public void LoadPracticePreferences(AppSettings settings)
     {
-        ShowIntentChipsToggle.IsOn = settings.ShowIntentChips;
         ShowSuggestionsToggle.IsOn = settings.ShowSuggestions;
         CommunitySignalsToggle.IsOn = settings.ShowCommunitySignals;
 
@@ -501,16 +475,6 @@ public sealed partial class SettingsPanel : UserControl
 
         // Guided Mode (v1.0.0)
         GuidedModeToggle.IsOn = settings.SignalPolicy.GuidedMode;
-
-        // Map DefaultIntent to combo index (0=None, 1=Focus, 2=Challenge, 3=Maintenance, 4=Exploration)
-        DefaultIntentCombo.SelectedIndex = settings.DefaultIntent switch
-        {
-            UserIntent.Focus => 1,
-            UserIntent.Challenge => 2,
-            UserIntent.Maintenance => 3,
-            UserIntent.Exploration => 4,
-            _ => 0
-        };
 
         PracticeNoteBox.Text = settings.PracticeNote ?? "";
 
