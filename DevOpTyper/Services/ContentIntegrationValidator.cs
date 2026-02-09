@@ -37,6 +37,7 @@ public static class ContentIntegrationValidator
             ValidateSessionPlanner();
             ValidateWeaknessTracking();
             ValidateUXTransparency();
+            ValidatePerformanceGuardrails();
         }
         catch (Exception ex)
         {
@@ -697,6 +698,56 @@ public static class ContentIntegrationValidator
             "Mismatch plan reason includes 'nearest' annotation");
 
         Log("UXTransparency: all checks passed");
+    }
+
+    /// <summary>
+    /// Validates performance: plan generation, heatmap operations, and
+    /// reason formatting must complete well within budget.
+    /// </summary>
+    private static void ValidatePerformanceGuardrails()
+    {
+        Log("--- ValidatePerformanceGuardrails ---");
+
+        // Heatmap: 10K records under 200ms
+        var heatmap = new MistakeHeatmap();
+        var sw = Stopwatch.StartNew();
+        for (int i = 0; i < 10_000; i++)
+        {
+            char c = (char)('!' + (i % 90));
+            if (i % 5 == 0)
+                heatmap.RecordMiss(c, (char)('!' + ((i + 1) % 90)));
+            else
+                heatmap.RecordHit(c);
+        }
+        sw.Stop();
+        Assert(sw.ElapsedMilliseconds < 200,
+            $"10K heatmap records in {sw.ElapsedMilliseconds}ms (budget: 200ms)");
+
+        // GetWeakest: 1K queries under 100ms
+        sw.Restart();
+        for (int i = 0; i < 1_000; i++)
+            heatmap.GetWeakest(5, 3);
+        sw.Stop();
+        Assert(sw.ElapsedMilliseconds < 100,
+            $"1K GetWeakest queries in {sw.ElapsedMilliseconds}ms (budget: 100ms)");
+
+        // ReasonFormatter: 10K formats under 50ms
+        var plan = new SessionPlan
+        {
+            Category = MixCategory.Target,
+            TargetDifficulty = 4,
+            ActualDifficulty = 4,
+            ComfortZone = 4,
+            Reason = "Practicing at D4"
+        };
+        sw.Restart();
+        for (int i = 0; i < 10_000; i++)
+            ReasonFormatter.Format(plan);
+        sw.Stop();
+        Assert(sw.ElapsedMilliseconds < 50,
+            $"10K ReasonFormatter.Format in {sw.ElapsedMilliseconds}ms (budget: 50ms)");
+
+        Log("PerformanceGuardrails: all checks passed");
     }
 
     private static void Assert(bool condition, string message)
