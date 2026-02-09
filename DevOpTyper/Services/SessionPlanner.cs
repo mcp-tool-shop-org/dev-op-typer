@@ -39,7 +39,8 @@ public static class SessionPlanner
         WeaknessReport? weaknessReport,
         int? manualDifficultyLock = null,
         bool isYoYoing = false,
-        Random? rng = null)
+        Random? rng = null,
+        SignalPolicy? signalPolicy = null)
     {
         rng ??= Random.Shared;
 
@@ -50,7 +51,7 @@ public static class SessionPlanner
         {
             var locked = manualDifficultyLock.Value;
             var lockedProfile = CreateProfileForDifficulty(locked);
-            var snippet = selector.SelectAdaptive(language, profile, lockedProfile, weaknessReport);
+            var snippet = selector.SelectAdaptive(language, profile, lockedProfile, weaknessReport, signalPolicy);
             return (snippet, new SessionPlan
             {
                 Category = MixCategory.Target,
@@ -66,7 +67,7 @@ public static class SessionPlanner
         {
             var stable = comfortZone.Value;
             var stableProfile = CreateProfileForDifficulty(stable);
-            var snippet = selector.SelectAdaptive(language, profile, stableProfile, weaknessReport);
+            var snippet = selector.SelectAdaptive(language, profile, stableProfile, weaknessReport, signalPolicy);
             return (snippet, new SessionPlan
             {
                 Category = MixCategory.Target,
@@ -80,7 +81,7 @@ public static class SessionPlanner
         // No comfort zone yet: everything is Target (rating-based)
         if (!comfortZone.HasValue)
         {
-            var snippet = selector.SelectAdaptive(language, profile, difficultyProfile, weaknessReport);
+            var snippet = selector.SelectAdaptive(language, profile, difficultyProfile, weaknessReport, signalPolicy);
             return (snippet, new SessionPlan
             {
                 Category = MixCategory.Target,
@@ -96,7 +97,7 @@ public static class SessionPlanner
         int targetDifficulty = CategoryToDifficulty(category, comfortZone.Value);
 
         var categoryProfile = CreateProfileForDifficulty(targetDifficulty);
-        var selected = selector.SelectAdaptive(language, profile, categoryProfile, weaknessReport);
+        var selected = selector.SelectAdaptive(language, profile, categoryProfile, weaknessReport, signalPolicy);
 
         // If the actual difficulty doesn't match target, annotate the reason
         bool mismatch = selected.Difficulty != targetDifficulty;

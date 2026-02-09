@@ -279,7 +279,8 @@ public sealed partial class MainWindow : Window
             // Session planner wraps the selector with Target/Review/Stretch mix
             (snippet, plan) = SessionPlanner.PlanNext(
                 _smartSelector, language, _profile,
-                difficultyProfile, weaknessReport);
+                difficultyProfile, weaknessReport,
+                signalPolicy: blob.Settings.SignalPolicy);
         }
         else
         {
@@ -614,7 +615,8 @@ public sealed partial class MainWindow : Window
 
         var (snippet, plan) = SessionPlanner.PlanNext(
             _smartSelector, language, _profile,
-            difficultyProfile, weaknessReport);
+            difficultyProfile, weaknessReport,
+            signalPolicy: blob.Settings.SignalPolicy);
 
         TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
         _currentSnippet = snippet;

@@ -72,11 +72,14 @@ public sealed class SmartSnippetSelector
     /// Selects the next snippet using adaptive difficulty and weakness tracking (v0.3.0).
     /// Uses DifficultyProfile for trend-aware difficulty targeting and WeaknessReport
     /// for improvement-aware weakness scoring.
+    /// When SignalPolicy.EffectiveSelectionBias is true (v1.0.0), applies bounded
+    /// category bias from WeaknessBias — never changes difficulty band, only ordering.
     /// </summary>
     public Snippet SelectAdaptive(
         string language, Profile profile,
         DifficultyProfile? difficultyProfile,
-        WeaknessReport? weaknessReport)
+        WeaknessReport? weaknessReport,
+        SignalPolicy? signalPolicy = null)
     {
         var allSnippets = _snippetService.GetSnippets(language).ToList();
         if (allSnippets.Count == 0)
@@ -118,6 +121,7 @@ public sealed class SmartSnippetSelector
         {
             Snippet = s,
             Score = ComputeAdaptiveScore(s, targetDifficulty, minDiff, maxDiff, profile, weaknessReport)
+                + WeaknessBias.ComputeCategoryBias(s, profile.Heatmap, signalPolicy)
         })
         .OrderByDescending(s => s.Score)
         .ToList();
