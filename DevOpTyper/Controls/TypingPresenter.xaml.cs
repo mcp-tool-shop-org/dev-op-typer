@@ -316,46 +316,55 @@ public sealed partial class TypingPresenter : UserControl
 
     private void ResolveBrushesIfNeeded()
     {
-        if (_correctBrush == null)
+        if (_pendingBrush == null)
         {
+            // Always ensure brushes exist with hardcoded fallbacks first,
+            // then upgrade from theme resources when available.
+            EnsureFallbackBrushes();
             ResolveBrushes();
         }
+    }
+
+    /// <summary>
+    /// Creates hardcoded brushes matching the dark theme. Called before
+    /// resource lookup to guarantee non-null brushes at all times —
+    /// fixes race condition where RenderTarget is called before OnLoaded.
+    /// </summary>
+    private void EnsureFallbackBrushes()
+    {
+        _correctBrush ??= new SolidColorBrush(ColorHelper.FromArgb(0xFF, 0x4A, 0xDE, 0xC8)); // DotAccent1 teal
+        _errorBrush ??= new SolidColorBrush(Colors.Red);
+        _pendingBrush ??= new SolidColorBrush(ColorHelper.FromArgb(0xFF, 0xB7, 0xC0, 0xD6)); // DotTextMuted
+        _caretBrush ??= new SolidColorBrush(ColorHelper.FromArgb(0xFF, 0x4A, 0xF0, 0xF0)); // DotAccent2 cyan
+        _extraBrush ??= new SolidColorBrush(Colors.Red);
     }
 
     private void ResolveBrushes()
     {
         try
         {
-            var resources = App.Current.Resources;
+            if (App.Current?.Resources is not { } resources)
+                return;
 
-            // Correct: accent green (teal) — typed correctly
-            _correctBrush = resources["DotAccent1Brush"] as SolidColorBrush
-                ?? new SolidColorBrush(Colors.LightGreen);
+            // Upgrade to theme brushes if available
+            if (resources["DotAccent1Brush"] is SolidColorBrush correct)
+                _correctBrush = correct;
 
-            // Error: red — typed incorrectly
-            _errorBrush = resources["DotErrorBrush"] as SolidColorBrush
-                ?? new SolidColorBrush(Colors.Red);
+            if (resources["DotErrorBrush"] is SolidColorBrush error)
+                _errorBrush = error;
 
-            // Pending: muted gray — not yet typed
-            _pendingBrush = resources["DotTextMutedBrush"] as SolidColorBrush
-                ?? new SolidColorBrush(Colors.Gray);
+            if (resources["DotTextMutedBrush"] is SolidColorBrush pending)
+                _pendingBrush = pending;
 
-            // Caret: bright accent blue — current position
-            _caretBrush = resources["DotAccent2Brush"] as SolidColorBrush
-                ?? new SolidColorBrush(Colors.CornflowerBlue);
+            if (resources["DotAccent2Brush"] is SolidColorBrush caret)
+                _caretBrush = caret;
 
-            // Extra: same as error but with strikethrough
-            _extraBrush = resources["DotErrorBrush"] as SolidColorBrush
-                ?? new SolidColorBrush(Colors.Red);
+            if (resources["DotErrorBrush"] is SolidColorBrush extra)
+                _extraBrush = extra;
         }
         catch
         {
-            // Fallback if resources not available
-            _correctBrush = new SolidColorBrush(Colors.LightGreen);
-            _errorBrush = new SolidColorBrush(Colors.Red);
-            _pendingBrush = new SolidColorBrush(Colors.Gray);
-            _caretBrush = new SolidColorBrush(Colors.CornflowerBlue);
-            _extraBrush = new SolidColorBrush(Colors.Red);
+            // Hardcoded fallbacks already set by EnsureFallbackBrushes
         }
     }
 

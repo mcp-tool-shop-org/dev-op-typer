@@ -21,6 +21,7 @@ public static class ContentIntegrationValidator
     public static void RunAll(ContentLibraryService contentLibrary)
     {
         Log("=== ContentIntegrationValidator START ===");
+        _failCount = 0;
 
         try
         {
@@ -51,7 +52,10 @@ public static class ContentIntegrationValidator
             Log($"FATAL: Unhandled exception during validation: {ex.Message}");
         }
 
-        Log("=== ContentIntegrationValidator END ===");
+        if (_failCount > 0)
+            Log($"=== ContentIntegrationValidator END — {_failCount} FAILURES ===");
+        else
+            Log("=== ContentIntegrationValidator END — ALL PASSED ===");
     }
 
     /// <summary>
@@ -1236,6 +1240,8 @@ public static class ContentIntegrationValidator
         Log("SerializationProfile: all checks passed");
     }
 
+    private static int _failCount;
+
     private static void Assert(bool condition, string message)
     {
         if (condition)
@@ -1244,8 +1250,10 @@ public static class ContentIntegrationValidator
         }
         else
         {
+            _failCount++;
             Log($"  FAIL: {message}");
-            Debug.Fail($"ContentIntegrationValidator: {message}");
+            // Log only — don't call Debug.Fail() which kills the process.
+            // Failures are visible in Debug Output and summarized at end.
         }
     }
 
