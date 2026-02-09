@@ -98,10 +98,15 @@ public static class SessionPlanner
         var categoryProfile = CreateProfileForDifficulty(targetDifficulty);
         var selected = selector.SelectAdaptive(language, profile, categoryProfile, weaknessReport);
 
+        // If the actual difficulty doesn't match target, annotate the reason
+        bool mismatch = selected.Difficulty != targetDifficulty;
         string reason = category switch
         {
+            MixCategory.Review when mismatch => $"Reinforcing D{selected.Difficulty} (nearest to D{targetDifficulty})",
             MixCategory.Review => $"Reinforcing D{targetDifficulty} mastery",
+            MixCategory.Stretch when mismatch => $"Stretching to D{selected.Difficulty} (nearest to D{targetDifficulty})",
             MixCategory.Stretch => $"Stretching to D{targetDifficulty}",
+            _ when mismatch => $"Practicing at D{selected.Difficulty} (nearest to D{targetDifficulty})",
             _ => $"Practicing at D{targetDifficulty}"
         };
 
