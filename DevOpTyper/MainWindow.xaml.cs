@@ -256,6 +256,8 @@ public sealed partial class MainWindow : Window
             language = config.Language;
 
         Snippet snippet;
+        SessionPlan? plan = null;
+
         if (SettingsPanel.IsAdaptiveDifficulty)
         {
             // Adaptive: use trend-aware difficulty and trajectory scoring
@@ -273,8 +275,10 @@ public sealed partial class MainWindow : Window
             var weaknessReport = _weaknessTracker.GetReport(
                 language, _profile.Heatmap, blob.Longitudinal);
 
-            snippet = _smartSelector.SelectAdaptive(
-                language, _profile, difficultyProfile, weaknessReport);
+            // Session planner wraps the selector with Target/Review/Stretch mix
+            (snippet, plan) = SessionPlanner.PlanNext(
+                _smartSelector, language, _profile,
+                difficultyProfile, weaknessReport);
         }
         else
         {
@@ -282,6 +286,7 @@ public sealed partial class MainWindow : Window
             snippet = _smartSelector.SelectNext(language, _profile);
         }
 
+        _currentPlan = plan;
         TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
         _currentSnippet = snippet;
 
@@ -362,6 +367,7 @@ public sealed partial class MainWindow : Window
     }
 
     private Snippet? _currentSnippet;
+    private SessionPlan? _currentPlan;
 
     private void StartTest_Click(object sender, RoutedEventArgs e)
     {
@@ -601,11 +607,13 @@ public sealed partial class MainWindow : Window
         var weaknessReport = _weaknessTracker.GetReport(
             language, _profile.Heatmap, blob.Longitudinal);
 
-        var snippet = _smartSelector.SelectAdaptive(
-            language, _profile, difficultyProfile, weaknessReport);
+        var (snippet, plan) = SessionPlanner.PlanNext(
+            _smartSelector, language, _profile,
+            difficultyProfile, weaknessReport);
 
         TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
         _currentSnippet = snippet;
+        _currentPlan = plan;
         _pendingContext = new PracticeContext
         {
             Intent = PracticeIntent.Exploration,
