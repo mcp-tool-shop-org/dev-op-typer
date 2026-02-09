@@ -5,6 +5,22 @@ All notable changes to Dev-Op-Typer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] — Structured Practice & Learning Signals
+
+*In development*
+
+Goals:
+- The app knows what to practice next — and why
+- Calibration content with full difficulty band coverage
+- Session planner with Target / Review / Stretch mix
+- Symbol-level weakness tracking
+- Transparent, explainable selection
+
+Non-goals:
+- No rigid curriculum trees or locked lesson order
+- No cloud accounts or telemetry
+- No ML / black-box adaptation
+
 ## [0.8.2] - 2026-02-08
 
 ### Theme: Parity + Migration Prep
