@@ -33,6 +33,7 @@ public static class ContentIntegrationValidator
             ValidateQueryPerformance(contentLibrary);
             ValidateDifficultyDerivation();
             ValidateNoDifficultyDefault(contentLibrary);
+            ValidateCalibrationPacks(contentLibrary);
         }
         catch (Exception ex)
         {
@@ -374,6 +375,86 @@ public static class ContentIntegrationValidator
             $"Multiple difficulty tiers present ({string.Join(", ", allDifficulties.OrderBy(d => d))})");
 
         Log($"Difficulty distribution: tiers {string.Join(", ", allDifficulties.OrderBy(d => d))}");
+    }
+
+    /// <summary>
+    /// Validates calibration packs: file existence, band coverage, ID format,
+    /// language consistency, uniqueness, and separation from practice content.
+    /// </summary>
+    private static void ValidateCalibrationPacks(ContentLibraryService contentLibrary)
+    {
+        Log("--- ValidateCalibrationPacks ---");
+
+        var calibrationDir = Path.Combine(AppContext.BaseDirectory, "Assets",
+            ExtensionBoundary.CalibrationAssetsDir);
+        Assert(Directory.Exists(calibrationDir),
+            $"Calibration directory exists: {calibrationDir}");
+
+        if (!Directory.Exists(calibrationDir)) return;
+
+        var files = Directory.GetFiles(calibrationDir, "*.json");
+        Assert(files.Length >= 6, $"At least 6 calibration files ({files.Length} found)");
+
+        var allIds = new HashSet<string>();
+        int totalCalibrationItems = 0;
+
+        var expectedLanguages = new[] { "python", "javascript", "csharp", "java", "bash", "sql" };
+        var prefixMap = new Dictionary<string, string>
+        {
+            ["python"] = "py", ["javascript"] = "js", ["csharp"] = "cs",
+            ["java"] = "jv", ["bash"] = "sh", ["sql"] = "sq"
+        };
+
+        foreach (var lang in expectedLanguages)
+        {
+            var calSnippets = contentLibrary.GetCalibrationSnippets(lang);
+            Assert(calSnippets.Count >= 33,
+                $"Calibration {lang}: {calSnippets.Count} items (min 33)");
+
+            // Validate band coverage
+            var bandCounts = new int[8]; // index 0 unused, 1-7
+            foreach (var s in calSnippets)
+            {
+                if (s.Difficulty >= 1 && s.Difficulty <= 7)
+                    bandCounts[s.Difficulty]++;
+
+                // Validate ID format
+                if (prefixMap.TryGetValue(lang, out var prefix))
+                {
+                    var expectedIdPrefix = $"{ExtensionBoundary.CalibrationIdPrefix}{prefix}-d{s.Difficulty}-";
+                    Assert(s.Id.StartsWith(expectedIdPrefix, StringComparison.OrdinalIgnoreCase),
+                        $"ID format: {s.Id} starts with {expectedIdPrefix}");
+                }
+
+                // Track uniqueness
+                Assert(allIds.Add(s.Id),
+                    $"Unique ID: {s.Id}");
+
+                totalCalibrationItems++;
+            }
+
+            // Min 5 per band for D1-D6, min 3 for D7
+            for (int band = 1; band <= 7; band++)
+            {
+                int minRequired = band == 7 ? 3 : 5;
+                Assert(bandCounts[band] >= minRequired,
+                    $"Calibration {lang} D{band}: {bandCounts[band]} items (min {minRequired})");
+            }
+
+            // Calibration excluded from practice
+            var practiceSnippets = contentLibrary.GetSnippets(lang);
+            var calIds = new HashSet<string>(calSnippets.Select(s => s.Id), StringComparer.OrdinalIgnoreCase);
+            var leakedItems = practiceSnippets.Where(s => calIds.Contains(s.Id)).ToList();
+            Assert(leakedItems.Count == 0,
+                $"Calibration {lang}: 0 items leaked into practice ({leakedItems.Count} found)");
+        }
+
+        Assert(totalCalibrationItems >= 198,
+            $"Total calibration items: {totalCalibrationItems} (min 198 = 6 × 33)");
+        Assert(allIds.Count == totalCalibrationItems,
+            $"All calibration IDs unique: {allIds.Count} unique / {totalCalibrationItems} total");
+
+        Log($"Calibration summary: {totalCalibrationItems} items across {expectedLanguages.Length} languages");
     }
 
     private static void Assert(bool condition, string message)
