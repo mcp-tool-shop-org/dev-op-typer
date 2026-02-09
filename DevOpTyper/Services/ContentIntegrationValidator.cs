@@ -43,6 +43,7 @@ public static class ContentIntegrationValidator
             ValidateMigrationRoundTrip();
             ValidateGoldenEndToEnd();
             ValidateLibraryHealth();
+            ValidateSerializationProfile();
             ValidatePerformanceGuardrails();
         }
         catch (Exception ex)
@@ -1157,6 +1158,82 @@ public static class ContentIntegrationValidator
         Log($"  INFO: Difficulty distribution: {string.Join(", ", Enumerable.Range(1, 7).Select(d => $"D{d}={diffBands.GetValueOrDefault(d, 0)}"))}");
 
         Log("LibraryHealth: all checks passed");
+    }
+
+    /// <summary>
+    /// Profiles serialization speed and payload size for a maxed-out
+    /// PersistedBlob. Ensures save/load stays fast even with large state.
+    /// </summary>
+    private static void ValidateSerializationProfile()
+    {
+        Log("--- ValidateSerializationProfile ---");
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+            Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
+        };
+
+        // Build a maxed-out blob: 200 heatmap records, 50 sessions, longitudinal data
+        var blob = new PersistedBlob();
+        blob.Settings.SignalPolicy = new SignalPolicy();
+        blob.Settings.SignalPolicy.EnableGuidedMode();
+
+        // Max heatmap
+        for (int i = 0; i < 200; i++)
+        {
+            char c = (char)(32 + i); // ASCII printable range
+            for (int j = 0; j < 10; j++) blob.Profile.Heatmap.RecordHit(c);
+            for (int j = 0; j < 3; j++) blob.Profile.Heatmap.RecordMiss(c, (char)(c + 1));
+        }
+
+        // 50 session records
+        for (int i = 0; i < 50; i++)
+        {
+            blob.History.Records.Add(new SessionRecord
+            {
+                Wpm = 40 + i * 0.5,
+                Accuracy = 85 + i * 0.2,
+                XpEarned = 30 + i,
+                Difficulty = (i % 7) + 1,
+                TotalChars = 100 + i * 10,
+                ErrorCount = 5 + i % 10,
+                DurationSeconds = 60 + i * 2
+            });
+        }
+
+        // Longitudinal data
+        blob.Longitudinal.SessionTimestamps.AddRange(
+            Enumerable.Range(0, 90).Select(i => DateTime.UtcNow.AddDays(-i)));
+
+        // Warm up serializer
+        JsonSerializer.Serialize(blob, options);
+
+        // Time serialization
+        var sw = Stopwatch.StartNew();
+        string json = "";
+        for (int i = 0; i < 100; i++)
+            json = JsonSerializer.Serialize(blob, options);
+        sw.Stop();
+        Assert(sw.ElapsedMilliseconds < 500,
+            $"100 serializations in {sw.ElapsedMilliseconds}ms (budget: 500ms)");
+
+        // Time deserialization
+        sw.Restart();
+        for (int i = 0; i < 100; i++)
+            JsonSerializer.Deserialize<PersistedBlob>(json, options);
+        sw.Stop();
+        Assert(sw.ElapsedMilliseconds < 500,
+            $"100 deserializations in {sw.ElapsedMilliseconds}ms (budget: 500ms)");
+
+        // Payload size check
+        int bytes = System.Text.Encoding.UTF8.GetByteCount(json);
+        Assert(bytes < 200_000,
+            $"Maxed blob payload: {bytes:N0} bytes (budget: 200KB)");
+        Log($"  INFO: Maxed blob payload = {bytes:N0} bytes");
+
+        Log("SerializationProfile: all checks passed");
     }
 
     private static void Assert(bool condition, string message)
