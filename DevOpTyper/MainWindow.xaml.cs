@@ -111,6 +111,7 @@ public sealed partial class MainWindow : Window
         // Export/import bundle + paste code + community folder
         SettingsPanel.WireBundleButtons();
         SettingsPanel.PasteCodeRequested += OnPasteCode;
+        SettingsPanel.ImportFolderRequested += OnImportFolder;
         SettingsPanel.ExportBundleRequested += OnExportBundle;
         SettingsPanel.ImportBundleRequested += OnImportBundle;
         SettingsPanel.OpenCommunityFolderRequested += OnOpenCommunityFolder;
@@ -1037,6 +1038,45 @@ public sealed partial class MainWindow : Window
         catch (Exception ex)
         {
             SettingsPanel.ShowPasteCodeStatus($"Paste failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Opens a folder picker and imports code files into the library as corpus items.
+    /// Runs on a background thread to avoid blocking the UI.
+    /// </summary>
+    private async void OnImportFolder(object? sender, EventArgs e)
+    {
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FolderPicker();
+            picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            picker.FileTypeFilter.Add("*");
+
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+            var folder = await picker.PickSingleFolderAsync();
+            if (folder == null) return; // User cancelled
+
+            SettingsPanel.ShowImportFolderStatus("Indexing...");
+
+            var (added, error) = await Task.Run(() =>
+                _contentLibraryService.ImportFolder(folder.Path));
+
+            if (error != null)
+            {
+                SettingsPanel.ShowImportFolderStatus(error);
+            }
+            else
+            {
+                SettingsPanel.ShowImportFolderStatus(
+                    $"Imported {added} item{(added != 1 ? "s" : "")} from {folder.Name}");
+            }
+        }
+        catch (Exception ex)
+        {
+            SettingsPanel.ShowImportFolderStatus($"Import failed: {ex.Message}");
         }
     }
 

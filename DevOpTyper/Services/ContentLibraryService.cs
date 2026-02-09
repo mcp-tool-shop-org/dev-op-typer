@@ -375,6 +375,61 @@ public sealed class ContentLibraryService
         return (ContentBridge.ToSnippet(item, null), null);
     }
 
+    /// <summary>
+    /// Imports code files from a local folder into the library as corpus items.
+    /// Uses LibraryIndexBuilder pipeline: extract → normalize → metrics → dedup.
+    /// Returns the number of new items added.
+    /// </summary>
+    public async Task<(int Added, string? Error)> ImportFolder(string folderPath, CancellationToken ct = default)
+    {
+        Initialize();
+
+        if (!Directory.Exists(folderPath))
+            return (0, "Folder not found");
+
+        int corpusCount = _allItems.Count(i => i.Source == "corpus");
+        int remaining = ExtensionBoundary.MaxLibraryCorpusItems - corpusCount;
+        if (remaining <= 0)
+            return (0, $"Corpus limit reached ({ExtensionBoundary.MaxLibraryCorpusItems} items)");
+
+        try
+        {
+            var source = new FolderContentSource(folderPath, ExtensionBoundary.MaxImportFileSize);
+            var extractor = new DefaultExtractor();
+            var builder = new LibraryIndexBuilder(extractor, _metrics);
+            var index = await builder.BuildAsync(source, ct);
+
+            int added = 0;
+            foreach (var item in index.Items)
+            {
+                if (added >= remaining) break;
+
+                // Skip duplicates
+                if (_allItems.Any(i => i.Id.Equals(item.Id, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+
+                _allItems.Add(item);
+                added++;
+            }
+
+            if (added > 0)
+            {
+                RebuildLibrary();
+                SaveIndex();
+            }
+
+            return (added, null);
+        }
+        catch (OperationCanceledException)
+        {
+            return (0, "Import cancelled");
+        }
+        catch (Exception ex)
+        {
+            return (0, $"Import failed: {ex.Message}");
+        }
+    }
+
     // ─────────────────────────────────────────────
     //  Sub-service access (for backward compat)
     // ─────────────────────────────────────────────

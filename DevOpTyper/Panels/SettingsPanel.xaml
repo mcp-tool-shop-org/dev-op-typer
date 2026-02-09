@@ -380,6 +380,22 @@
                            IsTabStop="False"
                            AutomationProperties.LiveSetting="Polite"/>
 
+                <Button x:Name="ImportFolderButton"
+                        Content="Import Folder"
+                        FontSize="11"
+                        Padding="8,4"
+                        AutomationProperties.Name="Index code files from a local folder for practice"
+                        ToolTipService.ToolTip="Pick a folder of code files — they'll be indexed and available for practice"
+                        AccessKey="F"/>
+
+                <TextBlock x:Name="ImportFolderStatus"
+                           FontSize="10"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           TextWrapping="Wrap"
+                           Visibility="Collapsed"
+                           IsTabStop="False"
+                           AutomationProperties.LiveSetting="Polite"/>
+
                 <TextBlock x:Name="BundleStatus"
                            FontSize="10"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"

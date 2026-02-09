@@ -533,6 +533,23 @@ public sealed partial class SettingsPanel : UserControl
     public event EventHandler? PasteCodeRequested;
 
     /// <summary>
+    /// Event fired when the user clicks "Import Folder".
+    /// MainWindow opens a FolderPicker and calls ContentLibraryService.ImportFolder.
+    /// </summary>
+    public event EventHandler? ImportFolderRequested;
+
+    /// <summary>
+    /// Shows the result of a folder import operation.
+    /// </summary>
+    public void ShowImportFolderStatus(string message)
+    {
+        ImportFolderStatus.Text = message;
+        ImportFolderStatus.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+            ImportFolderStatus, message);
+    }
+
+    /// <summary>
     /// Shows the result of a paste operation.
     /// </summary>
     public void ShowPasteCodeStatus(string message)
@@ -619,6 +636,7 @@ public sealed partial class SettingsPanel : UserControl
     public void WireBundleButtons()
     {
         PasteCodeButton.Click += (_, _) => PasteCodeRequested?.Invoke(this, EventArgs.Empty);
+        ImportFolderButton.Click += (_, _) => ImportFolderRequested?.Invoke(this, EventArgs.Empty);
         ExportBundleButton.Click += (_, _) => ExportBundleRequested?.Invoke(this, EventArgs.Empty);
         ImportBundleButton.Click += (_, _) => ImportBundleRequested?.Invoke(this, EventArgs.Empty);
         OpenCommunityFolderButton.Click += (_, _) => OpenCommunityFolderRequested?.Invoke(this, EventArgs.Empty);
