@@ -97,6 +97,17 @@
                            TextWrapping="Wrap"
                            Opacity="0.8"/>
 
+                <!-- Session Plan Preview (v0.9.0) — shows why this snippet was chosen -->
+                <TextBlock x:Name="PlanPreviewText"
+                           FontSize="10"
+                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                           Visibility="Collapsed"
+                           AutomationProperties.Name="Session plan - shows why this snippet was chosen"
+                           AutomationProperties.LiveSetting="Off"
+                           IsTextSelectionEnabled="True"
+                           IsTabStop="False"
+                           TextWrapping="Wrap"/>
+
                 <!-- Divider -->
                 <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4"/>
 

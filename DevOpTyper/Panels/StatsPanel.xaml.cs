@@ -213,6 +213,22 @@ public sealed partial class StatsPanel : UserControl
     }
 
     /// <summary>
+    /// Shows a compact session plan preview: the current pick's category, difficulty,
+    /// and reason. Null or empty hides the preview. Display-only — never affects behavior.
+    /// </summary>
+    public void UpdatePlanPreview(SessionPlan? plan)
+    {
+        if (plan == null)
+        {
+            PlanPreviewText.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        PlanPreviewText.Text = ReasonFormatter.Format(plan);
+        PlanPreviewText.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
     /// Shows a subtle orientation cue for returning users.
     /// Cues suggest possibilities, not actions. Never blocks normal usage.
     /// Only shown on first launch of the session if there's prior history.

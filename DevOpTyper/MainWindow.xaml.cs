@@ -292,6 +292,7 @@ public sealed partial class MainWindow : Window
 
         // Show pick reason (v0.9.0) — explains why this snippet was chosen
         TypingPanel.ShowPickReason(plan != null ? ReasonFormatter.Format(plan) : null);
+        StatsPanel.UpdatePlanPreview(plan);
 
         TypingPanel.ClearTyping();
         StatsPanel.Reset();
