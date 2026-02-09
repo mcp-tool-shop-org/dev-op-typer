@@ -42,6 +42,7 @@ public static class ContentIntegrationValidator
             ValidateSelectionPerformance();
             ValidateMigrationRoundTrip();
             ValidateGoldenEndToEnd();
+            ValidateLibraryHealth();
             ValidatePerformanceGuardrails();
         }
         catch (Exception ex)
@@ -1101,6 +1102,61 @@ public static class ContentIntegrationValidator
         Assert(deserialized.History.Records.Count == 1, "Golden: history survives round-trip");
 
         Log("GoldenEndToEnd: all checks passed");
+    }
+
+    /// <summary>
+    /// Validates library health: language coverage, difficulty distribution,
+    /// calibration pack integrity, and content availability.
+    /// </summary>
+    private static void ValidateLibraryHealth()
+    {
+        Log("--- ValidateLibraryHealth ---");
+
+        var library = new ContentLibraryService();
+        library.Initialize();
+
+        // 1. At least 3 languages with content
+        var languages = library.GetLanguageTracks();
+        Assert(languages.Count >= 3, $"Library has {languages.Count} languages (expected ≥3)");
+
+        // 2. Each language has at least 5 snippets
+        foreach (var lang in languages)
+        {
+            var snippets = library.GetSnippets(lang.Id);
+            Assert(snippets.Count >= 5,
+                $"Language '{lang.Id}' has {snippets.Count} snippets (expected ≥5)");
+        }
+
+        // 3. Difficulty bands 1-7 each have at least 1 snippet across all content
+        var allSnippets = languages.SelectMany(l => library.GetSnippets(l.Id)).ToList();
+        var diffBands = allSnippets.GroupBy(s => s.Difficulty).ToDictionary(g => g.Key, g => g.Count());
+        for (int d = 1; d <= 7; d++)
+        {
+            int count = diffBands.GetValueOrDefault(d, 0);
+            Assert(count >= 1, $"Difficulty D{d} has {count} snippets (expected ≥1)");
+        }
+
+        // 4. Calibration packs present and separated
+        var calSnippets = library.GetCalibrationSnippets("python");
+        Assert(calSnippets.Count >= 5,
+            $"Python calibration has {calSnippets.Count} snippets (expected ≥5)");
+
+        // 5. No duplicate IDs
+        var allIds = allSnippets.Select(s => s.Id).ToList();
+        var uniqueIds = new HashSet<string>(allIds);
+        Assert(allIds.Count == uniqueIds.Count,
+            $"No duplicate IDs: {allIds.Count} total, {uniqueIds.Count} unique");
+
+        // 6. No empty code
+        int emptyCount = allSnippets.Count(s => string.IsNullOrWhiteSpace(s.Code));
+        Assert(emptyCount == 0,
+            $"No empty code snippets: {emptyCount} found");
+
+        // 7. Summary stats
+        Log($"  INFO: {allSnippets.Count} total snippets across {languages.Count} languages");
+        Log($"  INFO: Difficulty distribution: {string.Join(", ", Enumerable.Range(1, 7).Select(d => $"D{d}={diffBands.GetValueOrDefault(d, 0)}"))}");
+
+        Log("LibraryHealth: all checks passed");
     }
 
     private static void Assert(bool condition, string message)
