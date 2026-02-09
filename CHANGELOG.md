@@ -5,9 +5,26 @@ All notable changes to Dev-Op-Typer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.8.2]
+## [0.8.2] - 2026-02-08
 
 ### Theme: Parity + Migration Prep
+
+v0.8.2 makes CodeItem the canonical content shape and replaces hardcoded difficulty defaults with deterministic, metrics-based derivation. Difficulty expands from 5 tiers to 7, with three scoring bands (line count, symbol density, nesting depth) mapped linearly. Authored difficulty from snippet metadata always takes precedence over derived values.
+
+### Changed
+- **Difficulty scale expanded to 1-7** — Replaces the 1-5 range with finer-grained tiers: Trivial, Easy, Moderate, Intermediate, Challenging, Advanced, Expert. All rating-to-difficulty mappings updated with 100-point Elo bands.
+- **Deterministic difficulty derivation** — `DifficultyEstimator` now uses three explicit bands (lines 0-3pts, symbol density 0-3pts, indent depth 0-3pts) mapped to difficulty 1-7. No ML, no adaptation, fully reproducible.
+- **XP formula extended** — Difficulty multiplier covers D1 (0.5x) through D7 (2.0x) with smooth progression. Mid-range D4 is the new 1.0x baseline.
+- **Validation parity checks** — `ContentIntegrationValidator` gains `ValidateDifficultyDerivation` (score-to-tier mapping, determinism, all tiers reachable) and `ValidateNoDifficultyDefault` (multiple distinct tiers in built-in content).
+
+### Technical
+- `DifficultyEstimator.Estimate()` returns 1-7 via `Clamp(1 + score * 6 / 9, 1, 7)`.
+- `SmartSnippetSelector.GetTargetDifficulty()` and `AdaptiveDifficultyEngine.RatingToDifficulty()` expanded to 7 tiers with consistent rating bands.
+- `ExtensionBoundary.ValidateSnippetFile()` accepts difficulty 1-7.
+- `PersistenceService.SanitizeBlob()` clamps session difficulty to 1-7.
+- All `Math.Min(5, ...)` and `Math.Clamp(..., 1, 5)` updated to 7.
+- `Snippet.DifficultyLabel` returns 7 named tiers.
+- CI fixed: `submodules: recursive` added to checkout step.
 
 ## [0.8.1] - 2026-02-08
 
@@ -389,6 +406,8 @@ v0.4.0 puts the developer in control of how and why they practice. The system ob
 
 ---
 
+[0.8.2]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.8.2
+[0.8.1]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.8.1
 [0.8.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.8.0
 [0.7.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.7.0
 [0.6.0]: https://github.com/mcp-tool-shop-org/dev-op-typer/releases/tag/v0.6.0
