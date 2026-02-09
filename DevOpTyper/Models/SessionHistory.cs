@@ -1,3 +1,5 @@
+using DevOpTyper.Services;
+
 namespace DevOpTyper.Models;
 
 /// <summary>
@@ -97,6 +99,20 @@ public sealed class SessionRecord
     public string? Note { get; set; }
 
     /// <summary>
+    /// The session planner's pick category (v0.9.0+).
+    /// Null for sessions created before v0.9.0 or when no planner was used.
+    /// Display-only — never affects scoring, rating, or difficulty.
+    /// </summary>
+    public MixCategory? PlanCategory { get; set; }
+
+    /// <summary>
+    /// Human-readable pick reason from the planner (v0.9.0+).
+    /// Example: "🎯 Target: D4 — at your comfort zone".
+    /// Null for sessions before v0.9.0 or without a plan.
+    /// </summary>
+    public string? PlanReason { get; set; }
+
+    /// <summary>
     /// Creates a session record from a completed session.
     /// </summary>
     public static SessionRecord FromSession(
@@ -111,7 +127,8 @@ public sealed class SessionRecord
         int difficulty,
         int xpEarned,
         bool hardcoreMode,
-        PracticeContext? context = null)
+        PracticeContext? context = null,
+        SessionPlan? plan = null)
     {
         return new SessionRecord
         {
@@ -126,7 +143,9 @@ public sealed class SessionRecord
             Difficulty = difficulty,
             XpEarned = xpEarned,
             HardcoreMode = hardcoreMode,
-            Context = context
+            Context = context,
+            PlanCategory = plan?.Category,
+            PlanReason = plan != null ? ReasonFormatter.Format(plan) : null
         };
     }
 }

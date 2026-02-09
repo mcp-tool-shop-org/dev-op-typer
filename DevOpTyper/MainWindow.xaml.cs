@@ -739,7 +739,8 @@ public sealed partial class MainWindow : Window
                     difficulty: _currentSnippet.Difficulty,
                     xpEarned: e.XpEarned,
                     hardcoreMode: SettingsPanel.IsHardcoreMode,
-                    context: e.Context
+                    context: e.Context,
+                    plan: _currentPlan
                 );
 
                 // Propagate user-declared intent to the session record
