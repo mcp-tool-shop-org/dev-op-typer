@@ -4,6 +4,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevOpTyper", "DevOpTyper\DevOpTyper.csproj", "{7F29E3BB-2E12-4B6F-A85A-2A0D5F2B7B77}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevOpTyper.Content", "external\meta-content-system\src\DevOpTyper.Content\DevOpTyper.Content.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
+EndProject
 Global
     GlobalSection(SolutionConfigurationPlatforms) = preSolution
         Debug|x64 = Debug|x64
@@ -14,5 +16,9 @@ Global
         {7F29E3BB-2E12-4B6F-A85A-2A0D5F2B7B77}.Debug|x64.Build.0 = Debug|x64
         {7F29E3BB-2E12-4B6F-A85A-2A0D5F2B7B77}.Release|x64.ActiveCfg = Release|x64
         {7F29E3BB-2E12-4B6F-A85A-2A0D5F2B7B77}.Release|x64.Build.0 = Release|x64
+        {A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|x64.ActiveCfg = Debug|AnyCPU
+        {A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|x64.Build.0 = Debug|AnyCPU
+        {A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|x64.ActiveCfg = Release|AnyCPU
+        {A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|x64.Build.0 = Release|AnyCPU
     EndGlobalSection
 EndGlobal

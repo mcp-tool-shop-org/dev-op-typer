@@ -36,6 +36,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\external\meta-content-system\src\DevOpTyper.Content\DevOpTyper.Content.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Content Include="Assets\**\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
