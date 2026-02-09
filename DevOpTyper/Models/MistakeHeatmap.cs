@@ -12,11 +12,19 @@ public sealed class MistakeHeatmap
     public Dictionary<char, MistakeRecord> Records { get; set; } = new();
 
     /// <summary>
+    /// Default rolling window size. Only the most recent N attempts per character
+    /// are considered when computing recent error rates.
+    /// </summary>
+    public const int DefaultWindowSize = 50;
+
+    /// <summary>
     /// Records a correctly typed character.
     /// </summary>
     public void RecordHit(char expected)
     {
-        GetOrCreate(expected).Hits++;
+        var record = GetOrCreate(expected);
+        record.Hits++;
+        record.PushRecent(true);
     }
 
     /// <summary>
@@ -27,6 +35,7 @@ public sealed class MistakeHeatmap
         var record = GetOrCreate(expected);
         record.Misses++;
         record.LastMissedAt = DateTime.UtcNow;
+        record.PushRecent(false);
 
         // Track what was typed instead (confusion pairs)
         if (actual.HasValue)
@@ -37,13 +46,31 @@ public sealed class MistakeHeatmap
     }
 
     /// <summary>
-    /// Gets the error rate for a specific character (0.0 = perfect, 1.0 = always wrong).
+    /// Gets the all-time error rate for a specific character (0.0 = perfect, 1.0 = always wrong).
     /// </summary>
     public double GetErrorRate(char c)
     {
         if (!Records.TryGetValue(c, out var record)) return 0;
         int total = record.Hits + record.Misses;
         return total > 0 ? (double)record.Misses / total : 0;
+    }
+
+    /// <summary>
+    /// Gets the recent error rate considering only the last <paramref name="windowSize"/> attempts.
+    /// Falls back to all-time rate if fewer recent attempts are tracked.
+    /// </summary>
+    public double GetRecentErrorRate(char c, int windowSize = DefaultWindowSize)
+    {
+        if (!Records.TryGetValue(c, out var record)) return 0;
+        if (record.RecentAttempts.Count == 0) return GetErrorRate(c);
+
+        var window = record.RecentAttempts.Count <= windowSize
+            ? record.RecentAttempts
+            : record.RecentAttempts.Skip(record.RecentAttempts.Count - windowSize).ToList();
+
+        if (window.Count == 0) return 0;
+        int misses = window.Count(hit => !hit);
+        return (double)misses / window.Count;
     }
 
     /// <summary>
@@ -173,6 +200,26 @@ public sealed class MistakeRecord
     /// Key = the incorrect char typed, Value = how many times.
     /// </summary>
     public Dictionary<char, int> ConfusedWith { get; set; } = new();
+
+    /// <summary>
+    /// Rolling window of recent attempts. true = hit, false = miss.
+    /// Capped at <see cref="MistakeHeatmap.DefaultWindowSize"/> * 2 entries.
+    /// Used to compute recent error rates that don't include ancient history.
+    /// </summary>
+    public List<bool> RecentAttempts { get; set; } = new();
+
+    /// <summary>
+    /// Pushes a hit/miss into the rolling window, capping at max capacity.
+    /// </summary>
+    internal void PushRecent(bool hit)
+    {
+        RecentAttempts.Add(hit);
+        int cap = MistakeHeatmap.DefaultWindowSize * 2;
+        if (RecentAttempts.Count > cap)
+        {
+            RecentAttempts.RemoveAt(0);
+        }
+    }
 }
 
 /// <summary>
