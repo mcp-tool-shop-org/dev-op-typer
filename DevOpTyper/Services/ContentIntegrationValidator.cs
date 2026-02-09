@@ -35,6 +35,7 @@ public static class ContentIntegrationValidator
             ValidateNoDifficultyDefault(contentLibrary);
             ValidateCalibrationPacks(contentLibrary);
             ValidateSessionPlanner();
+            ValidateWeaknessTracking();
         }
         catch (Exception ex)
         {
@@ -520,6 +521,98 @@ public static class ContentIntegrationValidator
             $"ReasonFormatter produces text: \"{formatted}\"");
 
         Log($"SessionPlanner: {trials} trials → Target {targetPct:P1}, Review {reviewPct:P1}, Stretch {stretchPct:P1}");
+    }
+
+    /// <summary>
+    /// Validates MistakeHeatmap + WeaknessTracker integration:
+    /// rolling window, error rates, weakness reports, confusion pairs.
+    /// </summary>
+    private static void ValidateWeaknessTracking()
+    {
+        Log("--- ValidateWeaknessTracking ---");
+
+        // MistakeHeatmap basics
+        var heatmap = new MistakeHeatmap();
+        for (int i = 0; i < 7; i++) heatmap.RecordHit('{');
+        for (int i = 0; i < 3; i++) heatmap.RecordMiss('{', '[');
+
+        Assert(Math.Abs(heatmap.GetErrorRate('{') - 0.3) < 0.01,
+            $"Error rate: expected 0.3, got {heatmap.GetErrorRate('{')}");
+
+        Assert(heatmap.Records['{'].ConfusedWith.ContainsKey('['),
+            "Confusion pair tracked: '{' confused with '['");
+
+        // Rolling window
+        var heatmap2 = new MistakeHeatmap();
+        for (int i = 0; i < 80; i++) heatmap2.RecordHit('{');
+        for (int i = 0; i < 20; i++) heatmap2.RecordMiss('{', null);
+
+        double allTime = heatmap2.GetErrorRate('{');
+        double recent = heatmap2.GetRecentErrorRate('{', 50);
+        Assert(Math.Abs(allTime - 0.2) < 0.01,
+            $"All-time error rate: expected 0.2, got {allTime}");
+        Assert(recent > allTime,
+            $"Recent error rate ({recent:F3}) should be higher than all-time ({allTime:F3}) when recent attempts are worse");
+
+        // RecentAttempts cap
+        var heatmap3 = new MistakeHeatmap();
+        int cap = MistakeHeatmap.DefaultWindowSize * 2;
+        for (int i = 0; i < cap + 50; i++) heatmap3.RecordHit('{');
+        Assert(heatmap3.Records['{'].RecentAttempts.Count == cap,
+            $"RecentAttempts capped at {cap}, got {heatmap3.Records['{'].RecentAttempts.Count}");
+
+        // GetWeakest
+        var weakest = heatmap.GetWeakest(count: 5, minAttempts: 5);
+        Assert(weakest.Count == 1, $"GetWeakest: expected 1 weakness, got {weakest.Count}");
+        Assert(weakest[0].Character == '{', $"GetWeakest: expected '{{', got '{weakest[0].Character}'");
+        Assert(weakest[0].Group == SymbolGroup.Bracket,
+            $"GetWeakest: expected Bracket group, got {weakest[0].Group}");
+
+        // WeakCharSet
+        var weakChars = heatmap.GetWeakCharSet(threshold: 0.15, minAttempts: 5);
+        Assert(weakChars.Contains('{'), "GetWeakCharSet: '{' should be in weak set");
+
+        // WeaknessTracker
+        var tracker = new WeaknessTracker();
+        var longitudinal = new LongitudinalData();
+
+        // Create snapshots for trajectory
+        longitudinal.WeaknessSnapshots.Add(new WeaknessSnapshot
+        {
+            Language = "csharp",
+            CapturedAt = DateTime.UtcNow.AddDays(-1),
+            TopWeaknesses = new List<WeaknessEntry>
+            {
+                new() { Character = '{', ErrorRate = 0.5, TotalAttempts = 10 }
+            }
+        });
+        longitudinal.WeaknessSnapshots.Add(new WeaknessSnapshot
+        {
+            Language = "csharp",
+            CapturedAt = DateTime.UtcNow,
+            TopWeaknesses = new List<WeaknessEntry>
+            {
+                new() { Character = '{', ErrorRate = 0.3, TotalAttempts = 20 }
+            }
+        });
+
+        var report = tracker.GetReport("csharp", heatmap, longitudinal);
+        Assert(report.HasData, "WeaknessReport should have data");
+        Assert(report.Items.Count > 0, "WeaknessReport should have items");
+
+        var item = report.Items.FirstOrDefault(i => i.Character == '{');
+        Assert(item != null, "WeaknessReport should include '{' item");
+        if (item != null)
+        {
+            Assert(item.Trajectory == WeaknessTrajectory.Improving,
+                $"Open brace should be improving (was 0.5, now 0.3), got {item.Trajectory}");
+        }
+
+        // Priority weakness
+        var priority = tracker.GetPriorityWeakness(report);
+        Assert(priority != null, "Priority weakness should not be null");
+
+        Log("WeaknessTracking: all checks passed");
     }
 
     private static void Assert(bool condition, string message)
