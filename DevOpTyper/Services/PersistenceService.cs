@@ -203,6 +203,9 @@ public sealed class PersistenceService
                 settings.Values[BackupKey] = existingJson;
             }
 
+            // Prune signal data before save to prevent unbounded growth (v1.0.0)
+            blob.Profile?.Heatmap?.Prune();
+
             // Save new data
             var json = JsonSerializer.Serialize(blob, SerializerOptions);
             settings.Values[Key] = json;

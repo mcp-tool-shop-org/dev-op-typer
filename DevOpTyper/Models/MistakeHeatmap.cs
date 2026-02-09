@@ -18,6 +18,17 @@ public sealed class MistakeHeatmap
     public const int DefaultWindowSize = 50;
 
     /// <summary>
+    /// Maximum number of distinct characters tracked. Prevents unbounded growth
+    /// from Unicode input or malformed data. Pruning removes least-attempted chars.
+    /// </summary>
+    public const int MaxTrackedChars = 200;
+
+    /// <summary>
+    /// Maximum confusion pairs per character. Keeps only the most frequent pairs.
+    /// </summary>
+    public const int MaxConfusionPairs = 20;
+
+    /// <summary>
     /// Records a correctly typed character.
     /// </summary>
     public void RecordHit(char expected)
@@ -143,6 +154,44 @@ public sealed class MistakeHeatmap
             }
         }
         return result;
+    }
+
+    /// <summary>
+    /// Deterministic pruning: caps tracked characters at MaxTrackedChars
+    /// and confusion pairs at MaxConfusionPairs per character.
+    /// Removes least-attempted characters and least-frequent confusion pairs.
+    /// Call periodically (e.g., on persistence save) to prevent unbounded growth.
+    /// </summary>
+    public void Prune()
+    {
+        // Cap tracked characters: remove least-attempted
+        if (Records.Count > MaxTrackedChars)
+        {
+            var toRemove = Records
+                .OrderBy(kvp => kvp.Value.Hits + kvp.Value.Misses)
+                .Take(Records.Count - MaxTrackedChars)
+                .Select(kvp => kvp.Key)
+                .ToList();
+
+            foreach (var key in toRemove)
+                Records.Remove(key);
+        }
+
+        // Cap confusion pairs per character: keep most frequent
+        foreach (var record in Records.Values)
+        {
+            if (record.ConfusedWith.Count > MaxConfusionPairs)
+            {
+                var toKeep = record.ConfusedWith
+                    .OrderByDescending(kvp => kvp.Value)
+                    .Take(MaxConfusionPairs)
+                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
+                record.ConfusedWith.Clear();
+                foreach (var kvp in toKeep)
+                    record.ConfusedWith[kvp.Key] = kvp.Value;
+            }
+        }
     }
 
     private MistakeRecord GetOrCreate(char c)
