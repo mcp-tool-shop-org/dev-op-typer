@@ -216,6 +216,16 @@ public sealed class ContentLibraryService
     }
 
     /// <summary>
+    /// Gets a snippet by its ID (legacy or content-hash).
+    /// </summary>
+    public Snippet? GetSnippetById(string language, string id)
+    {
+        var snippets = GetSnippets(language);
+        return snippets.FirstOrDefault(s =>
+            s.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
     /// Gets snippets by topic/tag (only works for built-in content with overlays).
     /// </summary>
     public IReadOnlyList<Snippet> GetSnippetsByTopic(string language, string topic)
