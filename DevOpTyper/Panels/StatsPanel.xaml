@@ -256,28 +256,36 @@
                                FontFamily="Consolas"
                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                                TextWrapping="Wrap"
-                               IsTextSelectionEnabled="True"/>
+                               IsTextSelectionEnabled="True"
+                               AutomationProperties.Name="Debug plan state"
+                               AutomationProperties.LiveSetting="Off"/>
 
                     <TextBlock x:Name="DebugDifficultyInfo"
                                FontSize="9"
                                FontFamily="Consolas"
                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                                TextWrapping="Wrap"
-                               IsTextSelectionEnabled="True"/>
+                               IsTextSelectionEnabled="True"
+                               AutomationProperties.Name="Debug difficulty profile"
+                               AutomationProperties.LiveSetting="Off"/>
 
                     <TextBlock x:Name="DebugWeaknessInfo"
                                FontSize="9"
                                FontFamily="Consolas"
                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                                TextWrapping="Wrap"
-                               IsTextSelectionEnabled="True"/>
+                               IsTextSelectionEnabled="True"
+                               AutomationProperties.Name="Debug weakness report"
+                               AutomationProperties.LiveSetting="Off"/>
 
                     <TextBlock x:Name="DebugHeatmapInfo"
                                FontSize="9"
                                FontFamily="Consolas"
                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                                TextWrapping="Wrap"
-                               IsTextSelectionEnabled="True"/>
+                               IsTextSelectionEnabled="True"
+                               AutomationProperties.Name="Debug heatmap data"
+                               AutomationProperties.LiveSetting="Off"/>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
