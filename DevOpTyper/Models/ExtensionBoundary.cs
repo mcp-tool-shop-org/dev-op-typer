@@ -157,6 +157,39 @@ public static class ExtensionBoundary
     public const int MaxLayerContentLength = 300;
 
     // ────────────────────────────────────────────────────────
+    //  CONTENT LIBRARY (v0.8.1)
+    // ────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Filename for the content library index.
+    /// Stored at %LOCALAPPDATA%/DevOpTyper/library.index.json.
+    /// Contains only user and corpus CodeItems — built-ins are
+    /// reconstructed from Assets/Snippets/ at every startup.
+    /// </summary>
+    public const string LibraryIndexFile = "library.index.json";
+
+    /// <summary>
+    /// Maximum number of user-pasted items in the library.
+    /// </summary>
+    public const int MaxLibraryUserItems = 500;
+
+    /// <summary>
+    /// Maximum number of corpus-imported items in the library.
+    /// </summary>
+    public const int MaxLibraryCorpusItems = 2000;
+
+    /// <summary>
+    /// Maximum length of pasted code (chars).
+    /// </summary>
+    public const int MaxPasteLength = 10000;
+
+    /// <summary>
+    /// Maximum file size for folder import (bytes). Files larger
+    /// than 2 MB are skipped during folder indexing.
+    /// </summary>
+    public const int MaxImportFileSize = 2 * 1024 * 1024;
+
+    // ────────────────────────────────────────────────────────
     //  FROZEN — the system guarantees these remain stable
     //
     //  Core services (TypingEngine, SessionState, PersistenceService,
