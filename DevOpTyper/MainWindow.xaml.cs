@@ -11,7 +11,7 @@ namespace DevOpTyper;
 public sealed partial class MainWindow : Window
 {
     private readonly TypingEngine _typingEngine = new();
-    private readonly SnippetService _snippetService = new();
+    private readonly ContentLibraryService _contentLibraryService = new();
     private readonly SmartSnippetSelector _smartSelector;
     private readonly PersistenceService _persistenceService = new();
     private readonly AudioService _audioService = new();
@@ -44,11 +44,8 @@ public sealed partial class MainWindow : Window
         SetWindowSize(1200, 760);
 
         // Initialize services
-        _snippetService.Initialize();
-        _smartSelector = new SmartSnippetSelector(_snippetService);
-
-        // Parity validation: ContentLibraryService must match SnippetService output
-        ValidateContentLibraryParity();
+        _contentLibraryService.Initialize();
+        _smartSelector = new SmartSnippetSelector(_contentLibraryService);
 
         // Initialize audio
         _audioService.Initialize();
@@ -108,7 +105,7 @@ public sealed partial class MainWindow : Window
         ApplyPracticePreferences();
 
         // User snippets status
-        SettingsPanel.UpdateUserSnippetStatus(_snippetService.UserContent);
+        SettingsPanel.UpdateUserSnippetStatus(_contentLibraryService.UserContent);
         SettingsPanel.OpenUserSnippetsFolderRequested += OnOpenUserSnippetsFolder;
 
         // Export/import bundle + community folder
@@ -118,7 +115,7 @@ public sealed partial class MainWindow : Window
         SettingsPanel.OpenCommunityFolderRequested += OnOpenCommunityFolder;
 
         // Community content status (updated again after guidance init — see below)
-        SettingsPanel.UpdateCommunityContentStatus(_snippetService.CommunityContent);
+        SettingsPanel.UpdateCommunityContentStatus(_contentLibraryService.CommunityContent);
 
         // Community signals toggle
         SettingsPanel.CommunitySignalsChanged += (_, enabled) =>
@@ -210,7 +207,7 @@ public sealed partial class MainWindow : Window
 
         // Refresh community status now that guidance is loaded
         SettingsPanel.UpdateCommunityContentStatus(
-            _snippetService.CommunityContent, _guidanceService.GuidanceCount);
+            _contentLibraryService.CommunityContent, _guidanceService.GuidanceCount);
 
         // Practice configs
         _practiceConfigService.Initialize();
@@ -523,7 +520,7 @@ public sealed partial class MainWindow : Window
     private void LoadEasySnippet()
     {
         var language = SettingsPanel.SelectedLanguage;
-        var allSnippets = _snippetService.GetSnippets(language).ToList();
+        var allSnippets = _contentLibraryService.GetSnippets(language).ToList();
         var easy = allSnippets
             .Where(s => s.Difficulty <= 2)
             .OrderBy(_ => Random.Shared.Next())
@@ -557,7 +554,7 @@ public sealed partial class MainWindow : Window
         int currentRating = _profile.GetRating(language);
         int targetDifficulty = Math.Min(5, SmartSnippetSelector.GetTargetDifficultyStatic(currentRating) + 1);
 
-        var allSnippets = _snippetService.GetSnippets(language).ToList();
+        var allSnippets = _contentLibraryService.GetSnippets(language).ToList();
         var harder = allSnippets
             .Where(s => s.Difficulty >= targetDifficulty)
             .OrderBy(_ => Random.Shared.Next())
@@ -1009,7 +1006,7 @@ public sealed partial class MainWindow : Window
     {
         try
         {
-            var path = _snippetService.UserContent.EnsureUserSnippetsDirectory();
+            var path = _contentLibraryService.UserContent.EnsureUserSnippetsDirectory();
             await Windows.System.Launcher.LaunchFolderPathAsync(path);
         }
         catch
@@ -1026,7 +1023,7 @@ public sealed partial class MainWindow : Window
     {
         try
         {
-            var path = _snippetService.CommunityContent.EnsureCommunityContentDirectory();
+            var path = _contentLibraryService.CommunityContent.EnsureCommunityContentDirectory();
             await Windows.System.Launcher.LaunchFolderPathAsync(path);
         }
         catch
@@ -1084,8 +1081,8 @@ public sealed partial class MainWindow : Window
             if (file == null) return; // User cancelled
 
             var bundleService = new PortableBundleService();
-            var result = bundleService.Export(file.Path, _snippetService.UserContent,
-                _practiceConfigService, _snippetService.CommunityContent);
+            var result = bundleService.Export(file.Path, _contentLibraryService.UserContent,
+                _practiceConfigService, _contentLibraryService.CommunityContent);
 
             SettingsPanel.ShowBundleStatus(result != null
                 ? "Exported successfully"
@@ -1136,14 +1133,14 @@ public sealed partial class MainWindow : Window
             if (choice == ContentDialogResult.Primary)
             {
                 // Import as personal content (existing v0.6.0 behavior)
-                var snippetsDir = _snippetService.UserContent.EnsureUserSnippetsDirectory();
+                var snippetsDir = _contentLibraryService.UserContent.EnsureUserSnippetsDirectory();
                 var configsDir = _practiceConfigService.EnsureUserConfigsDirectory();
                 result = bundleService.Import(file.Path, snippetsDir, configsDir);
             }
             else
             {
                 // Import as community content
-                var communityDir = _snippetService.CommunityContent.EnsureCommunityContentDirectory();
+                var communityDir = _contentLibraryService.CommunityContent.EnsureCommunityContentDirectory();
                 var communitySnippetsDir = Path.Combine(communityDir, "snippets");
                 var communityConfigsDir = Path.Combine(communityDir, "configs");
                 result = bundleService.ImportToCommunity(file.Path, communitySnippetsDir, communityConfigsDir);
@@ -1157,49 +1154,4 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    /// <summary>
-    /// Temporary parity validation: ContentLibraryService must produce the same
-    /// languages and snippet counts as SnippetService. Logs discrepancies to
-    /// debug output. Will be removed once SnippetService is deleted.
-    /// </summary>
-    private void ValidateContentLibraryParity()
-    {
-        try
-        {
-            var contentLibrary = new ContentLibraryService();
-            contentLibrary.Initialize();
-
-            var oldTracks = _snippetService.GetLanguageTracks();
-            var newTracks = contentLibrary.GetLanguageTracks();
-
-            var oldLangs = oldTracks.Select(t => t.Id).OrderBy(x => x).ToList();
-            var newLangs = newTracks.Select(t => t.Id).OrderBy(x => x).ToList();
-
-            if (!oldLangs.SequenceEqual(newLangs, StringComparer.OrdinalIgnoreCase))
-            {
-                System.Diagnostics.Debug.WriteLine(
-                    $"[ContentLibrary PARITY] Language mismatch: old=[{string.Join(",", oldLangs)}] new=[{string.Join(",", newLangs)}]");
-            }
-
-            foreach (var lang in oldLangs)
-            {
-                var oldCount = _snippetService.GetSnippetCount(lang);
-                var newCount = contentLibrary.GetSnippetCount(lang);
-                if (oldCount != newCount)
-                {
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[ContentLibrary PARITY] {lang}: old={oldCount} new={newCount}");
-                }
-            }
-
-            System.Diagnostics.Debug.WriteLine(
-                $"[ContentLibrary PARITY] Validation complete: {newTracks.Count} languages, " +
-                $"{newTracks.Sum(t => t.SnippetCount)} total snippets");
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine(
-                $"[ContentLibrary PARITY] Validation failed: {ex.Message}");
-        }
-    }
 }

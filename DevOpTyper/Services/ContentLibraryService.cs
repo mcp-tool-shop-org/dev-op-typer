@@ -17,6 +17,8 @@ public sealed class ContentLibraryService
     private readonly JsonLibraryIndexStore _indexStore = new();
     private readonly MetricCalculator _metrics = new();
     private readonly LanguageDetector _detector = new();
+    private readonly UserContentService _userContent = new();
+    private readonly CommunityContentService _communityContent = new();
     private readonly List<CodeItem> _allItems = new();
     private InMemoryContentLibrary? _library;
     private bool _initialized;
@@ -73,6 +75,10 @@ public sealed class ContentLibraryService
 
         // Step 4: Build the unified library
         RebuildLibrary();
+
+        // Step 5: Initialize legacy sub-services for directory/status access
+        _userContent.Initialize();
+        _communityContent.Initialize();
     }
 
     private void LoadBuiltinCodeItems()
@@ -319,4 +325,16 @@ public sealed class ContentLibraryService
     /// Access the overlay store for legacy ID resolution.
     /// </summary>
     public BuiltinOverlayStore Overlays => _overlays;
+
+    /// <summary>
+    /// Exposes the user content service for directory management and status display.
+    /// Will be removed when Paste Code flow replaces filesystem-based user content.
+    /// </summary>
+    public UserContentService UserContent => _userContent;
+
+    /// <summary>
+    /// Exposes the community content service for directory management and status display.
+    /// Will be removed when Import Folder flow replaces filesystem-based community content.
+    /// </summary>
+    public CommunityContentService CommunityContent => _communityContent;
 }

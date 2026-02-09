@@ -7,14 +7,14 @@ namespace DevOpTyper.Services;
 /// </summary>
 public sealed class SmartSnippetSelector
 {
-    private readonly SnippetService _snippetService;
+    private readonly ContentLibraryService _snippetService;
     private readonly Random _random = Random.Shared;
 
     // Track which snippets the user has recently seen to avoid repeats
     private readonly Queue<string> _recentSnippetIds = new();
     private const int MaxRecentHistory = 10;
 
-    public SmartSnippetSelector(SnippetService snippetService)
+    public SmartSnippetSelector(ContentLibraryService snippetService)
     {
         _snippetService = snippetService ?? throw new ArgumentNullException(nameof(snippetService));
     }
@@ -27,8 +27,6 @@ public sealed class SmartSnippetSelector
     /// <returns>Selected snippet optimized for learning.</returns>
     public Snippet SelectNext(string language, Profile profile)
     {
-        _snippetService.Initialize();
-        
         var allSnippets = _snippetService.GetSnippets(language).ToList();
         if (allSnippets.Count == 0)
         {
@@ -80,8 +78,6 @@ public sealed class SmartSnippetSelector
         DifficultyProfile? difficultyProfile,
         WeaknessReport? weaknessReport)
     {
-        _snippetService.Initialize();
-
         var allSnippets = _snippetService.GetSnippets(language).ToList();
         if (allSnippets.Count == 0)
         {
