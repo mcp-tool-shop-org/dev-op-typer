@@ -7,19 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.0] — Structured Practice & Learning Signals
 
-*In development*
+Theme: "The app knows what to practice next — and why."
 
-Goals:
-- The app knows what to practice next — and why
-- Calibration content with full difficulty band coverage
-- Session planner with Target / Review / Stretch mix
-- Symbol-level weakness tracking
-- Transparent, explainable selection
+### Added
+- **Calibration content**: 200+ synthetic snippets across 6 languages (bash, csharp, java, javascript, python, sql) targeting all difficulty bands D1-D7
+- **SessionPlanner**: Target (50%) / Review (30%) / Stretch (20%) mix with difficulty-aware selection
+- **ReasonFormatter**: Human-readable pick reasons with category icons displayed below snippet title
+- **Session plan preview**: StatsPanel shows current plan category, difficulty, and reason
+- **MistakeHeatmap rolling window**: GetRecentErrorRate() considers only last N attempts per character, preventing ancient mistakes from dominating
+- **Debug inspector**: Shift+F12 toggles diagnostic view showing plan state, difficulty profile, weakness report, and heatmap top errors
+- **Pick reason in session records**: SessionRecord stores PlanCategory and PlanReason for historical transparency
+- **Graceful mismatch annotation**: Reason text annotates when actual difficulty differs from planned target
+- **CalibrationTag constants**: Source, origin, and ID prefix for calibration content identification
+- **IsCalibrationId utility**: For future exclusion of calibration sessions from lifetime stats
 
-Non-goals:
-- No rigid curriculum trees or locked lesson order
-- No cloud accounts or telemetry
-- No ML / black-box adaptation
+### Changed
+- SessionPlanner wraps SmartSnippetSelector with difficulty profile overrides per mix category
+- ContentLibraryService ingests calibration packs from Assets/Calibration/ with source filtering
+- Calibration snippets excluded from GetSnippets() by default (never appear in normal practice)
+
+### Technical
+- ContentIntegrationValidator: 14 validation methods including calibration, planner, weakness, UX transparency, and performance guardrails
+- Performance: 10K heatmap records < 200ms, 1K GetWeakest < 100ms, 10K ReasonFormatter.Format < 50ms
+- All new fields backward-compatible (nullable defaults, no schema bump needed)
 
 ## [0.8.2] - 2026-02-08
 
