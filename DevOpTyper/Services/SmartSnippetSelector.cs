@@ -110,7 +110,7 @@ public sealed class SmartSnippetSelector
             int rating = profile.GetRating(language);
             targetDifficulty = GetTargetDifficulty(rating);
             minDiff = Math.Max(1, targetDifficulty - 1);
-            maxDiff = Math.Min(5, targetDifficulty + 1);
+            maxDiff = Math.Min(7, targetDifficulty + 1);
         }
 
         // Score each candidate with enriched signals
@@ -321,11 +321,13 @@ public sealed class SmartSnippetSelector
     {
         return rating switch
         {
-            < 1000 => 1, // Beginner
+            < 1000 => 1, // Trivial
             < 1100 => 2, // Easy
-            < 1300 => 3, // Intermediate
-            < 1500 => 4, // Advanced
-            _ => 5       // Expert
+            < 1200 => 3, // Moderate
+            < 1300 => 4, // Intermediate
+            < 1400 => 5, // Challenging
+            < 1500 => 6, // Advanced
+            _ => 7       // Expert
         };
     }
 

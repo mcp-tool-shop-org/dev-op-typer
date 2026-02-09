@@ -285,10 +285,13 @@ public sealed class ContentLibraryService
         int rating = ratingByLanguage.TryGetValue(language, out var r) ? r : 1200;
         int targetDifficulty = rating switch
         {
+            < 1000 => 1,
             < 1100 => 2,
-            < 1300 => 3,
-            < 1500 => 4,
-            _ => 5
+            < 1200 => 3,
+            < 1300 => 4,
+            < 1400 => 5,
+            < 1500 => 6,
+            _ => 7
         };
 
         var candidates = snippets.Where(s => Math.Abs(s.Difficulty - targetDifficulty) <= 1).ToList();
