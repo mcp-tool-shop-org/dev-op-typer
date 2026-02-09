@@ -30,6 +30,7 @@ public static class ContentIntegrationValidator
             ValidatePersistenceRoundTrip();
             ValidateResilienceMissingIndex();
             ValidateResilienceCorruptIndex();
+            ValidateQueryPerformance(contentLibrary);
         }
         catch (Exception ex)
         {
@@ -282,6 +283,33 @@ public static class ContentIntegrationValidator
                 File.Delete(indexPath);
             }
         }
+    }
+
+    /// <summary>
+    /// Validates that query operations complete within acceptable time.
+    /// </summary>
+    private static void ValidateQueryPerformance(ContentLibraryService contentLibrary)
+    {
+        var sw = Stopwatch.StartNew();
+
+        // Simulate querying all languages and snippets (worst case)
+        foreach (var lang in contentLibrary.Languages())
+        {
+            var snippets = contentLibrary.GetSnippets(lang);
+            // Touch each snippet to ensure materialization
+            foreach (var s in snippets)
+            {
+                _ = s.Id;
+                _ = s.Difficulty;
+            }
+        }
+
+        sw.Stop();
+        var stats = contentLibrary.GetLibraryStats();
+        Assert(sw.ElapsedMilliseconds < 1000,
+            $"Full query scan: {stats.Total} items in {sw.ElapsedMilliseconds}ms (<1000ms)");
+
+        Log($"Performance: {stats.Total} items queried in {sw.ElapsedMilliseconds}ms");
     }
 
     private static void Assert(bool condition, string message)
