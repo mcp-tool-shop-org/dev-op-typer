@@ -218,7 +218,7 @@ public sealed partial class MainWindow : Window
 
         // Library stats
         var stats = _contentLibraryService.GetLibraryStats();
-        SettingsPanel.UpdateLibraryStats(stats.Builtin, stats.User, stats.Corpus, stats.Total);
+        SettingsPanel.UpdateLibraryStats(stats.Builtin, stats.User, stats.Corpus, stats.Calibration, stats.Total);
 
         // Practice configs
         _practiceConfigService.Initialize();

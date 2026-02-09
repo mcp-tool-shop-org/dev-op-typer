@@ -723,10 +723,11 @@ public sealed partial class SettingsPanel : UserControl
     /// <summary>
     /// Updates the library stats display with item counts by source.
     /// </summary>
-    public void UpdateLibraryStats(int builtin, int user, int corpus, int total)
+    public void UpdateLibraryStats(int builtin, int user, int corpus, int calibration, int total)
     {
         var parts = new List<string>();
         parts.Add($"{builtin} built-in");
+        if (calibration > 0) parts.Add($"{calibration} calibration");
         if (user > 0) parts.Add($"{user} pasted");
         if (corpus > 0) parts.Add($"{corpus} imported");
         parts.Add($"{total} total");

@@ -20,6 +20,7 @@ public sealed class ContentLibraryService
     private readonly UserContentService _userContent = new();
     private readonly CommunityContentService _communityContent = new();
     private readonly List<CodeItem> _allItems = new();
+    private readonly HashSet<string> _calibrationIds = new(StringComparer.OrdinalIgnoreCase);
     private InMemoryContentLibrary? _library;
     private bool _initialized;
 
@@ -70,13 +71,16 @@ public sealed class ContentLibraryService
         // Step 2: Convert built-in snippets to CodeItems
         LoadBuiltinCodeItems();
 
-        // Step 3: Load persisted user/corpus items
+        // Step 3: Load calibration packs
+        LoadCalibrationCodeItems();
+
+        // Step 4: Load persisted user/corpus items
         LoadPersistedIndex();
 
-        // Step 4: Build the unified library
+        // Step 5: Build the unified library
         RebuildLibrary();
 
-        // Step 5: Initialize legacy sub-services for directory/status access
+        // Step 6: Initialize legacy sub-services for directory/status access
         _userContent.Initialize();
         _communityContent.Initialize();
     }
@@ -127,6 +131,58 @@ public sealed class ContentLibraryService
         }
     }
 
+    private void LoadCalibrationCodeItems()
+    {
+        var calibrationDir = Path.Combine(AppContext.BaseDirectory, "Assets",
+            ExtensionBoundary.CalibrationAssetsDir);
+        if (!Directory.Exists(calibrationDir)) return;
+
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+        foreach (var file in Directory.GetFiles(calibrationDir, "*.json"))
+        {
+            try
+            {
+                var json = File.ReadAllText(file);
+                var snippets = JsonSerializer.Deserialize<List<Snippet>>(json, options);
+                if (snippets == null) continue;
+
+                int count = 0;
+                foreach (var snippet in snippets)
+                {
+                    if (string.IsNullOrWhiteSpace(snippet.Code)) continue;
+                    if (count >= ExtensionBoundary.MaxCalibrationItemsPerLanguage) break;
+
+                    var lang = string.IsNullOrWhiteSpace(snippet.Language)
+                        ? Path.GetFileNameWithoutExtension(file).ToLowerInvariant()
+                        : snippet.Language.ToLowerInvariant();
+
+                    var normalized = Normalizer.Normalize(snippet.Code, ensureTrailingNewline: true);
+                    var metrics = _metrics.Compute(normalized);
+                    var id = ContentId.From(lang, normalized);
+
+                    _calibrationIds.Add(id);
+
+                    _allItems.Add(new CodeItem(
+                        Id: id,
+                        Language: lang,
+                        Source: ExtensionBoundary.CalibrationSource,
+                        Title: snippet.Title ?? $"{lang} calibration",
+                        Code: normalized,
+                        Metrics: metrics,
+                        CreatedUtc: DateTimeOffset.UtcNow,
+                        Origin: ExtensionBoundary.CalibrationOrigin
+                    ));
+                    count++;
+                }
+            }
+            catch
+            {
+                // Silently skip malformed calibration files
+            }
+        }
+    }
+
     private void LoadPersistedIndex()
     {
         try
@@ -167,18 +223,36 @@ public sealed class ContentLibraryService
     // ─────────────────────────────────────────────
 
     /// <summary>
-    /// Gets all snippets for a language, optionally filtered by difficulty.
+    /// Gets all practice snippets for a language, optionally filtered by difficulty.
+    /// Calibration content is excluded — use GetCalibrationSnippets() for that.
     /// </summary>
     public IReadOnlyList<Snippet> GetSnippets(string language, int? difficulty = null)
     {
         Initialize();
         var items = Library.Query(new ContentQuery { Language = language });
-        var snippets = items.Select(i => ContentBridge.ToSnippet(i, _overlays.GetOverlay(i.Id))).ToList();
+        var snippets = items
+            .Where(i => !_calibrationIds.Contains(i.Id))
+            .Select(i => ContentBridge.ToSnippet(i, _overlays.GetOverlay(i.Id)))
+            .ToList();
 
         if (difficulty.HasValue)
             return snippets.Where(s => s.Difficulty == difficulty.Value).ToList();
 
         return snippets;
+    }
+
+    /// <summary>
+    /// Gets calibration snippets for a language. Calibration content is engine
+    /// ground truth — used for session planning, not user practice stats.
+    /// </summary>
+    public IReadOnlyList<Snippet> GetCalibrationSnippets(string language)
+    {
+        Initialize();
+        var items = Library.Query(new ContentQuery { Language = language });
+        return items
+            .Where(i => _calibrationIds.Contains(i.Id))
+            .Select(i => ContentBridge.ToSnippet(i, _overlays.GetOverlay(i.Id)))
+            .ToList();
     }
 
     /// <summary>
@@ -193,7 +267,8 @@ public sealed class ContentLibraryService
         foreach (var lang in languages)
         {
             var items = Library.Query(new ContentQuery { Language = lang });
-            var snippets = items.Select(i => ContentBridge.ToSnippet(i, _overlays.GetOverlay(i.Id))).ToList();
+            var practiceItems = items.Where(i => !_calibrationIds.Contains(i.Id)).ToList();
+            var snippets = practiceItems.Select(i => ContentBridge.ToSnippet(i, _overlays.GetOverlay(i.Id))).ToList();
 
             tracks.Add(new LanguageTrack
             {
@@ -201,7 +276,7 @@ public sealed class ContentLibraryService
                 DisplayName = char.ToUpper(lang[0]) + lang[1..],
                 Icon = LanguageIcons.GetValueOrDefault(lang, "\U0001F4DD"),
                 SnippetCount = snippets.Count,
-                HasUserContent = items.Any(i => i.Source != "builtin"),
+                HasUserContent = practiceItems.Any(i => i.Source != "builtin"),
                 AvailableDifficulties = snippets
                     .Select(s => s.DifficultyLabel)
                     .Distinct()
@@ -306,11 +381,13 @@ public sealed class ContentLibraryService
 
     /// <summary>
     /// Persist user/corpus items to library.index.json.
-    /// Built-in items are never persisted (rebuilt from assets each startup).
+    /// Built-in and calibration items are never persisted (rebuilt from assets each startup).
     /// </summary>
     public void SaveIndex()
     {
-        var userCorpusItems = _allItems.Where(i => i.Source != "builtin").ToList();
+        var userCorpusItems = _allItems.Where(i =>
+            i.Source != "builtin" &&
+            i.Source != ExtensionBoundary.CalibrationSource).ToList();
         var index = new LibraryIndex
         {
             Version = 1,
@@ -440,13 +517,14 @@ public sealed class ContentLibraryService
     /// <summary>
     /// Returns item counts by source type.
     /// </summary>
-    public (int Builtin, int User, int Corpus, int Total) GetLibraryStats()
+    public (int Builtin, int User, int Corpus, int Calibration, int Total) GetLibraryStats()
     {
         Initialize();
         int builtin = _allItems.Count(i => i.Source == "builtin");
         int user = _allItems.Count(i => i.Source == "user");
         int corpus = _allItems.Count(i => i.Source == "corpus");
-        return (builtin, user, corpus, _allItems.Count);
+        int calibration = _allItems.Count(i => i.Source == ExtensionBoundary.CalibrationSource);
+        return (builtin, user, corpus, calibration, _allItems.Count);
     }
 
     // ─────────────────────────────────────────────
