@@ -1,0 +1,20 @@
+[
+  {
+    "id": "py-decorators-adv",
+    "language": "python",
+    "difficulty": 5,
+    "title": "Decorator with Args",
+    "topics": [
+      "decorators",
+      "closures"
+    ],
+    "length": 14,
+    "symbolDensity": 0.42,
+    "code": "def logged(level):\n    def decorator(fn):\n        def wrapper(*args, **kwargs):\n            print(f\"[{level}] {fn.__name__}\")\n            return fn(*args, **kwargs)\n        return wrapper\n    return decorator\n",
+    "explain": [
+      "Decorators are higher-order functions.",
+      "*args/**kwargs require careful typing.",
+      "Nested scopes increase symbol density."
+    ]
+  }
+]

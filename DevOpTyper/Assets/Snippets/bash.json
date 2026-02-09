@@ -1,0 +1,82 @@
+[
+  {
+    "id": "sh-safe",
+    "language": "bash",
+    "difficulty": 3,
+    "topics": [
+      "set",
+      "pipefail",
+      "variables"
+    ],
+    "title": "Safer shell",
+    "code": "set -euo pipefail\n\nDIR=\"${1:-.}\"\nfind \"$DIR\" -type f -name \"*.log\" -print0 | xargs -0 wc -l\n",
+    "explain": [
+      "Pipefail helps surface errors.",
+      "Practice quotes, ${} expansions, and pipes."
+    ]
+  },
+  {
+    "id": "sh-for-loop",
+    "language": "bash",
+    "difficulty": 1,
+    "topics": [
+      "for-loop",
+      "variables",
+      "echo"
+    ],
+    "title": "For loop",
+    "code": "for file in *.txt; do\n    echo \"Processing: $file\"\ndone\n",
+    "explain": [
+      "for/in iterates over glob matches or word lists.",
+      "Practice do/done keywords and $variable expansion."
+    ]
+  },
+  {
+    "id": "sh-if-else",
+    "language": "bash",
+    "difficulty": 2,
+    "topics": [
+      "if-else",
+      "test",
+      "conditionals"
+    ],
+    "title": "If/else file check",
+    "code": "if [ -f \"$1\" ]; then\n    echo \"File exists: $1\"\nelse\n    echo \"Not found: $1\" >&2\n    exit 1\nfi\n",
+    "explain": [
+      "-f tests if a path is a regular file.",
+      ">&2 redirects output to stderr for error messages."
+    ]
+  },
+  {
+    "id": "sh-function",
+    "language": "bash",
+    "difficulty": 3,
+    "topics": [
+      "functions",
+      "arguments",
+      "return"
+    ],
+    "title": "Shell function",
+    "code": "log() {\n    local level=\"$1\"; shift\n    printf \"[%s] %s\\n\" \"$level\" \"$*\"\n}\nlog INFO \"Deployment started\"\n",
+    "explain": [
+      "local scopes variables to the function.",
+      "shift removes $1 so $* contains the rest of the args."
+    ]
+  },
+  {
+    "id": "sh-array",
+    "language": "bash",
+    "difficulty": 2,
+    "topics": [
+      "arrays",
+      "indexing",
+      "length"
+    ],
+    "title": "Array operations",
+    "code": "servers=(\"web01\" \"web02\" \"db01\")\necho \"Count: ${#servers[@]}\"\nfor s in \"${servers[@]}\"; do\n    echo \"Pinging $s\"\ndone\n",
+    "explain": [
+      "${#arr[@]} returns the array length.",
+      "Always quote ${arr[@]} to handle spaces in elements."
+    ]
+  }
+]

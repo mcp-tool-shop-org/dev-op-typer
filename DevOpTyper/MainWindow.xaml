@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Window
+    x:Class="DevOpTyper.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:panels="using:DevOpTyper.Panels"
+    xmlns:vm="using:DevOpTyper.ViewModels"
+    mc:Ignorable="d"
+    Title="Dev-Op-Typer">
+    
+    <Grid x:Name="RootGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Title Bar -->
+        <Grid Grid.Row="0" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel x:Name="TitleBarDragArea" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0">
+                <TextBlock Text="Dev-Op-Typer" FontSize="16" FontWeight="SemiBold"/>
+                <Border Background="{StaticResource DotAccent2Brush}"
+                        CornerRadius="4"
+                        Padding="8,2"
+                        Margin="12,0,0,0">
+                    <TextBlock x:Name="LevelBadge" Text="Lv 1 • 0 XP" FontSize="12" FontWeight="SemiBold" Foreground="#FF0C0E14"
+                           AutomationProperties.Name="Player level and experience"
+                           AutomationProperties.LiveSetting="Polite"/>
+                </Border>
+                <ComboBox x:Name="LanguageCombo"
+                          Margin="12,0,0,0"
+                          FontSize="12"
+                          MinWidth="120"
+                          VerticalAlignment="Center"
+                          SelectionChanged="LanguageCombo_SelectionChanged"
+                          AutomationProperties.Name="Select programming language">
+                    <ComboBoxItem Content="Python" Tag="python"/>
+                    <ComboBoxItem Content="JavaScript" Tag="javascript"/>
+                    <ComboBoxItem Content="C#" Tag="csharp"/>
+                    <ComboBoxItem Content="Java" Tag="java"/>
+                    <ComboBoxItem Content="SQL" Tag="sql"/>
+                    <ComboBoxItem Content="Bash" Tag="bash"/>
+                </ComboBox>
+            </StackPanel>
+            
+            <StackPanel x:Name="TitleBarButtons" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="4" Margin="0,0,140,0">
+                <!-- Ambient: Random -->
+                <Button x:Name="AmbientRandomButton"
+                        Content="🎲 Random"
+                        FontSize="12"
+                        Padding="8,4"
+                        Click="AmbientRandomButton_Click"
+                        AutomationProperties.Name="Randomize ambient sound"
+                        ToolTipService.ToolTip="Switch to a random ambient track"/>
+                <!-- Ambient: Mute toggle -->
+                <Button x:Name="AmbientMuteButton"
+                        Content="🔊 Ambient"
+                        FontSize="12"
+                        Padding="8,4"
+                        Click="AmbientMuteButton_Click"
+                        AutomationProperties.Name="Toggle ambient sound"
+                        ToolTipService.ToolTip="Mute or unmute ambient audio"/>
+                <!-- Settings gear -->
+                <Button x:Name="SettingsToggleButton"
+                        Content="⚙"
+                        FontSize="16"
+                        Padding="8,4"
+                        Click="SettingsToggleButton_Click"
+                        AutomationProperties.Name="Toggle settings panel"
+                        ToolTipService.ToolTip="Open or close settings"/>
+            </StackPanel>
+        </Grid>
+        
+        <!-- Main Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition x:Name="SettingsColumn" Width="0"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Typing Panel + Between-Session Panels -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <panels:TypingPanel x:Name="TypingPanel" Grid.Row="0"/>
+                <panels:ExplanationPanel x:Name="ExplanationPanel" Grid.Row="1" Margin="16,0,16,8"/>
+                <panels:DemonstrationPanel x:Name="DemonstrationPanel" Grid.Row="2" Margin="16,0,16,8"/>
+                <panels:LayersPanel x:Name="LayersPanel" Grid.Row="3" Margin="16,0,16,8"/>
+            </Grid>
+            
+            <!-- Stats Panel -->
+            <panels:StatsPanel x:Name="StatsPanel" Grid.Column="1" Width="220" Margin="0,16,16,16"/>
+            
+            <!-- Settings Panel (collapsible) -->
+            <panels:SettingsPanel x:Name="SettingsPanel" Grid.Column="2" Visibility="Collapsed"/>
+        </Grid>
+    </Grid>
+</Window>

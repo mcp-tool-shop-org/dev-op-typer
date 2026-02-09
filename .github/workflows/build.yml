@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+        platform: [x64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore DevOpTyper.sln
+
+      - name: Build
+        run: dotnet build DevOpTyper.sln -c ${{ matrix.configuration }} -p:Platform=${{ matrix.platform }} --no-restore
+
+      - name: Upload build artifacts
+        if: matrix.configuration == 'Release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: DevOpTyper-${{ matrix.platform }}
+          path: DevOpTyper/bin/${{ matrix.configuration }}/net10.0-windows10.0.19041.0/
+          retention-days: 30

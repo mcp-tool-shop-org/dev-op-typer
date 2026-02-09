@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<UserControl
+    x:Class="DevOpTyper.Panels.TypingPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:DevOpTyper.Controls"
+    mc:Ignorable="d">
+
+    <Grid Padding="16,8,16,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Row 0: Action Toolbar — always visible at the top -->
+        <StackPanel Grid.Row="0"
+                    Orientation="Horizontal"
+                    Spacing="10"
+                    Margin="0,0,0,4">
+            <Button x:Name="NewTestButton" Content="New Test"
+                    Style="{ThemeResource AccentButtonStyle}"
+                    AutomationProperties.Name="Load a new typing test"
+                    ToolTipService.ToolTip="Load a new code snippet to practice"/>
+            <Button x:Name="ResetButton" Content="Reset"
+                    AutomationProperties.Name="Reset current session"
+                    ToolTipService.ToolTip="Clear typing input and restart"/>
+            <Button x:Name="SkipButton" Content="Skip"
+                    AutomationProperties.Name="Skip to next snippet"
+                    ToolTipService.ToolTip="Load a different code snippet"/>
+
+            <!-- Session status text -->
+            <TextBlock x:Name="SessionStatusText"
+                       Text=""
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       VerticalAlignment="Center"
+                       FontSize="12"
+                       Margin="12,0,0,0"
+                       AutomationProperties.Name="Session status"/>
+
+            <!-- Difficulty badge -->
+            <Border x:Name="DifficultyBadge"
+                    Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                    CornerRadius="8"
+                    Padding="8,2"
+                    Margin="6,0,0,0"
+                    Visibility="Collapsed">
+                <TextBlock x:Name="DifficultyText"
+                           FontFamily="Consolas"
+                           FontSize="11"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           VerticalAlignment="Center"
+                           AutomationProperties.Name="Current difficulty level"/>
+            </Border>
+
+            <!-- Pick reason (v0.9.0) — why this snippet was selected -->
+            <TextBlock x:Name="PickReasonText"
+                       FontSize="11"
+                       Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                       VerticalAlignment="Center"
+                       Visibility="Collapsed"
+                       IsTabStop="False"
+                       AutomationProperties.LiveSetting="Off"
+                       AutomationProperties.Name="Reason this snippet was selected"
+                       Margin="6,0,0,0"/>
+        </StackPanel>
+
+        <!-- Row 1: Snippet Display Area -->
+        <Border Grid.Row="1"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                CornerRadius="8"
+                Padding="16"
+                Margin="0,0,0,12">
+            <StackPanel Spacing="8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="SnippetTitle"
+                               Text="Sample Snippet"
+                               FontSize="16"
+                               FontWeight="SemiBold"/>
+                    <TextBlock x:Name="SnippetLanguage"
+                               Grid.Column="1"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12"
+                               VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- Community hint (subtle, collective language, never comparative) -->
+                <TextBlock x:Name="CommunityHint"
+                           FontSize="10"
+                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                           TextWrapping="Wrap"
+                           Visibility="Collapsed"
+                           IsTabStop="False"
+                           IsTextSelectionEnabled="True"
+                           AutomationProperties.LiveSetting="Off"
+                           AutomationProperties.Name="Community hint about this snippet"
+                           Margin="0,-4,0,0"/>
+
+                <!-- Scaffold hints (v0.8.0) — optional learning aids, fade with competence -->
+                <TextBlock x:Name="ScaffoldHints"
+                           FontSize="10"
+                           FontStyle="Italic"
+                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                           TextWrapping="Wrap"
+                           Visibility="Collapsed"
+                           IsTabStop="False"
+                           AutomationProperties.LiveSetting="Off"
+                           AutomationProperties.Name="Scaffold hints for this snippet"
+                           Margin="0,-2,0,0"/>
+
+                <!-- Guidance notes (v0.8.0) — collective experience, always dismissible -->
+                <StackPanel x:Name="GuidanceArea"
+                            Spacing="2"
+                            Visibility="Collapsed"
+                            Margin="0,-2,0,0"
+                            IsTabStop="False"
+                            AutomationProperties.Name="Contextual guidance from collective experience">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ItemsControl x:Name="GuidanceItems"
+                                      IsTabStop="False"
+                                      AutomationProperties.LiveSetting="Off"
+                                      AutomationProperties.Name="Guidance notes for this snippet"/>
+                        <Button x:Name="DismissGuidanceButton"
+                                Content="✕"
+                                Grid.Column="1"
+                                FontSize="9"
+                                Padding="4,1"
+                                VerticalAlignment="Top"
+                                MinWidth="0"
+                                MinHeight="0"
+                                AutomationProperties.Name="Dismiss guidance"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Per-character diff renderer -->
+                <controls:TypingPresenter x:Name="CodeRenderer"
+                                          AutomationProperties.Name="Code snippet to type"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Row 2: Typing Input Area -->
+        <Border Grid.Row="2"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                CornerRadius="8"
+                Padding="16"
+                Margin="0,0,0,12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Type the code exactly as shown above:"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           FontSize="12"
+                           Margin="0,0,0,8"/>
+
+                <TextBox x:Name="TypingBox"
+                         Grid.Row="1"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         FontFamily="Consolas"
+                         FontSize="14"
+                         PlaceholderText="Start typing here..."
+                         MinHeight="100"
+                         AutomationProperties.Name="Code typing input area"/>
+            </Grid>
+        </Border>
+
+        <!-- Row 3: Session Completion Summary + Retrospective -->
+        <Border x:Name="CompletionBanner"
+                Grid.Row="3"
+                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                CornerRadius="8"
+                Padding="12"
+                Margin="0,0,0,8"
+                Visibility="Collapsed">
+            <StackPanel Spacing="6">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Spacing="2">
+                        <TextBlock x:Name="CompletionTitle"
+                                   Text="Session Complete!"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   AutomationProperties.Name="Session completion status"
+                                   AutomationProperties.LiveSetting="Assertive"/>
+                        <TextBlock x:Name="CompletionStats"
+                                   FontSize="11"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   AutomationProperties.Name="Session statistics"
+                                   AutomationProperties.LiveSetting="Polite"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="6"
+                                VerticalAlignment="Center">
+                        <Button x:Name="CompletionActionButton"
+                                FontSize="11"
+                                Padding="8,4"
+                                Visibility="Collapsed"
+                                AutomationProperties.Name="Session completion action"/>
+                        <Button x:Name="CompletionDismissButton"
+                                Content="Dismiss"
+                                FontSize="11"
+                                Padding="8,4"
+                                AutomationProperties.Name="Dismiss completion summary"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Session Retrospective (v0.4.0) — optional, dismissible -->
+                <StackPanel x:Name="RetrospectiveSection"
+                            Spacing="2"
+                            Visibility="Collapsed"
+                            AutomationProperties.Name="Session review">
+                    <Border Height="1"
+                            Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                            Margin="0,2,0,2"/>
+                    <TextBlock x:Name="RetrospectiveText"
+                               FontSize="11"
+                               Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                               TextWrapping="Wrap"
+                               IsTextSelectionEnabled="True"
+                               AutomationProperties.Name="Session observations"/>
+                </StackPanel>
+
+                <!-- Session Note (v0.4.0) — optional, never prompted -->
+                <StackPanel x:Name="NoteSection" Spacing="2">
+                    <HyperlinkButton x:Name="AddNoteLink"
+                                     Content="Add a note"
+                                     FontSize="11"
+                                     Padding="0"
+                                     TabIndex="100"
+                                     AutomationProperties.Name="Add a note to this session"/>
+                    <TextBox x:Name="NoteInput"
+                             PlaceholderText="What's on your mind?"
+                             MaxLength="280"
+                             FontSize="11"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="False"
+                             TabIndex="101"
+                             AutomationProperties.Name="Session note"
+                             Visibility="Collapsed"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

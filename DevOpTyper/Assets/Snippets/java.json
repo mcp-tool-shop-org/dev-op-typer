@@ -1,0 +1,114 @@
+[
+  {
+    "id": "java-stream",
+    "language": "java",
+    "difficulty": 4,
+    "topics": [
+      "streams",
+      "lambda",
+      "collect"
+    ],
+    "title": "Stream pipeline",
+    "code": "var result = list.stream()\n    .filter(x -> x % 2 == 0)\n    .map(x -> x * x)\n    .collect(java.util.stream.Collectors.toList());\n",
+    "explain": [
+      "Pipeline uses lambdas and method chaining.",
+      "Mind arrows, dots, and semicolons."
+    ]
+  },
+  {
+    "id": "java-record",
+    "language": "java",
+    "difficulty": 5,
+    "topics": [
+      "records",
+      "methods",
+      "string-format"
+    ],
+    "title": "Record + method",
+    "code": "public record Point(int x, int y) {\n    public String fmt() {\n        return String.format(\"(%d, %d)\", x, y);\n    }\n}\n",
+    "explain": [
+      "Records are concise data carriers.",
+      "Practice parentheses, commas, braces, and format strings."
+    ]
+  },
+  {
+    "id": "java-try-resources",
+    "language": "java",
+    "difficulty": 3,
+    "topics": [
+      "try-with-resources",
+      "io",
+      "auto-close"
+    ],
+    "title": "Try-with-resources",
+    "code": "try (var reader = new BufferedReader(new FileReader(path))) {\n    String line;\n    while ((line = reader.readLine()) != null)\n        System.out.println(line);\n}\n",
+    "explain": [
+      "Resources in the try header are auto-closed on exit.",
+      "Practice nested constructors, parentheses, and != null checks."
+    ]
+  },
+  {
+    "id": "java-optional",
+    "language": "java",
+    "difficulty": 3,
+    "topics": [
+      "Optional",
+      "null-safety",
+      "functional"
+    ],
+    "title": "Optional usage",
+    "code": "Optional<String> name = Optional.ofNullable(getInput());\nString display = name\n    .map(String::toUpperCase)\n    .orElse(\"Anonymous\");\n",
+    "explain": [
+      "Optional avoids null checks with a fluent API.",
+      ":: is a method reference, a shorthand for lambdas."
+    ]
+  },
+  {
+    "id": "java-interface-default",
+    "language": "java",
+    "difficulty": 4,
+    "topics": [
+      "interface",
+      "default-method",
+      "abstraction"
+    ],
+    "title": "Interface default method",
+    "code": "public interface Greeter {\n    String greet(String name);\n    default String shout(String name) {\n        return greet(name).toUpperCase();\n    }\n}\n",
+    "explain": [
+      "default methods let interfaces evolve without breaking implementors.",
+      "Practice braces, parentheses, and method chaining."
+    ]
+  },
+  {
+    "id": "java-enhanced-for",
+    "language": "java",
+    "difficulty": 1,
+    "topics": [
+      "for-each",
+      "loop",
+      "collections"
+    ],
+    "title": "Enhanced for loop",
+    "code": "var colors = List.of(\"red\", \"green\", \"blue\");\nfor (var color : colors) {\n    System.out.println(color.toUpperCase());\n}\n",
+    "explain": [
+      "The enhanced for loop iterates without an index.",
+      "List.of() creates an immutable list in modern Java."
+    ]
+  },
+  {
+    "id": "java-stringbuilder",
+    "language": "java",
+    "difficulty": 2,
+    "topics": [
+      "StringBuilder",
+      "loops",
+      "string-building"
+    ],
+    "title": "StringBuilder loop",
+    "code": "var sb = new StringBuilder();\nfor (int i = 1; i <= 5; i++)\n    sb.append(i).append(i < 5 ? \", \" : \"\\n\");\nSystem.out.print(sb);\n",
+    "explain": [
+      "StringBuilder avoids costly string concatenation in loops.",
+      "append() returns this, enabling method chaining."
+    ]
+  }
+]

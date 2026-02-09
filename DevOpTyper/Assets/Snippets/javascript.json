@@ -1,0 +1,118 @@
+[
+  {
+    "id": "js-async-await",
+    "language": "javascript",
+    "difficulty": 4,
+    "topics": [
+      "async",
+      "await",
+      "fetch",
+      "json"
+    ],
+    "title": "Async fetch",
+    "code": "export async function getUser(id) {\n  const res = await fetch(`/api/users/${id}`);\n  if (!res.ok) throw new Error(`HTTP ${res.status}`);\n  return await res.json();\n}\n",
+    "explain": [
+      "Async/await reads like synchronous code.",
+      "Practice template literals and ${} placeholders."
+    ]
+  },
+  {
+    "id": "js-reduce",
+    "language": "javascript",
+    "difficulty": 3,
+    "topics": [
+      "array",
+      "reduce",
+      "arrow-function"
+    ],
+    "title": "Reduce to map",
+    "code": "const counts = items.reduce((m, x) => {\n  m[x] = (m[x] ?? 0) + 1;\n  return m;\n}, {});\n",
+    "explain": [
+      "Reduce builds a single value from a list.",
+      "Practice ?? and arrow functions."
+    ]
+  },
+  {
+    "id": "js-destructuring",
+    "language": "javascript",
+    "difficulty": 2,
+    "topics": [
+      "destructuring",
+      "objects",
+      "defaults"
+    ],
+    "title": "Object destructuring",
+    "code": "const { name, age = 0, role = \"guest\" } = user;\nconsole.log(`${name} (${age}) - ${role}`);\n",
+    "explain": [
+      "Destructuring extracts properties into variables.",
+      "Default values apply when the property is undefined."
+    ]
+  },
+  {
+    "id": "js-promise-chain",
+    "language": "javascript",
+    "difficulty": 3,
+    "topics": [
+      "promises",
+      "then",
+      "catch",
+      "chaining"
+    ],
+    "title": "Promise chain",
+    "code": "fetch(\"/api/data\")\n  .then((res) => res.json())\n  .then((data) => console.log(data.length))\n  .catch((err) => console.error(err.message));\n",
+    "explain": [
+      ".then() chains async steps; .catch() handles errors.",
+      "Practice arrow functions, dots, and parentheses."
+    ]
+  },
+  {
+    "id": "js-class",
+    "language": "javascript",
+    "difficulty": 4,
+    "topics": [
+      "class",
+      "constructor",
+      "methods",
+      "this"
+    ],
+    "title": "ES6 class",
+    "code": "class Timer {\n  constructor(label) {\n    this.label = label;\n    this.start = Date.now();\n  }\n  elapsed() {\n    return Date.now() - this.start;\n  }\n}\n",
+    "explain": [
+      "Classes group state and behavior together.",
+      "this refers to the current instance inside methods."
+    ]
+  },
+  {
+    "id": "js-map-filter",
+    "language": "javascript",
+    "difficulty": 1,
+    "topics": [
+      "array",
+      "map",
+      "filter",
+      "arrow-function"
+    ],
+    "title": "Map and filter",
+    "code": "const names = users\n  .filter((u) => u.active)\n  .map((u) => u.name.toUpperCase());\n",
+    "explain": [
+      "filter keeps matching items; map transforms each one.",
+      "Chaining reads top-to-bottom like a pipeline."
+    ]
+  },
+  {
+    "id": "js-ternary",
+    "language": "javascript",
+    "difficulty": 1,
+    "topics": [
+      "ternary",
+      "conditional",
+      "expression"
+    ],
+    "title": "Ternary expression",
+    "code": "const label = count === 1 ? \"item\" : \"items\";\nconsole.log(`${count} ${label} in cart`);\n",
+    "explain": [
+      "The ternary operator is a concise if/else expression.",
+      "Practice ===, ?, and : for conditional logic."
+    ]
+  }
+]

@@ -1,0 +1,10 @@
+bin/
+obj/
+.vs/
+AppPackages/
+*.user
+*.suo
+*.cache
+*.log
+*.zip
+build_log.txt

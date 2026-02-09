@@ -1,0 +1,132 @@
+[
+  {
+    "id": "py-guard-clause",
+    "language": "python",
+    "difficulty": 2,
+    "topics": [
+      "functions",
+      "guards",
+      "comparison",
+      "return"
+    ],
+    "title": "Guard clause",
+    "code": "def clamp(x: int, lo: int, hi: int) -> int:\n    if x < lo:\n        return lo\n    if x > hi:\n        return hi\n    return x\n",
+    "explain": [
+      "Guard clauses keep control-flow flat.",
+      "Note colon, indentation, and comparisons."
+    ]
+  },
+  {
+    "id": "py-list-comp",
+    "language": "python",
+    "difficulty": 3,
+    "topics": [
+      "list-comprehension",
+      "modulo",
+      "filtering"
+    ],
+    "title": "List comprehension",
+    "code": "evens = [n for n in range(1, 101) if n % 2 == 0]\n",
+    "explain": [
+      "Comprehensions combine mapping + filtering.",
+      "Watch brackets, % operator, and ==."
+    ]
+  },
+  {
+    "id": "py-dict",
+    "language": "python",
+    "difficulty": 4,
+    "topics": [
+      "dict",
+      "typing",
+      "for-loop"
+    ],
+    "title": "Counting",
+    "code": "from collections import Counter\n\ncounts: Counter[str] = Counter()\nfor ch in \"Dev-Op-Typer\":\n    counts[ch] += 1\n",
+    "explain": [
+      "Counter is a multiset.",
+      "Quotes, types, and indexing build full-keyboard muscle memory."
+    ]
+  },
+  {
+    "id": "py-for-loop",
+    "language": "python",
+    "difficulty": 1,
+    "topics": [
+      "for-loop",
+      "range",
+      "print"
+    ],
+    "title": "For loop with range",
+    "code": "for i in range(5):\n    print(f\"Step {i + 1} of 5\")\n",
+    "explain": [
+      "range(n) produces 0 through n-1.",
+      "Practice colons, indentation, and parentheses."
+    ]
+  },
+  {
+    "id": "py-try-except",
+    "language": "python",
+    "difficulty": 2,
+    "topics": [
+      "exceptions",
+      "error-handling",
+      "try-except"
+    ],
+    "title": "Try-except block",
+    "code": "try:\n    value = int(input(\"Enter a number: \"))\nexcept ValueError:\n    print(\"That's not a valid number.\")\n",
+    "explain": [
+      "try/except prevents crashes from bad input.",
+      "Catch specific exceptions, not bare except."
+    ]
+  },
+  {
+    "id": "py-decorator",
+    "language": "python",
+    "difficulty": 4,
+    "topics": [
+      "decorators",
+      "functions",
+      "closures"
+    ],
+    "title": "Simple decorator",
+    "code": "def log_call(fn):\n    def wrapper(*args, **kwargs):\n        print(f\"Calling {fn.__name__}\")\n        return fn(*args, **kwargs)\n    return wrapper\n",
+    "explain": [
+      "Decorators wrap functions to add behavior.",
+      "Practice *args, **kwargs, and dunder attributes."
+    ]
+  },
+  {
+    "id": "py-class-def",
+    "language": "python",
+    "difficulty": 3,
+    "topics": [
+      "classes",
+      "init",
+      "self",
+      "methods"
+    ],
+    "title": "Class definition",
+    "code": "class Circle:\n    def __init__(self, radius: float):\n        self.radius = radius\n\n    def area(self) -> float:\n        return 3.14159 * self.radius ** 2\n",
+    "explain": [
+      "__init__ is the constructor; self refers to the instance.",
+      "Practice colons, type hints, and ** for exponentiation."
+    ]
+  },
+  {
+    "id": "py-fstring",
+    "language": "python",
+    "difficulty": 1,
+    "topics": [
+      "f-string",
+      "formatting",
+      "variables"
+    ],
+    "title": "F-string formatting",
+    "code": "name = \"Alice\"\nscore = 95.678\nprint(f\"{name} scored {score:.1f}%\")\n",
+    "explain": [
+      "F-strings embed expressions inside curly braces.",
+      ":.1f formats a float to one decimal place."
+    ]
+  }
+]
