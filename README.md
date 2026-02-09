@@ -116,24 +116,75 @@ external/
 | Enter | Start new test |
 | Escape | Reset current test |
 
-## Adding Snippets
+## Adding Your Own Code
 
-Snippet packs are JSON files in `Assets/Snippets/`:
+There are three ways to practice your own code:
 
-```json
-{
-  "language": "python",
-  "snippets": [
-    {
-      "id": "py_hello",
-      "title": "Hello World",
-      "difficulty": 1,
-      "topics": ["basics", "print"],
-      "code": "print(\"Hello, World!\")\n"
-    }
-  ]
-}
-```
+### Option 1: Paste Code (easiest)
+
+1. Open the **Settings** panel (click ⚙ in the title bar)
+2. Scroll to **Paste Code**
+3. Paste any code snippet into the text box
+4. Click **Add** — the language is auto-detected
+5. Your code appears in the snippet rotation immediately
+
+### Option 2: Import a File or Folder
+
+1. Open **Settings** → scroll to **Import**
+2. Click **Import File** to add a single source file, or **Import Folder** to scan an entire project
+3. The app auto-detects language from file extensions (`.py`, `.js`, `.cs`, `.java`, `.sql`, `.sh`)
+4. Imported code is deduplicated by content hash — the same code is never added twice
+
+### Option 3: Create a Snippet Pack (JSON)
+
+For curated sets of practice snippets:
+
+1. Open your user snippets folder:
+   ```
+   %LocalAppData%\DevOpTyper\UserSnippets\
+   ```
+   (or click **Open Snippets Folder** in Settings)
+
+2. Create a JSON file named after the language (e.g. `python.json`):
+   ```json
+   {
+     "language": "python",
+     "snippets": [
+       {
+         "id": "my_list_comp",
+         "title": "List comprehension",
+         "difficulty": 3,
+         "topics": ["lists", "comprehension"],
+         "code": "squares = [x**2 for x in range(10)]\n"
+       },
+       {
+         "id": "my_dict_comp",
+         "title": "Dictionary comprehension",
+         "difficulty": 4,
+         "topics": ["dicts", "comprehension"],
+         "code": "counts = {word: len(word) for word in words}\n"
+       }
+     ]
+   }
+   ```
+
+3. Restart the app — your snippets appear alongside the built-in ones
+
+**Tips:**
+- `id` must be unique across all packs
+- `difficulty` ranges from 1 (easy) to 7 (hard)
+- `code` should end with `\n`
+- You can organize packs in subdirectories one level deep
+
+### Sharing Content
+
+Export your custom snippets as a portable `.ldtpack` bundle:
+
+1. Open **Settings** → click **Export Bundle**
+2. Share the `.ldtpack` file with others
+3. They import it via **Settings** → **Import Bundle**
+
+Only user-authored content travels — never practice history or settings.
 
 ## Privacy
 
