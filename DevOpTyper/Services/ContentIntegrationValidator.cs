@@ -37,6 +37,7 @@ public static class ContentIntegrationValidator
             ValidateSessionPlanner();
             ValidateWeaknessTracking();
             ValidateUXTransparency();
+            ValidateWeaknessBiasInvariants();
             ValidatePerformanceGuardrails();
         }
         catch (Exception ex)
@@ -748,6 +749,72 @@ public static class ContentIntegrationValidator
             $"10K ReasonFormatter.Format in {sw.ElapsedMilliseconds}ms (budget: 50ms)");
 
         Log("PerformanceGuardrails: all checks passed");
+    }
+
+    /// <summary>
+    /// Validates WeaknessBias invariants: bounded, deterministic, policy-gated,
+    /// band-preserving, and diversity-guarded.
+    /// </summary>
+    private static void ValidateWeaknessBiasInvariants()
+    {
+        Log("--- ValidateWeaknessBiasInvariants ---");
+
+        // 1. Policy off → zero bias (v0.9 identical)
+        var snippet = new Snippet
+        {
+            Id = "test", Language = "python", Difficulty = 3,
+            Code = "if (x) { return [y]; }"
+        };
+        var heatmap = new MistakeHeatmap();
+        foreach (char c in new[] { '{', '}', '(', ')', '[', ']', ':', '=' })
+        {
+            heatmap.RecordHit(c);
+            for (int i = 0; i < 9; i++) heatmap.RecordMiss(c, null);
+        }
+
+        var policyOff = new SignalPolicy(); // GuidedMode = false
+        double biasOff = WeaknessBias.ComputeCategoryBias(snippet, heatmap, policyOff);
+        Assert(biasOff == 0.0, $"Policy off → zero bias: {biasOff}");
+
+        // 2. Null policy → zero bias
+        double biasNull = WeaknessBias.ComputeCategoryBias(snippet, heatmap, null);
+        Assert(biasNull == 0.0, $"Null policy → zero bias: {biasNull}");
+
+        // 3. Policy on → positive bias when weak groups exist
+        var policyOn = new SignalPolicy();
+        policyOn.EnableGuidedMode();
+        double biasOn = WeaknessBias.ComputeCategoryBias(snippet, heatmap, policyOn);
+        Assert(biasOn > 0, $"Policy on with weak groups → positive bias: {biasOn}");
+
+        // 4. Bias is bounded (≤ 15.0)
+        Assert(biasOn <= 15.0, $"Bias bounded ≤ 15.0: {biasOn}");
+
+        // 5. Same inputs → same outputs (deterministic)
+        double bias1 = WeaknessBias.ComputeCategoryBias(snippet, heatmap, policyOn);
+        double bias2 = WeaknessBias.ComputeCategoryBias(snippet, heatmap, policyOn);
+        Assert(bias1 == bias2, "Deterministic: same inputs → same output");
+
+        // 6. Diversity guard: only 1 weak group → zero bias
+        var singleGroupHeatmap = new MistakeHeatmap();
+        for (int i = 0; i < 1; i++) singleGroupHeatmap.RecordHit('(');
+        for (int i = 0; i < 9; i++) singleGroupHeatmap.RecordMiss('(', null);
+        for (int i = 0; i < 1; i++) singleGroupHeatmap.RecordHit(')');
+        for (int i = 0; i < 9; i++) singleGroupHeatmap.RecordMiss(')', null);
+
+        double singleBias = WeaknessBias.ComputeCategoryBias(snippet, singleGroupHeatmap, policyOn);
+        Assert(singleBias == 0.0, $"Diversity guard (1 group) → zero bias: {singleBias}");
+
+        // 7. Empty heatmap → zero bias
+        var emptyHeatmap = new MistakeHeatmap();
+        double emptyBias = WeaknessBias.ComputeCategoryBias(snippet, emptyHeatmap, policyOn);
+        Assert(emptyBias == 0.0, $"Empty heatmap → zero bias: {emptyBias}");
+
+        // 8. GuidedMode=true but SignalsAffectSelection=false → zero bias
+        var partialPolicy = new SignalPolicy { GuidedMode = true, SignalsAffectSelection = false };
+        double partialBias = WeaknessBias.ComputeCategoryBias(snippet, heatmap, partialPolicy);
+        Assert(partialBias == 0.0, $"Partial policy (no selection flag) → zero bias: {partialBias}");
+
+        Log("WeaknessBiasInvariants: all checks passed");
     }
 
     private static void Assert(bool condition, string message)
