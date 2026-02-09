@@ -47,6 +47,9 @@ public sealed partial class MainWindow : Window
         _snippetService.Initialize();
         _smartSelector = new SmartSnippetSelector(_snippetService);
 
+        // Parity validation: ContentLibraryService must match SnippetService output
+        ValidateContentLibraryParity();
+
         // Initialize audio
         _audioService.Initialize();
         _keyboardSound = new KeyboardSoundHandler(_audioService);
@@ -1151,6 +1154,52 @@ public sealed partial class MainWindow : Window
         catch (Exception ex)
         {
             SettingsPanel.ShowBundleStatus($"Import failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Temporary parity validation: ContentLibraryService must produce the same
+    /// languages and snippet counts as SnippetService. Logs discrepancies to
+    /// debug output. Will be removed once SnippetService is deleted.
+    /// </summary>
+    private void ValidateContentLibraryParity()
+    {
+        try
+        {
+            var contentLibrary = new ContentLibraryService();
+            contentLibrary.Initialize();
+
+            var oldTracks = _snippetService.GetLanguageTracks();
+            var newTracks = contentLibrary.GetLanguageTracks();
+
+            var oldLangs = oldTracks.Select(t => t.Id).OrderBy(x => x).ToList();
+            var newLangs = newTracks.Select(t => t.Id).OrderBy(x => x).ToList();
+
+            if (!oldLangs.SequenceEqual(newLangs, StringComparer.OrdinalIgnoreCase))
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[ContentLibrary PARITY] Language mismatch: old=[{string.Join(",", oldLangs)}] new=[{string.Join(",", newLangs)}]");
+            }
+
+            foreach (var lang in oldLangs)
+            {
+                var oldCount = _snippetService.GetSnippetCount(lang);
+                var newCount = contentLibrary.GetSnippetCount(lang);
+                if (oldCount != newCount)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[ContentLibrary PARITY] {lang}: old={oldCount} new={newCount}");
+                }
+            }
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[ContentLibrary PARITY] Validation complete: {newTracks.Count} languages, " +
+                $"{newTracks.Sum(t => t.SnippetCount)} total snippets");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(
+                $"[ContentLibrary PARITY] Validation failed: {ex.Message}");
         }
     }
 }
