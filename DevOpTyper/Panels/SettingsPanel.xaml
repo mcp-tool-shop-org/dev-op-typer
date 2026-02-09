@@ -444,6 +444,20 @@
                               AutomationProperties.Name="Show or hide community signal hints"
                               ToolTipService.ToolTip="When enabled, shows collective patterns like typical WPM for each snippet"/>
 
+                <!-- Library Stats (v0.8.1) -->
+                <TextBlock Text="My Library"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Margin="0,8,0,0"
+                           AutomationProperties.HeadingLevel="Level2"/>
+
+                <TextBlock x:Name="LibraryStatsText"
+                           Text="Loading..."
+                           FontSize="11"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           TextWrapping="Wrap"
+                           IsTabStop="False"/>
+
                 <!-- Teaching (v0.8.0) -->
                 <TextBlock Text="Teaching"
                            FontSize="14"

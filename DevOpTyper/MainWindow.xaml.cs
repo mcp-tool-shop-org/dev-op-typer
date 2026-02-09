@@ -216,6 +216,10 @@ public sealed partial class MainWindow : Window
         SettingsPanel.UpdateCommunityContentStatus(
             _contentLibraryService.CommunityContent, _guidanceService.GuidanceCount);
 
+        // Library stats
+        var stats = _contentLibraryService.GetLibraryStats();
+        SettingsPanel.UpdateLibraryStats(stats.Builtin, stats.User, stats.Corpus, stats.Total);
+
         // Practice configs
         _practiceConfigService.Initialize();
         SettingsPanel.PopulateConfigs(

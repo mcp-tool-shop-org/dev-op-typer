@@ -431,6 +431,22 @@ public sealed class ContentLibraryService
     }
 
     // ─────────────────────────────────────────────
+    //  Library stats
+    // ─────────────────────────────────────────────
+
+    /// <summary>
+    /// Returns item counts by source type.
+    /// </summary>
+    public (int Builtin, int User, int Corpus, int Total) GetLibraryStats()
+    {
+        Initialize();
+        int builtin = _allItems.Count(i => i.Source == "builtin");
+        int user = _allItems.Count(i => i.Source == "user");
+        int corpus = _allItems.Count(i => i.Source == "corpus");
+        return (builtin, user, corpus, _allItems.Count);
+    }
+
+    // ─────────────────────────────────────────────
     //  Sub-service access (for backward compat)
     // ─────────────────────────────────────────────
 
