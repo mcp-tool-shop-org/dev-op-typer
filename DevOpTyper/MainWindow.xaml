@@ -37,6 +37,20 @@
                            AutomationProperties.Name="Player level and experience"
                            AutomationProperties.LiveSetting="Polite"/>
                 </Border>
+                <ComboBox x:Name="LanguageCombo"
+                          Margin="12,0,0,0"
+                          FontSize="12"
+                          MinWidth="120"
+                          VerticalAlignment="Center"
+                          SelectionChanged="LanguageCombo_SelectionChanged"
+                          AutomationProperties.Name="Select programming language">
+                    <ComboBoxItem Content="Python" Tag="python"/>
+                    <ComboBoxItem Content="JavaScript" Tag="javascript"/>
+                    <ComboBoxItem Content="C#" Tag="csharp"/>
+                    <ComboBoxItem Content="Java" Tag="java"/>
+                    <ComboBoxItem Content="SQL" Tag="sql"/>
+                    <ComboBoxItem Content="Bash" Tag="bash"/>
+                </ComboBox>
             </StackPanel>
             
             <StackPanel x:Name="TitleBarButtons" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="4" Margin="0,0,140,0">

@@ -32,6 +32,19 @@ public sealed partial class MainWindow : Window
     private bool _settingsPanelOpen = false;
     private int _lastHeatmapIndex = 0; // Tracks how far we've recorded hits/misses
     private PracticeContext? _pendingContext; // Set by action handlers, consumed by StartTest
+    private bool _suppressLanguageChange; // Suppress SelectionChanged during init
+
+    /// <summary>
+    /// Gets the currently selected programming language from the title bar combo.
+    /// </summary>
+    public string SelectedLanguage
+    {
+        get
+        {
+            var item = LanguageCombo.SelectedItem as ComboBoxItem;
+            return item?.Tag?.ToString() ?? "python";
+        }
+    }
 
     public MainWindow()
     {
@@ -243,6 +256,11 @@ public sealed partial class MainWindow : Window
         // Session pacing
         _sessionPacer.OnAppLaunched();
 
+        // Restore language selection from saved settings (before first snippet load)
+        _suppressLanguageChange = true;
+        RestoreLanguageCombo(_settings.SelectedLanguage);
+        _suppressLanguageChange = false;
+
         // Initial state
         UpdateLevelBadge();
         RefreshAnalytics(persisted);
@@ -257,9 +275,35 @@ public sealed partial class MainWindow : Window
         appWindow.Resize(new Windows.Graphics.SizeInt32(width, height));
     }
 
+    private void RestoreLanguageCombo(string language)
+    {
+        for (int i = 0; i < LanguageCombo.Items.Count; i++)
+        {
+            if (LanguageCombo.Items[i] is ComboBoxItem item &&
+                string.Equals(item.Tag?.ToString(), language, StringComparison.OrdinalIgnoreCase))
+            {
+                LanguageCombo.SelectedIndex = i;
+                return;
+            }
+        }
+        LanguageCombo.SelectedIndex = 0; // Default to Python
+    }
+
+    private void LanguageCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_suppressLanguageChange) return;
+
+        _typingEngine.CancelSession();
+        _pendingContext = null;
+        _currentPlan = null; // Force plan regeneration for new language
+        TypingPanel.DismissCompletionBanner();
+        LoadNewSnippet();
+        StartCurrentSession();
+    }
+
     private void LoadNewSnippet()
     {
-        var language = SettingsPanel.SelectedLanguage;
+        var language = SelectedLanguage;
         var config = GetActivePracticeConfig();
 
         // Config can override language
@@ -369,7 +413,7 @@ public sealed partial class MainWindow : Window
 
     private void LoadSnippetForWeakChars()
     {
-        var language = SettingsPanel.SelectedLanguage;
+        var language = SelectedLanguage;
 
         if (_profile.WeakChars.Count > 0)
         {
@@ -509,7 +553,7 @@ public sealed partial class MainWindow : Window
                 // Switch language in settings, then load snippet for that language
                 if (!string.IsNullOrEmpty(suggestion.ActionPayload))
                 {
-                    // Note: language switching works through SettingsPanel.SelectedLanguage
+                    // Note: language switching works through SelectedLanguage
                     // which reads the combo box. We load directly for the target language.
                     LoadSnippetForLanguage(suggestion.ActionPayload);
                 }
@@ -529,7 +573,7 @@ public sealed partial class MainWindow : Window
         _uiFeedback.OnButtonClick();
         _typingEngine.CancelSession();
 
-        var language = SettingsPanel.SelectedLanguage;
+        var language = SelectedLanguage;
         var snippet = _smartSelector.SelectForWeakChars(language, _profile, weakChars);
         TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
         _currentSnippet = snippet;
@@ -554,7 +598,7 @@ public sealed partial class MainWindow : Window
 
         if (weakChars.Count > 0)
         {
-            var language = SettingsPanel.SelectedLanguage;
+            var language = SelectedLanguage;
             var snippet = _smartSelector.SelectForWeakChars(language, _profile, weakChars);
             TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
             _currentSnippet = snippet;
@@ -573,7 +617,7 @@ public sealed partial class MainWindow : Window
     /// </summary>
     private void LoadEasySnippet()
     {
-        var language = SettingsPanel.SelectedLanguage;
+        var language = SelectedLanguage;
         var allSnippets = _contentLibraryService.GetSnippets(language).ToList();
         var easy = allSnippets
             .Where(s => s.Difficulty <= 2)
@@ -604,7 +648,7 @@ public sealed partial class MainWindow : Window
     /// </summary>
     private void LoadHarderSnippet()
     {
-        var language = SettingsPanel.SelectedLanguage;
+        var language = SelectedLanguage;
         int currentRating = _profile.GetRating(language);
         int targetDifficulty = Math.Min(7, SmartSnippetSelector.GetTargetDifficultyStatic(currentRating) + 1);
 
@@ -840,7 +884,7 @@ public sealed partial class MainWindow : Window
     /// </summary>
     private (string? Label, string? Tag) GetCompletionAction(PersistedBlob blob)
     {
-        var language = SettingsPanel.SelectedLanguage;
+        var language = SelectedLanguage;
 
         // If there are weak characters, offer to practice them
         var weakest = blob.Profile.Heatmap.GetWeakest(count: 3, minAttempts: 5);
@@ -861,7 +905,7 @@ public sealed partial class MainWindow : Window
     private List<string> BuildRetrospective(TypingResultEventArgs e, PersistedBlob blob)
     {
         var lines = new List<string>();
-        var language = _currentSnippet?.Language ?? SettingsPanel.SelectedLanguage;
+        var language = _currentSnippet?.Language ?? SelectedLanguage;
 
         // Compare to recent average (last 10 sessions in this language)
         if (blob.Longitudinal.TrendsByLanguage.TryGetValue(
@@ -938,7 +982,7 @@ public sealed partial class MainWindow : Window
     /// </summary>
     private void RefreshAnalytics(PersistedBlob blob)
     {
-        var language = SettingsPanel.SelectedLanguage;
+        var language = SelectedLanguage;
 
         // Weakness report with trajectory context
         var weaknessReport = _weaknessTracker.GetReport(
@@ -997,7 +1041,7 @@ public sealed partial class MainWindow : Window
 
         // Populate with current state if visible
         var blob = _persistenceService.Load();
-        var language = SettingsPanel.SelectedLanguage;
+        var language = SelectedLanguage;
         var diffProfile = _adaptiveDifficulty.ComputeDifficulty(
             language, _profile, blob.Longitudinal);
         var weaknessReport = _weaknessTracker.GetReport(
@@ -1041,6 +1085,7 @@ public sealed partial class MainWindow : Window
 
     private AppSettings GetCurrentSettings()
     {
+        _settings.SelectedLanguage = SelectedLanguage;
         _settings.AmbientVolume = SettingsPanel.AmbientVolume;
         _settings.KeyboardVolume = SettingsPanel.KeyboardVolume;
         _settings.UiClickVolume = SettingsPanel.UiVolume;
