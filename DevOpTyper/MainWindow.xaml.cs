@@ -108,8 +108,9 @@ public sealed partial class MainWindow : Window
         SettingsPanel.UpdateUserSnippetStatus(_contentLibraryService.UserContent);
         SettingsPanel.OpenUserSnippetsFolderRequested += OnOpenUserSnippetsFolder;
 
-        // Export/import bundle + community folder
+        // Export/import bundle + paste code + community folder
         SettingsPanel.WireBundleButtons();
+        SettingsPanel.PasteCodeRequested += OnPasteCode;
         SettingsPanel.ExportBundleRequested += OnExportBundle;
         SettingsPanel.ImportBundleRequested += OnImportBundle;
         SettingsPanel.OpenCommunityFolderRequested += OnOpenCommunityFolder;
@@ -996,6 +997,47 @@ public sealed partial class MainWindow : Window
 
         // Relay suggestion visibility preference to StatsPanel
         StatsPanel.ShowSuggestions = _settings.ShowSuggestions;
+    }
+
+    /// <summary>
+    /// Reads code from the clipboard and adds it to the content library.
+    /// Language is auto-detected. Available for practice immediately.
+    /// </summary>
+    private async void OnPasteCode(object? sender, EventArgs e)
+    {
+        try
+        {
+            var clipboard = Windows.ApplicationModel.DataTransfer.Clipboard.GetContent();
+            if (!clipboard.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.Text))
+            {
+                SettingsPanel.ShowPasteCodeStatus("No text on clipboard");
+                return;
+            }
+
+            var code = await clipboard.GetTextAsync();
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                SettingsPanel.ShowPasteCodeStatus("Clipboard is empty");
+                return;
+            }
+
+            var (snippet, error) = _contentLibraryService.AddPastedCode(code);
+            if (error != null)
+            {
+                SettingsPanel.ShowPasteCodeStatus(error);
+                return;
+            }
+
+            if (snippet != null)
+            {
+                SettingsPanel.ShowPasteCodeStatus(
+                    $"Added: {snippet.Language} \u00b7 {snippet.Title}");
+            }
+        }
+        catch (Exception ex)
+        {
+            SettingsPanel.ShowPasteCodeStatus($"Paste failed: {ex.Message}");
+        }
     }
 
     /// <summary>

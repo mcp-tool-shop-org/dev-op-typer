@@ -527,6 +527,23 @@ public sealed partial class SettingsPanel : UserControl
     public event EventHandler? OpenUserSnippetsFolderRequested;
 
     /// <summary>
+    /// Event fired when the user clicks "Paste Code".
+    /// MainWindow reads clipboard and calls ContentLibraryService.AddPastedCode.
+    /// </summary>
+    public event EventHandler? PasteCodeRequested;
+
+    /// <summary>
+    /// Shows the result of a paste operation.
+    /// </summary>
+    public void ShowPasteCodeStatus(string message)
+    {
+        PasteCodeStatus.Text = message;
+        PasteCodeStatus.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+            PasteCodeStatus, message);
+    }
+
+    /// <summary>
     /// Updates the user snippet status display.
     /// Call after SnippetService initialization.
     /// Status text is announced politely by screen readers.
@@ -601,6 +618,7 @@ public sealed partial class SettingsPanel : UserControl
     /// </summary>
     public void WireBundleButtons()
     {
+        PasteCodeButton.Click += (_, _) => PasteCodeRequested?.Invoke(this, EventArgs.Empty);
         ExportBundleButton.Click += (_, _) => ExportBundleRequested?.Invoke(this, EventArgs.Empty);
         ImportBundleButton.Click += (_, _) => ImportBundleRequested?.Invoke(this, EventArgs.Empty);
         OpenCommunityFolderButton.Click += (_, _) => OpenCommunityFolderRequested?.Invoke(this, EventArgs.Empty);

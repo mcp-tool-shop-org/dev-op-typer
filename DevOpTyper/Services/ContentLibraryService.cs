@@ -318,6 +318,64 @@ public sealed class ContentLibraryService
     }
 
     // ─────────────────────────────────────────────
+    //  Add Code flows
+    // ─────────────────────────────────────────────
+
+    /// <summary>
+    /// Adds user-pasted code to the library.
+    /// Detects language, normalizes, computes metrics, deduplicates.
+    /// Returns the resulting Snippet, or null if rejected (too long, duplicate, limit reached).
+    /// </summary>
+    public (Snippet? Snippet, string? Error) AddPastedCode(string code, string? languageHint = null)
+    {
+        Initialize();
+
+        if (string.IsNullOrWhiteSpace(code))
+            return (null, "No code to add");
+
+        if (code.Length > ExtensionBoundary.MaxPasteLength)
+            return (null, $"Code exceeds {ExtensionBoundary.MaxPasteLength} character limit ({code.Length} chars)");
+
+        // Check user item count limit
+        int userCount = _allItems.Count(i => i.Source == "user");
+        if (userCount >= ExtensionBoundary.MaxLibraryUserItems)
+            return (null, $"Library limit reached ({ExtensionBoundary.MaxLibraryUserItems} user items)");
+
+        var normalized = Normalizer.Normalize(code, ensureTrailingNewline: true);
+        var lang = _detector.Detect(null, languageHint, normalized);
+        var metrics = _metrics.Compute(normalized);
+        var id = ContentId.From(lang, normalized);
+
+        // Dedup check
+        if (_allItems.Any(i => i.Id.Equals(id, StringComparison.OrdinalIgnoreCase)))
+        {
+            // Return the existing snippet instead of adding a duplicate
+            var existing = _allItems.First(i => i.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+            return (ContentBridge.ToSnippet(existing, _overlays.GetOverlay(existing.Id)), null);
+        }
+
+        // Derive title from first non-empty line
+        var firstLine = normalized.Split('\n', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "Pasted code";
+        var title = firstLine.Length > 60 ? firstLine[..57] + "..." : firstLine;
+
+        var item = new CodeItem(
+            Id: id,
+            Language: lang,
+            Source: "user",
+            Title: title,
+            Code: normalized,
+            Metrics: metrics,
+            CreatedUtc: DateTimeOffset.UtcNow
+        );
+
+        _allItems.Add(item);
+        RebuildLibrary();
+        SaveIndex();
+
+        return (ContentBridge.ToSnippet(item, null), null);
+    }
+
+    // ─────────────────────────────────────────────
     //  Sub-service access (for backward compat)
     // ─────────────────────────────────────────────
 

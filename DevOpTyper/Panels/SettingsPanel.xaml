@@ -342,6 +342,13 @@
                 <StackPanel Orientation="Horizontal"
                             Spacing="4"
                             AutomationProperties.Name="Snippet actions">
+                    <Button x:Name="PasteCodeButton"
+                            Content="Paste Code"
+                            FontSize="11"
+                            Padding="8,4"
+                            AutomationProperties.Name="Add code from clipboard to your library"
+                            ToolTipService.ToolTip="Paste code from clipboard — language auto-detected, available for practice immediately"
+                            AccessKey="V"/>
                     <Button x:Name="OpenUserSnippetsButton"
                             Content="Open Folder"
                             FontSize="11"
@@ -364,6 +371,14 @@
                             ToolTipService.ToolTip="Load snippets and configs from a portable ZIP"
                             AccessKey="I"/>
                 </StackPanel>
+
+                <TextBlock x:Name="PasteCodeStatus"
+                           FontSize="10"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           TextWrapping="Wrap"
+                           Visibility="Collapsed"
+                           IsTabStop="False"
+                           AutomationProperties.LiveSetting="Polite"/>
 
                 <TextBlock x:Name="BundleStatus"
                            FontSize="10"
