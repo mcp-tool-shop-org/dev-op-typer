@@ -297,6 +297,12 @@ public sealed class AppSettings
     /// </summary>
     public SignalPolicy SignalPolicy { get; set; } = new();
 
+    /// <summary>
+    /// Whether the one-time Guided Mode onboarding hint has been shown.
+    /// Prevents nagging — shown once when enough weakness data exists.
+    /// </summary>
+    public bool GuidedModeHintShown { get; set; } = false;
+
     #endregion
 
     #region Statistics Display
@@ -379,7 +385,8 @@ public sealed class AppSettings
             ShowDemonstrations = ShowDemonstrations,
             ShowGuidance = ShowGuidance,
             ShowSkillLayers = ShowSkillLayers,
-            SignalPolicy = SignalPolicy.Clone()
+            SignalPolicy = SignalPolicy.Clone(),
+            GuidedModeHintShown = GuidedModeHintShown
         };
     }
 }

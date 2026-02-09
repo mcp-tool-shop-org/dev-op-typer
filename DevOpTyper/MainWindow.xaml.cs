@@ -788,6 +788,25 @@ public sealed partial class MainWindow : Window
 
             // Session retrospective — factual observations, no judgment
             var retroLines = BuildRetrospective(e, blob);
+
+            // One-time Guided Mode onboarding hint — shows when enough
+            // weakness data exists and the user hasn't enabled it yet.
+            // Never nags: shown once, dismissed forever.
+            if (!blob.Settings.SignalPolicy.GuidedMode &&
+                !blob.Settings.GuidedModeHintShown &&
+                blob.Profile.Heatmap.Records.Count >= 5)
+            {
+                int totalAttempts = blob.Profile.Heatmap.Records.Values
+                    .Sum(r => r.Hits + r.Misses);
+                if (totalAttempts >= 30)
+                {
+                    retroLines.Add("Tip: You have enough typing data for personalized practice. " +
+                                   "Try Guided Mode in Settings to focus on your weak spots.");
+                    blob.Settings.GuidedModeHintShown = true;
+                    _persistenceService.MarkDirty();
+                }
+            }
+
             TypingPanel.ShowRetrospective(retroLines);
 
             // Load next snippet
