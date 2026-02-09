@@ -126,10 +126,20 @@ public sealed class ContentLibraryService
         try
         {
             var index = _indexStore.Load(IndexPath);
+
+            int userCount = 0;
+            int corpusCount = 0;
+
             foreach (var item in index.Items)
             {
                 // Skip duplicates (built-in items already loaded)
                 if (_allItems.Any(i => i.Id.Equals(item.Id, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+
+                // Enforce library size limits
+                if (item.Source == "user" && ++userCount > ExtensionBoundary.MaxLibraryUserItems)
+                    continue;
+                if (item.Source == "corpus" && ++corpusCount > ExtensionBoundary.MaxLibraryCorpusItems)
                     continue;
 
                 _allItems.Add(item);
