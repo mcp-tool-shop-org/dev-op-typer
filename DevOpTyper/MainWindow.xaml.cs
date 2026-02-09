@@ -47,6 +47,11 @@ public sealed partial class MainWindow : Window
         _contentLibraryService.Initialize();
         _smartSelector = new SmartSnippetSelector(_contentLibraryService);
 
+#if DEBUG
+        // Run integration validation in debug builds
+        ContentIntegrationValidator.RunAll(_contentLibraryService);
+#endif
+
         // Initialize audio
         _audioService.Initialize();
         _keyboardSound = new KeyboardSoundHandler(_audioService);
