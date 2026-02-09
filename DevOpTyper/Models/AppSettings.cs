@@ -288,6 +288,17 @@ public sealed class AppSettings
 
     #endregion
 
+    #region Signal Policy (v1.0.0)
+
+    /// <summary>
+    /// Controls whether learning signals influence practice behavior.
+    /// All flags default to false — with Guided Mode off, behavior is
+    /// identical to v0.9. User must explicitly opt in.
+    /// </summary>
+    public SignalPolicy SignalPolicy { get; set; } = new();
+
+    #endregion
+
     #region Statistics Display
 
     /// <summary>
@@ -367,7 +378,8 @@ public sealed class AppSettings
             ShowScaffolds = ShowScaffolds,
             ShowDemonstrations = ShowDemonstrations,
             ShowGuidance = ShowGuidance,
-            ShowSkillLayers = ShowSkillLayers
+            ShowSkillLayers = ShowSkillLayers,
+            SignalPolicy = SignalPolicy.Clone()
         };
     }
 }

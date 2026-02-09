@@ -180,6 +180,9 @@ public sealed class PersistenceService
             if (trend.TotalSessions < 0) trend.TotalSessions = trend.RecentWpm.Count;
         }
 
+        // Signal policy (v1.0.0) — ensure it exists and booleans are valid
+        blob.Settings.SignalPolicy ??= new();
+
         // Collections
         blob.FavoriteSnippetIds ??= new();
         blob.LastPracticedByLanguage ??= new();
