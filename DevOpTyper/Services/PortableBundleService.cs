@@ -97,7 +97,7 @@ public sealed class PortableBundleService
             // Write manifest
             var manifest = new BundleManifest
             {
-                AppVersion = "0.8.1-dev",
+                AppVersion = "0.8.1",
                 ExportedAt = DateTime.UtcNow.ToString("o"),
                 SnippetFileCount = snippetCount + communitySnippetCount,
                 ConfigFileCount = configCount + communityConfigCount,
