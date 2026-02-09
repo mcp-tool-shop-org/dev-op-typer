@@ -1,7 +1,7 @@
 namespace DevOpTyper.Models;
 
 /// <summary>
-/// Declares the extension boundaries for v0.8.0.
+/// Declares the extension boundaries for v0.8.1.
 ///
 /// This is a contract: it defines what users may extend and what the system
 /// guarantees will remain stable. It exists as code (not just documentation)

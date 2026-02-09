@@ -84,6 +84,16 @@ public sealed class PortableBundleService
                 }
             }
 
+            // Export library.index.json if it exists (v0.8.1)
+            var libraryIndexPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "DevOpTyper",
+                Models.ExtensionBoundary.LibraryIndexFile);
+            if (File.Exists(libraryIndexPath))
+            {
+                zip.CreateEntryFromFile(libraryIndexPath, Models.ExtensionBoundary.LibraryIndexFile);
+            }
+
             // Write manifest
             var manifest = new BundleManifest
             {

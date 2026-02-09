@@ -5,11 +5,35 @@ All notable changes to Dev-Op-Typer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.8.1] - Unreleased
+## [0.8.1] - 2026-02-08
 
 ### Theme: Content System Integration
 
-v0.8.1 unifies all content — built-in, user-pasted, and corpus-imported — through a single CodeItem/IContentLibrary pipeline powered by meta-content-system v1.0.0.
+v0.8.1 unifies all content — built-in, user-pasted, and corpus-imported — through a single CodeItem/IContentLibrary pipeline powered by meta-content-system v1.0.0. Every piece of code gets the same storage, selection, and metrics — whether it shipped with the app, was pasted from a clipboard, or was imported from a folder.
+
+### Added
+- **Unified content pipeline** — All content flows through `CodeItem → ContentBridge → Snippet`. Built-in snippets, user-pasted code, and folder-imported corpus items share the same query, selection, and metrics infrastructure.
+- **meta-content-system v1.0.0** — Git submodule providing `CodeItem`, `IContentLibrary`, `LibraryIndexBuilder`, `ContentId` (SHA-256 hash), `Normalizer`, `MetricCalculator`, `DefaultExtractor`, `LanguageDetector`.
+- **Paste Code** — Paste code from clipboard directly into the library. Language auto-detected, normalized, metrics computed, deduplicated. Available for practice immediately. AccessKey="V".
+- **Import Folder** — Pick a local folder of code files — they're indexed using `LibraryIndexBuilder` pipeline (extract, normalize, metrics, dedup) and available for practice. Runs on background thread with progress text. AccessKey="F".
+- **ContentLibraryService** — Replaces `SnippetService` as the single unified content service. Owns `InMemoryContentLibrary`, `BuiltinOverlayStore`, `JsonLibraryIndexStore`. Full query API: `GetSnippets`, `GetLanguageTracks`, `GetSnippetsByTopic`, `GetSnippetById`, `GetRandomSnippet`.
+- **SnippetOverlay** — Educational metadata (Difficulty, Topics, Explain, Scaffolds, Demonstrations, Layers, Perspectives) keyed by content-hash ID. Built-in overlays extracted from `Assets/Snippets/*.json`. User/corpus items get heuristic difficulty from `DifficultyEstimator`.
+- **ContentBridge** — Static mapper `CodeItem + SnippetOverlay? → Snippet`. Snippet becomes a ViewModel populated from CodeItem + educational overlay.
+- **DifficultyEstimator** — Heuristic difficulty 1-5 from `CodeMetrics` (lines, symbol density, indent depth) for content without overlays.
+- **FolderContentSource** — `IContentSource` for local folder import. Filters by code extensions, skips binary/vendor directories, respects 2MB file size limit.
+- **Library stats in Settings** — "My Library" section showing item counts by source (built-in, pasted, imported, total).
+- **Integration validator** — Debug-only runtime validation: built-in content parity, legacy ID preservation, query API consistency, paste flow, persistence round-trip, resilience (missing/corrupt index recovery), query performance.
+
+### Technical
+- **Legacy ID preservation** — Built-in `Snippet.Id` stays as human-authored string (e.g. `"py-guard-clause"`) via `SnippetOverlay.LegacyId`. Session history, scaffold fade, community signals, guidance lookups continue working unchanged.
+- **library.index.json** — Persists only user/corpus `CodeItem`s at `%LOCALAPPDATA%/DevOpTyper/`. Built-in items always rebuilt from assets at startup. Missing or corrupt index → graceful recovery with built-ins.
+- **SnippetService deleted** — Replaced by `ContentLibraryService`. `UserContentService` and `CommunityContentService` retained for directory management and bundle export/import.
+
+### Boundaries
+- **MaxLibraryUserItems = 500** — Maximum pasted items in the library
+- **MaxLibraryCorpusItems = 2000** — Maximum folder-imported items
+- **MaxPasteLength = 10000** — Maximum characters for pasted code
+- **MaxImportFileSize = 2MB** — Files larger than 2MB skipped during folder import
 
 ## [0.8.0] - 2026-02-08
 
