@@ -26,9 +26,6 @@ public sealed partial class TypingPresenter : UserControl
     private SolidColorBrush? _caretBrush;
     private SolidColorBrush? _extraBrush;
 
-    // Track previous state to avoid unnecessary full rebuilds
-    private int _lastTypedLength = -1;
-    private int _lastDiffLength = -1;
     private bool _highContrast;
 
     public TypingPresenter()
@@ -69,14 +66,9 @@ public sealed partial class TypingPresenter : UserControl
         if (diff == null || diff.Length == 0)
         {
             PromptBlock.Blocks.Clear();
-            _lastTypedLength = -1;
-            _lastDiffLength = -1;
+
             return;
         }
-
-        // Skip re-render if nothing changed (same cursor, same diff length)
-        if (cursorPosition == _lastTypedLength && diff.Length == _lastDiffLength)
-            return;
 
         ResolveBrushesIfNeeded();
 
@@ -122,8 +114,7 @@ public sealed partial class TypingPresenter : UserControl
         PromptBlock.Blocks.Add(paragraph);
 
         // Track state for future optimization
-        _lastDiffLength = diff.Length;
-        _lastTypedLength = cursorPosition;
+
 
         // Auto-scroll to keep cursor in view
         if (cursorPosition >= 0)
@@ -157,8 +148,6 @@ public sealed partial class TypingPresenter : UserControl
         paragraph.Inlines.Add(run);
 
         PromptBlock.Blocks.Add(paragraph);
-        _lastTypedLength = -1;
-        _lastDiffLength = -1;
     }
 
     /// <summary>
@@ -167,8 +156,6 @@ public sealed partial class TypingPresenter : UserControl
     public void Clear()
     {
         PromptBlock.Blocks.Clear();
-        _lastTypedLength = -1;
-        _lastDiffLength = -1;
     }
 
     #region Run Creation

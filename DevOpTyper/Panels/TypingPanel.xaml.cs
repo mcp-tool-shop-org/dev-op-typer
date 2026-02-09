@@ -143,8 +143,11 @@ public sealed partial class TypingPanel : UserControl
         SnippetTitle.Text = title ?? "Untitled";
         SnippetLanguage.Text = language ?? "unknown";
 
-        // Render target text as all-pending in the live renderer
-        CodeRenderer.RenderTarget(code ?? "");
+        // Defer render to allow layout cascades from property changes to settle.
+        // Synchronous RenderTarget can have its Inlines invalidated by WinUI
+        // layout passes triggered by concurrent property updates.
+        var target = code ?? "";
+        DispatcherQueue.TryEnqueue(() => CodeRenderer.RenderTarget(target));
     }
 
     /// <summary>

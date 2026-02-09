@@ -14,6 +14,7 @@
                        LineHeight="24"
                        TextWrapping="Wrap"
                        IsTextSelectionEnabled="False"
-                       CharacterSpacing="20"/>
+                       CharacterSpacing="20"
+                       Foreground="#FFB7C0D6"/>
     </ScrollViewer>
 </UserControl>
