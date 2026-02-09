@@ -179,6 +179,13 @@ public static class ExtensionBoundary
     public const string CalibrationIdPrefix = "cal-";
 
     /// <summary>
+    /// Returns true if the snippet ID belongs to a calibration item.
+    /// Calibration results should be excluded from lifetime stats and personal bests.
+    /// </summary>
+    public static bool IsCalibrationId(string? snippetId)
+        => snippetId?.StartsWith(CalibrationIdPrefix, StringComparison.OrdinalIgnoreCase) == true;
+
+    /// <summary>
     /// Subdirectory under Assets for calibration pack JSON files.
     /// </summary>
     public const string CalibrationAssetsDir = "Calibration";
