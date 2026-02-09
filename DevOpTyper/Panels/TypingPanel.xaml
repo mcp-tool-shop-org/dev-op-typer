@@ -103,7 +103,8 @@
                 </StackPanel>
 
                 <!-- Per-character diff renderer (replaces old plain TargetCode TextBlock) -->
-                <controls:TypingPresenter x:Name="CodeRenderer"/>
+                <controls:TypingPresenter x:Name="CodeRenderer"
+                                          AutomationProperties.Name="Code snippet to type"/>
             </StackPanel>
         </Border>
 
@@ -131,7 +132,8 @@
                          FontFamily="Consolas"
                          FontSize="14"
                          PlaceholderText="Start typing here..."
-                         MinHeight="100"/>
+                         MinHeight="100"
+                         AutomationProperties.Name="Code typing input area"/>
             </Grid>
         </Border>
 
@@ -154,10 +156,14 @@
                         <TextBlock x:Name="CompletionTitle"
                                    Text="Session Complete!"
                                    FontSize="14"
-                                   FontWeight="SemiBold"/>
+                                   FontWeight="SemiBold"
+                                   AutomationProperties.Name="Session completion status"
+                                   AutomationProperties.LiveSetting="Assertive"/>
                         <TextBlock x:Name="CompletionStats"
                                    FontSize="11"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   AutomationProperties.Name="Session statistics"
+                                   AutomationProperties.LiveSetting="Polite"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1"
@@ -167,11 +173,13 @@
                         <Button x:Name="CompletionActionButton"
                                 FontSize="11"
                                 Padding="8,4"
-                                Visibility="Collapsed"/>
+                                Visibility="Collapsed"
+                                AutomationProperties.Name="Session completion action"/>
                         <Button x:Name="CompletionDismissButton"
                                 Content="Dismiss"
                                 FontSize="11"
-                                Padding="8,4"/>
+                                Padding="8,4"
+                                AutomationProperties.Name="Dismiss completion summary"/>
                     </StackPanel>
                 </Grid>
 
@@ -245,9 +253,15 @@
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Center"
                         Spacing="12">
-                <Button x:Name="StartButton" Content="Start Test" Style="{ThemeResource AccentButtonStyle}"/>
-                <Button x:Name="ResetButton" Content="Reset"/>
-                <Button x:Name="SkipButton" Content="Skip"/>
+                <Button x:Name="StartButton" Content="Start Test" Style="{ThemeResource AccentButtonStyle}"
+                        AutomationProperties.Name="Start typing test"
+                        ToolTipService.ToolTip="Begin a new practice session"/>
+                <Button x:Name="ResetButton" Content="Reset"
+                        AutomationProperties.Name="Reset current session"
+                        ToolTipService.ToolTip="Clear typing input and restart"/>
+                <Button x:Name="SkipButton" Content="Skip"
+                        AutomationProperties.Name="Skip to next snippet"
+                        ToolTipService.ToolTip="Load a different code snippet"/>
             </StackPanel>
         </StackPanel>
     </Grid>

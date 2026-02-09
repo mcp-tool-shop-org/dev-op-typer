@@ -14,7 +14,8 @@
             <StackPanel Spacing="16">
                 <TextBlock Text="Live Statistics"
                            FontSize="16"
-                           FontWeight="SemiBold"/>
+                           FontWeight="SemiBold"
+                           AutomationProperties.HeadingLevel="Level1"/>
 
                 <!-- WPM -->
                 <StackPanel>
@@ -24,7 +25,9 @@
                     <TextBlock x:Name="WpmText"
                                Text="0"
                                FontSize="32"
-                               FontWeight="Bold"/>
+                               FontWeight="Bold"
+                               AutomationProperties.Name="Current words per minute"
+                               AutomationProperties.LiveSetting="Polite"/>
                 </StackPanel>
 
                 <!-- Accuracy -->
@@ -36,7 +39,9 @@
                                Text="100%"
                                FontSize="24"
                                FontWeight="SemiBold"
-                               Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                               Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                               AutomationProperties.Name="Current accuracy percentage"
+                               AutomationProperties.LiveSetting="Polite"/>
                 </StackPanel>
 
                 <!-- Errors -->
@@ -46,7 +51,9 @@
                                FontSize="12"/>
                     <TextBlock x:Name="ErrorsText"
                                Text="0"
-                               FontSize="20"/>
+                               FontSize="20"
+                               AutomationProperties.Name="Current error count"
+                               AutomationProperties.LiveSetting="Polite"/>
                 </StackPanel>
 
                 <!-- Progress -->
@@ -57,7 +64,8 @@
                     <ProgressBar x:Name="ProgressBar"
                                  Value="0"
                                  Maximum="100"
-                                 Margin="0,4,0,0"/>
+                                 Margin="0,4,0,0"
+                                 AutomationProperties.Name="Typing progress"/>
                     <TextBlock x:Name="ProgressText"
                                Text="0 / 0 chars"
                                FontSize="12"

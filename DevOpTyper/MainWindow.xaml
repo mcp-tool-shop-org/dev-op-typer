@@ -33,7 +33,9 @@
                         CornerRadius="4"
                         Padding="8,2"
                         Margin="12,0,0,0">
-                    <TextBlock x:Name="LevelBadge" Text="Lv 1 • 0 XP" FontSize="12" FontWeight="SemiBold" Foreground="#FF0C0E14"/>
+                    <TextBlock x:Name="LevelBadge" Text="Lv 1 • 0 XP" FontSize="12" FontWeight="SemiBold" Foreground="#FF0C0E14"
+                           AutomationProperties.Name="Player level and experience"
+                           AutomationProperties.LiveSetting="Polite"/>
                 </Border>
             </StackPanel>
             
@@ -43,19 +45,25 @@
                         Content="🎲 Random"
                         FontSize="12"
                         Padding="8,4"
-                        Click="AmbientRandomButton_Click"/>
+                        Click="AmbientRandomButton_Click"
+                        AutomationProperties.Name="Randomize ambient sound"
+                        ToolTipService.ToolTip="Switch to a random ambient track"/>
                 <!-- Ambient: Mute toggle -->
                 <Button x:Name="AmbientMuteButton"
                         Content="🔊 Ambient"
                         FontSize="12"
                         Padding="8,4"
-                        Click="AmbientMuteButton_Click"/>
+                        Click="AmbientMuteButton_Click"
+                        AutomationProperties.Name="Toggle ambient sound"
+                        ToolTipService.ToolTip="Mute or unmute ambient audio"/>
                 <!-- Settings gear -->
                 <Button x:Name="SettingsToggleButton"
                         Content="⚙"
                         FontSize="16"
                         Padding="8,4"
-                        Click="SettingsToggleButton_Click"/>
+                        Click="SettingsToggleButton_Click"
+                        AutomationProperties.Name="Toggle settings panel"
+                        ToolTipService.ToolTip="Open or close settings"/>
             </StackPanel>
         </Grid>
         
