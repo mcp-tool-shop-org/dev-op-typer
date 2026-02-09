@@ -31,7 +31,7 @@ public sealed class AdaptiveDifficultyEngine
             {
                 TargetDifficulty = baseDifficulty,
                 MinDifficulty = Math.Max(1, baseDifficulty - 1),
-                MaxDifficulty = Math.Min(5, baseDifficulty + 1),
+                MaxDifficulty = Math.Min(7, baseDifficulty + 1),
                 Reason = DifficultyReason.Static,
                 Confidence = 0.3
             };
@@ -45,7 +45,7 @@ public sealed class AdaptiveDifficultyEngine
             {
                 TargetDifficulty = baseDifficulty,
                 MinDifficulty = Math.Max(1, baseDifficulty - 1),
-                MaxDifficulty = Math.Min(5, baseDifficulty + 1),
+                MaxDifficulty = Math.Min(7, baseDifficulty + 1),
                 Reason = DifficultyReason.Static,
                 Confidence = 0.5
             };
@@ -65,7 +65,7 @@ public sealed class AdaptiveDifficultyEngine
             _ => 0
         };
 
-        int adjusted = Math.Clamp(baseDifficulty + adjustment, 1, 5);
+        int adjusted = Math.Clamp(baseDifficulty + adjustment, 1, 7);
 
         // Compute range — wider range when uncertain, tighter when confident.
         // Negative momentum widens the range downward so easier snippets
@@ -110,7 +110,7 @@ public sealed class AdaptiveDifficultyEngine
         {
             TargetDifficulty = adjusted,
             MinDifficulty = Math.Max(1, adjusted - rangeWidth),
-            MaxDifficulty = Math.Min(5, adjusted + rangeWidth),
+            MaxDifficulty = Math.Min(7, adjusted + rangeWidth),
             Reason = reason,
             Confidence = Math.Round(confidence, 2),
             WpmVelocity = summary.WpmVelocity,
@@ -127,9 +127,11 @@ public sealed class AdaptiveDifficultyEngine
         {
             < 1000 => 1,
             < 1100 => 2,
-            < 1300 => 3,
-            < 1500 => 4,
-            _ => 5
+            < 1200 => 3,
+            < 1300 => 4,
+            < 1400 => 5,
+            < 1500 => 6,
+            _ => 7
         };
     }
 }
@@ -140,7 +142,7 @@ public sealed class AdaptiveDifficultyEngine
 /// </summary>
 public sealed class DifficultyProfile
 {
-    /// <summary>Ideal difficulty level (1-5).</summary>
+    /// <summary>Ideal difficulty level (1-7).</summary>
     public int TargetDifficulty { get; set; }
 
     /// <summary>Lowest acceptable difficulty.</summary>

@@ -56,7 +56,7 @@ public sealed class SessionRecord
     public double DurationSeconds { get; set; }
 
     /// <summary>
-    /// Difficulty level of the snippet (1-5).
+    /// Difficulty level of the snippet (1-7).
     /// </summary>
     public int Difficulty { get; set; } = 1;
 

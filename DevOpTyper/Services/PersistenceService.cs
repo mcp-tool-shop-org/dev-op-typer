@@ -154,7 +154,7 @@ public sealed class PersistenceService
             if (r.ErrorCount < 0) r.ErrorCount = 0;
             if (r.TotalChars < 0) r.TotalChars = 0;
             if (r.DurationSeconds < 0) r.DurationSeconds = 0;
-            r.Difficulty = Math.Clamp(r.Difficulty, 1, 5);
+            r.Difficulty = Math.Clamp(r.Difficulty, 1, 7);
 
             // v0.4.0 record fields — clamp note length, validate DeclaredIntent enum
             if (r.Note?.Length > 280)

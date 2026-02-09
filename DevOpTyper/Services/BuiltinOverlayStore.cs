@@ -61,7 +61,7 @@ public sealed class BuiltinOverlayStore
                     {
                         ContentId = contentId,
                         LegacyId = string.IsNullOrWhiteSpace(snippet.Id) ? contentId : snippet.Id,
-                        Difficulty = Math.Clamp(snippet.Difficulty, 1, 5),
+                        Difficulty = Math.Clamp(snippet.Difficulty, 1, 7),
                         Topics = snippet.Topics ?? Array.Empty<string>(),
                         Explain = snippet.Explain ?? Array.Empty<string>(),
                         Scaffolds = snippet.Scaffolds ?? Array.Empty<string>(),

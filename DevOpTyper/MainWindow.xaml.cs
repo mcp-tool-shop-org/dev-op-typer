@@ -563,7 +563,7 @@ public sealed partial class MainWindow : Window
     {
         var language = SettingsPanel.SelectedLanguage;
         int currentRating = _profile.GetRating(language);
-        int targetDifficulty = Math.Min(5, SmartSnippetSelector.GetTargetDifficultyStatic(currentRating) + 1);
+        int targetDifficulty = Math.Min(7, SmartSnippetSelector.GetTargetDifficultyStatic(currentRating) + 1);
 
         var allSnippets = _contentLibraryService.GetSnippets(language).ToList();
         var harder = allSnippets

@@ -18,7 +18,7 @@ public sealed class SessionState
     public int XpEarned { get; private set; }
 
     /// <summary>
-    /// Snippet difficulty (1-5), used for XP multiplier.
+    /// Snippet difficulty (1-7), used for XP multiplier.
     /// </summary>
     public int Difficulty { get; set; } = 1;
 
@@ -97,7 +97,7 @@ public sealed class SessionState
         //
         // 1. Accuracy floor: below threshold → 0 XP
         // 2. Base XP = WPM * accuracy factor (with soft cap above 80 WPM)
-        // 3. Difficulty multiplier: D1=0.6x, D2=0.8x, D3=1.0x, D4=1.3x, D5=1.6x
+        // 3. Difficulty multiplier: D1=0.5x .. D7=2.0x
         // 4. Diminishing returns: -50% 2nd time, -75% 3rd+
         // 5. Completion bonus: +25 XP for finishing
         //
@@ -118,11 +118,13 @@ public sealed class SessionState
             // Difficulty multiplier
             double diffMult = Difficulty switch
             {
-                1 => 0.6,
-                2 => 0.8,
-                3 => 1.0,
-                4 => 1.3,
-                5 => 1.6,
+                1 => 0.5,
+                2 => 0.7,
+                3 => 0.85,
+                4 => 1.0,
+                5 => 1.25,
+                6 => 1.6,
+                7 => 2.0,
                 _ => 1.0
             };
 

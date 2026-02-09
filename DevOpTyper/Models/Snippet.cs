@@ -18,7 +18,9 @@ public sealed class Snippet
     public string Language { get; set; } = "";
 
     /// <summary>
-    /// Difficulty level from 1 (beginner) to 5 (expert).
+    /// Difficulty level from 1 (easiest) to 7 (hardest).
+    /// Derived deterministically from code metrics (lines, symbol density,
+    /// indent depth) unless overridden by authored metadata.
     /// </summary>
     public int Difficulty { get; set; } = 1;
 
@@ -106,11 +108,13 @@ public sealed class Snippet
     [JsonIgnore]
     public string DifficultyLabel => Difficulty switch
     {
-        1 => "Beginner",
+        1 => "Trivial",
         2 => "Easy",
-        3 => "Intermediate",
-        4 => "Advanced",
-        5 => "Expert",
+        3 => "Moderate",
+        4 => "Intermediate",
+        5 => "Challenging",
+        6 => "Advanced",
+        7 => "Expert",
         _ => "Unknown"
     };
 

@@ -21,7 +21,7 @@ public sealed class SnippetOverlay
     public string LegacyId { get; init; } = "";
 
     /// <summary>
-    /// Manually assigned difficulty (1–5).
+    /// Authored difficulty (1–7). Takes precedence over derived difficulty.
     /// </summary>
     public int Difficulty { get; init; } = 1;
 

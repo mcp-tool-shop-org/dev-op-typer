@@ -1,7 +1,7 @@
 namespace DevOpTyper.Models;
 
 /// <summary>
-/// Declares the extension boundaries for v0.8.1.
+/// Declares the extension boundaries for v0.8.2.
 ///
 /// This is a contract: it defines what users may extend and what the system
 /// guarantees will remain stable. It exists as code (not just documentation)
@@ -257,8 +257,8 @@ public static class ExtensionBoundary
             if (string.IsNullOrWhiteSpace(s.Code))
                 return $"{fileName}/{s.Id}: snippet missing required 'code' field";
 
-            if (s.Difficulty < 1 || s.Difficulty > 5)
-                return $"{fileName}/{s.Id}: difficulty must be 1-5 (got {s.Difficulty})";
+            if (s.Difficulty < 1 || s.Difficulty > 7)
+                return $"{fileName}/{s.Id}: difficulty must be 1-7 (got {s.Difficulty})";
         }
 
         return null; // Valid
