@@ -34,6 +34,7 @@ public static class ContentIntegrationValidator
             ValidateDifficultyDerivation();
             ValidateNoDifficultyDefault(contentLibrary);
             ValidateCalibrationPacks(contentLibrary);
+            ValidateSessionPlanner();
         }
         catch (Exception ex)
         {
@@ -455,6 +456,70 @@ public static class ContentIntegrationValidator
             $"All calibration IDs unique: {allIds.Count} unique / {totalCalibrationItems} total");
 
         Log($"Calibration summary: {totalCalibrationItems} items across {expectedLanguages.Length} languages");
+    }
+
+    /// <summary>
+    /// Validates the SessionPlanner distribution logic.
+    /// </summary>
+    private static void ValidateSessionPlanner()
+    {
+        Log("--- ValidateSessionPlanner ---");
+
+        // 1. ChooseCategory distribution over many trials
+        var rng = new Random(42);
+        int targetCount = 0, reviewCount = 0, stretchCount = 0;
+        const int trials = 10000;
+
+        for (int i = 0; i < trials; i++)
+        {
+            var category = SessionPlanner.ChooseCategory(rng);
+            switch (category)
+            {
+                case MixCategory.Target: targetCount++; break;
+                case MixCategory.Review: reviewCount++; break;
+                case MixCategory.Stretch: stretchCount++; break;
+            }
+        }
+
+        double targetPct = (double)targetCount / trials;
+        double reviewPct = (double)reviewCount / trials;
+        double stretchPct = (double)stretchCount / trials;
+
+        Assert(targetPct > 0.45 && targetPct < 0.55,
+            $"Target distribution: {targetPct:P1} (expected ~50%)");
+        Assert(reviewPct > 0.25 && reviewPct < 0.35,
+            $"Review distribution: {reviewPct:P1} (expected ~30%)");
+        Assert(stretchPct > 0.15 && stretchPct < 0.25,
+            $"Stretch distribution: {stretchPct:P1} (expected ~20%)");
+
+        // 2. CategoryToDifficulty mapping
+        Assert(SessionPlanner.CategoryToDifficulty(MixCategory.Target, 4) == 4,
+            "Target at comfort 4 → D4");
+        Assert(SessionPlanner.CategoryToDifficulty(MixCategory.Review, 4) == 3,
+            "Review at comfort 4 → D3");
+        Assert(SessionPlanner.CategoryToDifficulty(MixCategory.Stretch, 4) == 5,
+            "Stretch at comfort 4 → D5");
+
+        // 3. Boundary clamping
+        Assert(SessionPlanner.CategoryToDifficulty(MixCategory.Review, 1) == 1,
+            "Review at comfort 1 → D1 (clamped)");
+        Assert(SessionPlanner.CategoryToDifficulty(MixCategory.Stretch, 7) == 7,
+            "Stretch at comfort 7 → D7 (clamped)");
+
+        // 4. ReasonFormatter produces non-empty strings
+        var plan = new SessionPlan
+        {
+            Category = MixCategory.Target,
+            TargetDifficulty = 4,
+            ActualDifficulty = 4,
+            ComfortZone = 4,
+            Reason = "Practicing at D4"
+        };
+        var formatted = ReasonFormatter.Format(plan);
+        Assert(!string.IsNullOrWhiteSpace(formatted),
+            $"ReasonFormatter produces text: \"{formatted}\"");
+
+        Log($"SessionPlanner: {trials} trials → Target {targetPct:P1}, Review {reviewPct:P1}, Stretch {stretchPct:P1}");
     }
 
     private static void Assert(bool condition, string message)
