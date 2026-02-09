@@ -494,6 +494,30 @@
                               AutomationProperties.Name="Show or hide skill depth layers"
                               ToolTipService.ToolTip="When enabled, shows content at different depth levels"/>
 
+                <!-- Guided Mode (v1.0.0) -->
+                <TextBlock Text="Guided Mode"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Margin="0,12,0,0"
+                           AutomationProperties.HeadingLevel="Level2"/>
+
+                <ToggleSwitch x:Name="GuidedModeToggle"
+                              Header="Enable guided practice"
+                              IsOn="False"
+                              FontSize="11"
+                              AutomationProperties.Name="Enable or disable guided practice mode"
+                              ToolTipService.ToolTip="When enabled, prefers snippets matching your weak spots. Off = v0.9 behavior."/>
+
+                <TextBlock Text="Prefers snippets matching your weak symbol groups."
+                           FontSize="10"
+                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                           Margin="0,-4,0,0"
+                           TextWrapping="Wrap"/>
+                <TextBlock Text="Never changes difficulty level or scoring — only snippet ordering."
+                           FontSize="10"
+                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                           TextWrapping="Wrap"/>
+
                 <!-- Save Button -->
                 <Button x:Name="SaveSettingsButton"
                         Content="Save Settings"

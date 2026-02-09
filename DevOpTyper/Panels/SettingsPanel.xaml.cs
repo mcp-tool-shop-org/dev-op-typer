@@ -414,6 +414,17 @@ public sealed partial class SettingsPanel : UserControl
     public bool ShowSkillLayers => ShowSkillLayersToggle.IsOn;
 
     /// <summary>
+    /// Whether Guided Mode is enabled (v1.0.0).
+    /// When on, selection prefers snippets matching weakness categories.
+    /// </summary>
+    public bool GuidedMode => GuidedModeToggle.IsOn;
+
+    /// <summary>
+    /// Fired when the user toggles Guided Mode on or off.
+    /// </summary>
+    public event EventHandler<bool>? GuidedModeChanged;
+
+    /// <summary>
     /// Fired when the user toggles demonstrations on or off.
     /// </summary>
     public event EventHandler<bool>? DemonstrationsChanged;
@@ -487,6 +498,9 @@ public sealed partial class SettingsPanel : UserControl
         ShowDemonstrationsToggle.IsOn = settings.ShowDemonstrations;
         ShowGuidanceToggle.IsOn = settings.ShowGuidance;
         ShowSkillLayersToggle.IsOn = settings.ShowSkillLayers;
+
+        // Guided Mode (v1.0.0)
+        GuidedModeToggle.IsOn = settings.SignalPolicy.GuidedMode;
 
         // Map DefaultIntent to combo index (0=None, 1=Focus, 2=Challenge, 3=Maintenance, 4=Exploration)
         DefaultIntentCombo.SelectedIndex = settings.DefaultIntent switch
@@ -648,6 +662,9 @@ public sealed partial class SettingsPanel : UserControl
         ShowDemonstrationsToggle.Toggled += (_, _) => DemonstrationsChanged?.Invoke(this, ShowDemonstrationsToggle.IsOn);
         ShowGuidanceToggle.Toggled += (_, _) => GuidanceChanged?.Invoke(this, ShowGuidanceToggle.IsOn);
         ShowSkillLayersToggle.Toggled += (_, _) => SkillLayersChanged?.Invoke(this, ShowSkillLayersToggle.IsOn);
+
+        // Guided Mode toggle (v1.0.0)
+        GuidedModeToggle.Toggled += (_, _) => GuidedModeChanged?.Invoke(this, GuidedModeToggle.IsOn);
     }
 
     /// <summary>

@@ -207,6 +207,16 @@ public sealed partial class MainWindow : Window
             }
         };
 
+        // Guided Mode toggle (v1.0.0) — controls WeaknessBias in selection
+        SettingsPanel.GuidedModeChanged += (_, enabled) =>
+        {
+            if (enabled)
+                _settings.SignalPolicy.EnableGuidedMode();
+            else
+                _settings.SignalPolicy.DisableGuidedMode();
+            _persistenceService.MarkDirty();
+        };
+
         // Community signals (display-only — never affects frozen services)
         _communitySignals.Initialize();
 
