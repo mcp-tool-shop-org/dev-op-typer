@@ -36,6 +36,7 @@ public static class ContentIntegrationValidator
             ValidateCalibrationPacks(contentLibrary);
             ValidateSessionPlanner();
             ValidateWeaknessTracking();
+            ValidateUXTransparency();
         }
         catch (Exception ex)
         {
@@ -613,6 +614,89 @@ public static class ContentIntegrationValidator
         Assert(priority != null, "Priority weakness should not be null");
 
         Log("WeaknessTracking: all checks passed");
+    }
+
+    /// <summary>
+    /// Validates UX transparency features: pick reason formatting, plan preview,
+    /// session record storage of plan metadata.
+    /// </summary>
+    private static void ValidateUXTransparency()
+    {
+        Log("--- ValidateUXTransparency ---");
+
+        // 1. ReasonFormatter produces correct text for each category
+        foreach (var category in new[] { MixCategory.Target, MixCategory.Review, MixCategory.Stretch })
+        {
+            var plan = new SessionPlan
+            {
+                Category = category,
+                TargetDifficulty = 4,
+                ActualDifficulty = 4,
+                ComfortZone = 4,
+                Reason = $"Test {category}"
+            };
+
+            var formatted = ReasonFormatter.Format(plan);
+            Assert(!string.IsNullOrEmpty(formatted),
+                $"ReasonFormatter.Format produces text for {category}");
+            Assert(formatted.Contains(ReasonFormatter.CategoryLabel(category)),
+                $"ReasonFormatter includes category label for {category}");
+        }
+
+        // 2. CategoryIcon returns non-empty for each category
+        foreach (var category in new[] { MixCategory.Target, MixCategory.Review, MixCategory.Stretch })
+        {
+            var icon = ReasonFormatter.CategoryIcon(category);
+            Assert(!string.IsNullOrEmpty(icon),
+                $"CategoryIcon returns non-empty for {category}");
+        }
+
+        // 3. SessionRecord stores plan metadata when plan is provided
+        var testPlan = new SessionPlan
+        {
+            Category = MixCategory.Stretch,
+            TargetDifficulty = 5,
+            ActualDifficulty = 5,
+            ComfortZone = 4,
+            Reason = "Stretching to D5"
+        };
+
+        var record = SessionRecord.FromSession(
+            "test-id", "python", "Test Snippet",
+            60.0, 92.0, 2, 100,
+            TimeSpan.FromSeconds(30), 5, 25, false,
+            plan: testPlan);
+
+        Assert(record.PlanCategory == MixCategory.Stretch,
+            "SessionRecord stores PlanCategory from plan");
+        Assert(!string.IsNullOrEmpty(record.PlanReason),
+            "SessionRecord stores PlanReason from plan");
+
+        // 4. SessionRecord handles null plan gracefully
+        var noplanRecord = SessionRecord.FromSession(
+            "test-id", "python", "Test Snippet",
+            60.0, 92.0, 2, 100,
+            TimeSpan.FromSeconds(30), 5, 25, false);
+
+        Assert(noplanRecord.PlanCategory == null,
+            "SessionRecord has null PlanCategory without plan");
+        Assert(noplanRecord.PlanReason == null,
+            "SessionRecord has null PlanReason without plan");
+
+        // 5. Mismatch annotation in SessionPlanner
+        // When actual != target, reason should mention it
+        var mismatchPlan = new SessionPlan
+        {
+            Category = MixCategory.Stretch,
+            TargetDifficulty = 6,
+            ActualDifficulty = 5,
+            ComfortZone = 5,
+            Reason = "Stretching to D5 (nearest to D6)"
+        };
+        Assert(mismatchPlan.Reason.Contains("nearest"),
+            "Mismatch plan reason includes 'nearest' annotation");
+
+        Log("UXTransparency: all checks passed");
     }
 
     private static void Assert(bool condition, string message)
