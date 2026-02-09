@@ -5,6 +5,42 @@ All notable changes to Dev-Op-Typer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] — Close the Loop
+
+Theme: "Signals influence practice — only when you opt in."
+
+### Added — Phase 1: Close the Loop Safely
+- **SignalPolicy**: Feature-flagged Guided Mode with `GuidedMode`, `SignalsAffectSelection`, `SignalsAffectDifficulty` (reserved), `SignalsAffectXP` (reserved) — all default false
+- **WeaknessBias**: Bounded category-level selection bias (`ComputeCategoryBias`, max +15) gated by `SignalPolicy.EffectiveSelectionBias`
+- **Guided Mode toggle**: Settings panel toggle, default OFF, persisted across sessions, reversible at any time
+- **Targeted micro-drills**: `MicroDrillService` generates 5-snippet focused sessions on top weakness using heatmap data
+- **Signal storage hygiene**: `MistakeHeatmap.Prune()` caps tracked characters at 200 and confusion pairs at 20 per character
+- **Onboarding hint**: One-time suggestion in session retrospective when weakness data exists but Guided Mode is off
+
+### Added — Phase 2: Release-Grade Hardening
+- **Migration round-trip tests**: `ValidateMigrationRoundTrip` verifies schema v0.8→v1.0 serialization paths
+- **Golden end-to-end test**: `ValidateGoldenEndToEnd` simulates full lifecycle (fresh state → typing → bias → toggle → prune → round-trip)
+- **Accessibility audit**: AutomationProperties on title bar buttons, typing panel controls, live stats, session completion area
+- **Library health diagnostics**: `ValidateLibraryHealth` checks language count, snippet counts, difficulty coverage, calibration presence
+- **Serialization profiling**: `ValidateSerializationProfile` benchmarks 200-record maxed state (<200KB, <500ms round-trip)
+
+### Unchanged (by design)
+- Difficulty band: unchanged by Guided Mode
+- Rating/XP: unchanged by Guided Mode
+- Scoring formula: unchanged by Guided Mode
+- Snippet pool: full library always available
+
+### Documentation
+- `docs/SIGNALS.md`: Trust document explaining what signals do and don't do
+- `docs/GUIDED_MODE_VALIDATION.md`: 7-section manual validation checklist
+- `docs/V1_RELEASE_GATE.md`: Release gate criteria (trust, quality, a11y, clarity)
+
+### Technical
+- ContentIntegrationValidator: 22 validation methods covering all v1.0 systems
+- WeaknessBias diversity guard: requires 2+ weak symbol groups before activating
+- Prune called automatically on every save (PersistenceService.Save)
+- `GuidedModeHintShown` flag prevents repeated onboarding
+
 ## [0.9.0] — Structured Practice & Learning Signals
 
 Theme: "The app knows what to practice next — and why."
