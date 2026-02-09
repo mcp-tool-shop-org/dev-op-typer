@@ -9,7 +9,7 @@ namespace DevOpTyper.ViewModels;
 public partial class MainViewModel : ObservableObject
 {
     private readonly PersistenceService _persistence = new();
-    private readonly SnippetService _snippets = new();
+    private readonly ContentLibraryService _snippets = new();
     private readonly AudioService _audio = new();
 
     private SessionState _session = new();

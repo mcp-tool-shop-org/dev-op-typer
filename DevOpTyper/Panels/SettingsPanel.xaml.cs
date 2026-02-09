@@ -562,7 +562,7 @@ public sealed partial class SettingsPanel : UserControl
 
     /// <summary>
     /// Updates the user snippet status display.
-    /// Call after SnippetService initialization.
+    /// Call after ContentLibraryService initialization.
     /// Status text is announced politely by screen readers.
     /// Errors are announced assertively but never block interaction.
     /// </summary>

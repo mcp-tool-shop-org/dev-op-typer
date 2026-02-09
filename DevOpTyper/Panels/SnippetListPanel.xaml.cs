@@ -10,7 +10,7 @@ namespace DevOpTyper.Panels;
 /// </summary>
 public sealed partial class SnippetListPanel : UserControl
 {
-    private readonly SnippetService _snippetService = new();
+    private readonly ContentLibraryService _contentLibrary = new();
     private List<Snippet> _allSnippets = new();
     private string _selectedLanguage = "";
     private int? _selectedDifficulty = null;
@@ -25,7 +25,7 @@ public sealed partial class SnippetListPanel : UserControl
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        _snippetService.Initialize();
+        _contentLibrary.Initialize();
         PopulateLanguageFilter();
         LoadAllSnippets();
         ApplyFilters();
@@ -33,7 +33,7 @@ public sealed partial class SnippetListPanel : UserControl
 
     private void PopulateLanguageFilter()
     {
-        var tracks = _snippetService.GetLanguageTracks();
+        var tracks = _contentLibrary.GetLanguageTracks();
         foreach (var track in tracks)
         {
             LanguageFilter.Items.Add(new ComboBoxItem
@@ -47,10 +47,10 @@ public sealed partial class SnippetListPanel : UserControl
     private void LoadAllSnippets()
     {
         _allSnippets.Clear();
-        var tracks = _snippetService.GetLanguageTracks();
+        var tracks = _contentLibrary.GetLanguageTracks();
         foreach (var track in tracks)
         {
-            var snippets = _snippetService.GetSnippets(track.Id);
+            var snippets = _contentLibrary.GetSnippets(track.Id);
             _allSnippets.AddRange(snippets);
         }
     }
