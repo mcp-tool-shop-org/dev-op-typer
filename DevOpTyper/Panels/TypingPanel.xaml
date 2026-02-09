@@ -63,6 +63,17 @@
                            AutomationProperties.Name="Scaffold hints for this snippet"
                            Margin="0,-2,0,0"/>
 
+                <!-- Pick reason (v0.9.0) — why this snippet was selected -->
+                <TextBlock x:Name="PickReasonText"
+                           FontSize="10"
+                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                           TextWrapping="Wrap"
+                           Visibility="Collapsed"
+                           IsTabStop="False"
+                           AutomationProperties.LiveSetting="Off"
+                           AutomationProperties.Name="Reason this snippet was selected"
+                           Margin="0,-2,0,0"/>
+
                 <!-- Guidance notes (v0.8.0) — collective experience, always dismissible -->
                 <StackPanel x:Name="GuidanceArea"
                             Spacing="2"

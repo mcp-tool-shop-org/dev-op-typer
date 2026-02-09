@@ -180,6 +180,23 @@ public sealed partial class TypingPanel : UserControl
     }
 
     /// <summary>
+    /// Shows the pick reason text below the snippet metadata.
+    /// Explains why the SessionPlanner chose this snippet (Target/Review/Stretch).
+    /// Null or empty hides the text. Display-only — never affects engine behavior.
+    /// </summary>
+    public void ShowPickReason(string? reason)
+    {
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            PickReasonText.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        PickReasonText.Text = reason;
+        PickReasonText.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
     /// Hides the guidance area. Called during active typing to remove distractions.
     /// </summary>
     public void HideGuidance()

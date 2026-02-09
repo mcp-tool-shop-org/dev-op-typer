@@ -290,6 +290,9 @@ public sealed partial class MainWindow : Window
         TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
         _currentSnippet = snippet;
 
+        // Show pick reason (v0.9.0) — explains why this snippet was chosen
+        TypingPanel.ShowPickReason(plan != null ? ReasonFormatter.Format(plan) : null);
+
         TypingPanel.ClearTyping();
         StatsPanel.Reset();
 
@@ -614,6 +617,7 @@ public sealed partial class MainWindow : Window
         TypingPanel.SetTarget(snippet.Title ?? "Snippet", snippet.Language, snippet.Code ?? "");
         _currentSnippet = snippet;
         _currentPlan = plan;
+        TypingPanel.ShowPickReason(plan != null ? ReasonFormatter.Format(plan) : null);
         _pendingContext = new PracticeContext
         {
             Intent = PracticeIntent.Exploration,
