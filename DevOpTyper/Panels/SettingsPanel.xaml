@@ -456,7 +456,8 @@
                            FontSize="11"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            TextWrapping="Wrap"
-                           IsTabStop="False"/>
+                           IsTabStop="False"
+                           AutomationProperties.Name="Library content statistics"/>
 
                 <!-- Teaching (v0.8.0) -->
                 <TextBlock Text="Teaching"
