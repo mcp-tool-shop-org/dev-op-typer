@@ -237,6 +237,48 @@
 
                 <StackPanel x:Name="SuggestionContainer" Spacing="6" Visibility="Collapsed"
                             AutomationProperties.Name="Practice suggestions"/>
+
+                <!-- Debug Inspector (v0.9.0) — activated by Shift+F12, debug builds only -->
+                <Border x:Name="DebugInspectorDivider" Height="1"
+                        Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                        Margin="0,8,0,4" Visibility="Collapsed"/>
+
+                <StackPanel x:Name="DebugInspectorArea" Spacing="4" Visibility="Collapsed"
+                            AutomationProperties.Name="Debug inspector — internal diagnostics">
+                    <TextBlock Text="Debug Inspector"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                               AutomationProperties.HeadingLevel="Level2"/>
+
+                    <TextBlock x:Name="DebugPlanInfo"
+                               FontSize="9"
+                               FontFamily="Consolas"
+                               Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                               TextWrapping="Wrap"
+                               IsTextSelectionEnabled="True"/>
+
+                    <TextBlock x:Name="DebugDifficultyInfo"
+                               FontSize="9"
+                               FontFamily="Consolas"
+                               Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                               TextWrapping="Wrap"
+                               IsTextSelectionEnabled="True"/>
+
+                    <TextBlock x:Name="DebugWeaknessInfo"
+                               FontSize="9"
+                               FontFamily="Consolas"
+                               Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                               TextWrapping="Wrap"
+                               IsTextSelectionEnabled="True"/>
+
+                    <TextBlock x:Name="DebugHeatmapInfo"
+                               FontSize="9"
+                               FontFamily="Consolas"
+                               Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                               TextWrapping="Wrap"
+                               IsTextSelectionEnabled="True"/>
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
     </Border>

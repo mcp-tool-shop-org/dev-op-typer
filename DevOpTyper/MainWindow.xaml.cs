@@ -2,6 +2,7 @@ using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using WinRT.Interop;
 using DevOpTyper.Services;
 using DevOpTyper.Models;
@@ -942,6 +943,28 @@ public sealed partial class MainWindow : Window
             SettingsPanel.Visibility = Visibility.Collapsed;
             SettingsColumn.Width = new GridLength(0);
         }
+    }
+
+    /// <summary>
+    /// Shift+F12 toggles the debug inspector panel in the stats sidebar.
+    /// Shows plan state, difficulty profile, weakness report, and heatmap data.
+    /// </summary>
+    private void DebugInspector_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        StatsPanel.ToggleDebugInspector();
+
+        // Populate with current state if visible
+        var blob = _persistenceService.Load();
+        var language = SettingsPanel.SelectedLanguage;
+        var diffProfile = _adaptiveDifficulty.ComputeDifficulty(
+            language, _profile, blob.Longitudinal);
+        var weaknessReport = _weaknessTracker.GetReport(
+            language, _profile.Heatmap, blob.Longitudinal);
+
+        StatsPanel.UpdateDebugInspector(
+            _currentPlan, diffProfile, weaknessReport, _profile.Heatmap);
+
+        args.Handled = true;
     }
 
     private void AmbientRandomButton_Click(object sender, RoutedEventArgs e)

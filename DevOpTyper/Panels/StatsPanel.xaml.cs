@@ -950,4 +950,99 @@ public sealed partial class StatsPanel : UserControl
     }
 
     #endregion
+
+    #region Debug Inspector
+
+    private bool _debugVisible;
+
+    /// <summary>
+    /// Toggles the debug inspector visibility.
+    /// Activated by Shift+F12 in debug builds only.
+    /// Shows: plan state, difficulty profile, weakness report, heatmap top chars.
+    /// </summary>
+    public void ToggleDebugInspector()
+    {
+        _debugVisible = !_debugVisible;
+        DebugInspectorArea.Visibility = _debugVisible ? Visibility.Visible : Visibility.Collapsed;
+        DebugInspectorDivider.Visibility = _debugVisible ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    /// <summary>
+    /// Updates the debug inspector with current engine state.
+    /// Called after each snippet load when the inspector is visible.
+    /// </summary>
+    public void UpdateDebugInspector(
+        SessionPlan? plan,
+        DifficultyProfile? diffProfile,
+        WeaknessReport? weaknessReport,
+        MistakeHeatmap? heatmap)
+    {
+        if (!_debugVisible) return;
+
+        // Plan info
+        if (plan != null)
+        {
+            DebugPlanInfo.Text =
+                $"PLAN\n" +
+                $"  Category: {plan.Category}\n" +
+                $"  Target D: {plan.TargetDifficulty}\n" +
+                $"  Actual D: {plan.ActualDifficulty}\n" +
+                $"  Comfort:  {plan.ComfortZone?.ToString() ?? "none"}\n" +
+                $"  Reason:   {plan.Reason}";
+        }
+        else
+        {
+            DebugPlanInfo.Text = "PLAN: none";
+        }
+
+        // Difficulty profile
+        if (diffProfile != null)
+        {
+            DebugDifficultyInfo.Text =
+                $"DIFFICULTY\n" +
+                $"  Target:     D{diffProfile.TargetDifficulty}\n" +
+                $"  Min:        D{diffProfile.MinDifficulty}\n" +
+                $"  Max:        D{diffProfile.MaxDifficulty}\n" +
+                $"  Confidence: {diffProfile.Confidence:F2}\n" +
+                $"  Reason:     {diffProfile.Reason}";
+        }
+        else
+        {
+            DebugDifficultyInfo.Text = "DIFFICULTY: none";
+        }
+
+        // Weakness report
+        if (weaknessReport?.Items.Count > 0)
+        {
+            var top = weaknessReport.Items.Take(5)
+                .Select(w => $"  '{w.Character}' {w.CurrentErrorRate:P0} ({w.Trajectory})");
+            DebugWeaknessInfo.Text = $"WEAKNESSES ({weaknessReport.Items.Count})\n" + string.Join("\n", top);
+        }
+        else
+        {
+            DebugWeaknessInfo.Text = "WEAKNESSES: none";
+        }
+
+        // Heatmap top errors
+        if (heatmap != null)
+        {
+            var topChars = heatmap.GetWeakest(5, 3);
+            if (topChars.Count > 0)
+            {
+                var lines = topChars.Select(c =>
+                    $"  '{c.Character}' {c.ErrorRate:P0} ({c.TotalMisses}/{c.TotalAttempts})");
+                DebugHeatmapInfo.Text = $"HEATMAP TOP\n" + string.Join("\n", lines);
+            }
+            else
+            {
+                DebugHeatmapInfo.Text = "HEATMAP: insufficient data";
+            }
+        }
+        else
+        {
+            DebugHeatmapInfo.Text = "HEATMAP: none";
+        }
+    }
+
+    #endregion
 }
