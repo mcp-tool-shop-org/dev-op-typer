@@ -38,6 +38,7 @@ public static class ContentIntegrationValidator
             ValidateWeaknessTracking();
             ValidateUXTransparency();
             ValidateWeaknessBiasInvariants();
+            ValidateSelectionPerformance();
             ValidatePerformanceGuardrails();
         }
         catch (Exception ex)
@@ -815,6 +816,91 @@ public static class ContentIntegrationValidator
         Assert(partialBias == 0.0, $"Partial policy (no selection flag) → zero bias: {partialBias}");
 
         Log("WeaknessBiasInvariants: all checks passed");
+    }
+
+    /// <summary>
+    /// Validates that selection + planning completes within budget at 5K CodeItems.
+    /// Ensures UI doesn't stutter as libraries grow.
+    /// </summary>
+    private static void ValidateSelectionPerformance()
+    {
+        Log("--- ValidateSelectionPerformance (5K gate) ---");
+
+        // Generate 5K synthetic snippets across 7 difficulty bands
+        var library = new ContentLibraryService();
+        var snippets = new List<Snippet>();
+        for (int i = 0; i < 5_000; i++)
+        {
+            snippets.Add(new Snippet
+            {
+                Id = $"perf-{i:D5}",
+                Language = "python",
+                Difficulty = (i % 7) + 1,
+                Title = $"Perf snippet {i}",
+                Code = $"def f{i}(x): return x + {i} # {{ }} ( ) [ ]\n"
+            });
+        }
+
+        // Build profile with heatmap data
+        var profile = new Profile();
+        foreach (char c in new[] { '{', '}', '(', ')', '[', ']', ':', '=' })
+        {
+            profile.Heatmap.RecordHit(c);
+            for (int j = 0; j < 4; j++) profile.Heatmap.RecordMiss(c, null);
+        }
+
+        var weaknessReport = new WeaknessReport
+        {
+            Items = new List<WeaknessItem>
+            {
+                new() { Character = '{', CurrentErrorRate = 0.5, Group = SymbolGroup.Bracket, Trajectory = WeaknessTrajectory.Steady },
+                new() { Character = '(', CurrentErrorRate = 0.3, Group = SymbolGroup.Bracket, Trajectory = WeaknessTrajectory.Improving }
+            }
+        };
+
+        var policy = new SignalPolicy();
+        policy.EnableGuidedMode();
+
+        var diffProfile = new DifficultyProfile
+        {
+            TargetDifficulty = 4,
+            MinDifficulty = 3,
+            MaxDifficulty = 5,
+            Confidence = 1.0,
+            Reason = DifficultyReason.Static
+        };
+
+        // Warm up
+        var selector = new SmartSnippetSelector(library);
+        selector.SelectAdaptive("python", profile, diffProfile, weaknessReport, policy);
+
+        // Time 100 selections from 5K pool
+        var sw = Stopwatch.StartNew();
+        for (int i = 0; i < 100; i++)
+        {
+            selector.SelectAdaptive("python", profile, diffProfile, weaknessReport, policy);
+        }
+        sw.Stop();
+        Assert(sw.ElapsedMilliseconds < 500,
+            $"100 selections from 5K pool in {sw.ElapsedMilliseconds}ms (budget: 500ms)");
+
+        // Time WeaknessBias.ComputeCategoryBias on 5K snippets
+        sw.Restart();
+        foreach (var s in snippets)
+            WeaknessBias.ComputeCategoryBias(s, profile.Heatmap, policy);
+        sw.Stop();
+        Assert(sw.ElapsedMilliseconds < 200,
+            $"5K WeaknessBias.ComputeCategoryBias in {sw.ElapsedMilliseconds}ms (budget: 200ms)");
+
+        // Time Prune on loaded heatmap
+        sw.Restart();
+        for (int i = 0; i < 1_000; i++)
+            profile.Heatmap.Prune();
+        sw.Stop();
+        Assert(sw.ElapsedMilliseconds < 100,
+            $"1K Prune() calls in {sw.ElapsedMilliseconds}ms (budget: 100ms)");
+
+        Log("SelectionPerformance: all checks passed");
     }
 
     private static void Assert(bool condition, string message)
