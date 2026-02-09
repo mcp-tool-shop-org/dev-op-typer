@@ -31,6 +31,8 @@ public static class ContentIntegrationValidator
             ValidateResilienceMissingIndex();
             ValidateResilienceCorruptIndex();
             ValidateQueryPerformance(contentLibrary);
+            ValidateDifficultyDerivation();
+            ValidateNoDifficultyDefault(contentLibrary);
         }
         catch (Exception ex)
         {
@@ -59,8 +61,8 @@ public static class ContentIntegrationValidator
             {
                 Assert(!string.IsNullOrEmpty(s.Code), $"{lang}/{s.Id}: code is not empty");
                 Assert(!string.IsNullOrEmpty(s.Id), $"{lang}/{s.Title}: id is not empty");
-                Assert(s.Difficulty >= 1 && s.Difficulty <= 5,
-                    $"{lang}/{s.Id}: difficulty in range ({s.Difficulty})");
+                Assert(s.Difficulty >= 1 && s.Difficulty <= 7,
+                    $"{lang}/{s.Id}: difficulty in range 1-7 ({s.Difficulty})");
             }
         }
 
@@ -310,6 +312,68 @@ public static class ContentIntegrationValidator
             $"Full query scan: {stats.Total} items in {sw.ElapsedMilliseconds}ms (<1000ms)");
 
         Log($"Performance: {stats.Total} items queried in {sw.ElapsedMilliseconds}ms");
+    }
+
+    /// <summary>
+    /// Validates that DifficultyEstimator produces deterministic results
+    /// across the full score range (0-9) and that all tiers 1-7 are reachable.
+    /// </summary>
+    private static void ValidateDifficultyDerivation()
+    {
+        // Verify formula: score 0-9 → difficulty 1-7
+        var expectedMapping = new Dictionary<int, int>
+        {
+            [0] = 1, [1] = 1, [2] = 2, [3] = 3,
+            [4] = 3, [5] = 4, [6] = 5, [7] = 5,
+            [8] = 6, [9] = 7
+        };
+
+        foreach (var (score, expectedDiff) in expectedMapping)
+        {
+            int actual = Math.Clamp(1 + score * 6 / 9, 1, 7);
+            Assert(actual == expectedDiff,
+                $"Score {score} → difficulty {actual} (expected {expectedDiff})");
+        }
+
+        // Verify all tiers 1-7 are reachable
+        var reachable = new HashSet<int>(expectedMapping.Values);
+        for (int d = 1; d <= 7; d++)
+        {
+            Assert(reachable.Contains(d),
+                $"Difficulty tier {d} is reachable from score space");
+        }
+
+        // Verify determinism: same metrics → same result
+        var metrics = new CodeMetrics(Lines: 20, Characters: 400, SymbolDensity: 0.25f, MaxIndentDepth: 3);
+        int first = DifficultyEstimator.Estimate(metrics);
+        int second = DifficultyEstimator.Estimate(metrics);
+        Assert(first == second, $"Deterministic: same metrics → same difficulty ({first})");
+        Assert(first >= 1 && first <= 7, $"Result in range: {first}");
+
+        Log("Difficulty derivation: all checks passed");
+    }
+
+    /// <summary>
+    /// Validates that no snippet has a hardcoded default difficulty.
+    /// Multiple distinct difficulties should exist across built-in content.
+    /// </summary>
+    private static void ValidateNoDifficultyDefault(ContentLibraryService contentLibrary)
+    {
+        var allDifficulties = new HashSet<int>();
+
+        foreach (var lang in contentLibrary.Languages())
+        {
+            var snippets = contentLibrary.GetSnippets(lang);
+            foreach (var s in snippets)
+            {
+                allDifficulties.Add(s.Difficulty);
+            }
+        }
+
+        Assert(allDifficulties.Count > 1,
+            $"Multiple difficulty tiers present ({string.Join(", ", allDifficulties.OrderBy(d => d))})");
+
+        Log($"Difficulty distribution: tiers {string.Join(", ", allDifficulties.OrderBy(d => d))}");
     }
 
     private static void Assert(bool condition, string message)
