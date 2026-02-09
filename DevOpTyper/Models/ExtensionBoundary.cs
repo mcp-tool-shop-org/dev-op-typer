@@ -1,7 +1,7 @@
 namespace DevOpTyper.Models;
 
 /// <summary>
-/// Declares the extension boundaries for v0.8.2.
+/// Declares the extension boundaries for v0.9.0.
 ///
 /// This is a contract: it defines what users may extend and what the system
 /// guarantees will remain stable. It exists as code (not just documentation)
@@ -155,6 +155,39 @@ public static class ExtensionBoundary
     /// Maximum length of a single layer content item (chars).
     /// </summary>
     public const int MaxLayerContentLength = 300;
+
+    // ────────────────────────────────────────────────────────
+    //  CALIBRATION (v0.9.0)
+    // ────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Source tag for calibration content. Calibration items use this
+    /// to distinguish themselves from builtin, user, and corpus content.
+    /// </summary>
+    public const string CalibrationSource = "calibration";
+
+    /// <summary>
+    /// Origin tag for the initial calibration pack. Identifies which
+    /// generation of calibration content was used for ground truth.
+    /// </summary>
+    public const string CalibrationOrigin = "calibration-pack-v1";
+
+    /// <summary>
+    /// ID prefix for all calibration snippet IDs.
+    /// Convention: cal-{lang_prefix}-d{band}-{seq} (e.g., cal-py-d3-007).
+    /// </summary>
+    public const string CalibrationIdPrefix = "cal-";
+
+    /// <summary>
+    /// Subdirectory under Assets for calibration pack JSON files.
+    /// </summary>
+    public const string CalibrationAssetsDir = "Calibration";
+
+    /// <summary>
+    /// Maximum number of calibration items per language.
+    /// Prevents accidental bloat from oversized packs.
+    /// </summary>
+    public const int MaxCalibrationItemsPerLanguage = 100;
 
     // ────────────────────────────────────────────────────────
     //  CONTENT LIBRARY (v0.8.1)
